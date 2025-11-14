@@ -330,11 +330,11 @@ predownload( void )
     flip_rf1= opflip;
 
     /* Tracking RF (复制 RF1；后续可改为非选层) */
-    a_rftrk    = a_rf1;
+    a_rftrk    = 0.5f*a_rf1;
     thk_rftrk  = thk_rf1;
     res_rftrk  = res_rf1;
     flip_rftrk = flip_rf1;
-    pw_rftrk   = pw_rf1;   /* replicate width */
+    pw_rftrk   = 2*pw_rf1;   /* make tracking RF wider for visibility */
     wg_rftrk   = wg_rf1;   /* replicate waveform index/weight if used */
 /*baige addRF end*/
     /* Set the phase encode amplitude*/
@@ -582,9 +582,11 @@ pulsegen( void )
     SEQLENGTH(seqcore, optr, seqcore); /* set the sequence length to optr */
 /* baige addRF */
     /* Tracking 序列：仅新增 RF，不读出（导航 RF 仅测试成形） */
-    SLICESELZ(rftrk, 1ms, 3200us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
+    /* 延长 RF（1.5ms 上升/下降时间）并将脉宽加倍到 6400us，便于可视区分 */
+    SLICESELZ(rftrk, 1.5ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
 
-    SEQLENGTH(seqtrk, 5ms, seqtrk);   /* 给 tracking RF 一个最小序列长度 (示例)，后续按需要调整 */
+    /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
+    SEQLENGTH(seqtrk, pend( &rftrk, "rftrk", 0 ) + 1ms, seqtrk);
 /* baige addRF */
 @inline Prescan.e PSpulsegen
 
