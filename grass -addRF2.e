@@ -50,16 +50,6 @@
 @inline Prescan.e PSglobal
 int debugstate = 1;
 
-/* baige addRF Tracking RF variables (RF-only test). Keep in @global to avoid cv/ipgexport duplication. */
-float a_rftrk = 0.0f;      /* normalized amplitude (flip/180) */
-float thk_rftrk = 0.0f;    /* slice thickness if slice-select; else 0 */
-float flip_rftrk = 0.0f;   /* flip angle in degrees */
-int   res_rftrk = 0;       /* RF waveform resolution */
-int   ia_rftrk  = 0;       /* instruction amplitude */
-int   pw_rftrk  = 0;       /* pulse width (us) */
-int   wg_rftrk  = 0;       /* waveform index/weight */
-/* baige addRF End tracking RF globals */
-
 @ipgexport
 /*********************************************************************
  *                  GRASS.E IPGEXPORT SECTION                        *
@@ -74,8 +64,8 @@ int   wg_rftrk  = 0;       /* waveform index/weight */
  * the following types are "forbidden": short, char, and double.     *
  *********************************************************************/
 @inline Prescan.e PSipgexport
-/*baige addRF*/
-RF_PULSE_INFO rfpulseInfo[RF_FREE] = { {0,0}, {0,0} };   /* 扩展为两个 RF */
+/*baige addRF 去掉两个slot epi里并没有增加slot*/
+RF_PULSE_INFO rfpulseInfo[RF_FREE] = { {0,0}};   
 
 /* Tracking RF 参数 */
 /*float a_rftrk, thk_rftrk, flip_rftrk;
@@ -441,7 +431,7 @@ predownload( void )
     for( entry=0; entry < MAX_ENTRY_POINTS; ++entry )
     {
         /* baige addRF Include both rf1 and rftrk in B1 peak search */
-        if( peakB1( &maxB1[entry], entry, RF_FREE1, rfpulse ) == FAILURE )
+        if( peakB1( &maxB1[entry], entry, RF_FREE, rfpulse ) == FAILURE )
        /*baige add RF end */
         {
             epic_error( use_ermes, "peakB1 failed.", EM_PSD_SUPPORT_FAILURE,
@@ -470,7 +460,7 @@ predownload( void )
     }
 
     /* baige add RF Scale both rf1 and rftrk so rftrk gets non-zero amplitude */
-    if( setScale( L_SCAN, RF_FREE1, rfpulse, maxB1[L_SCAN], extraScale) == FAILURE )
+    if( setScale( L_SCAN, RF_FREE, rfpulse, maxB1[L_SCAN], extraScale) == FAILURE )
     /* baige add RF end */
     {
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
