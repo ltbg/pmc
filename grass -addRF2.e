@@ -772,6 +772,8 @@ scan( void )
     {
         return rspexit();
     }
+    /* Debug: Confirm entering scan() on IPG side */
+    printf("[SCAN] enter scan()\n"); fflush(stdout);
     boffset( off_seqcore );	/* start the hardware in the 'core' sequence */
     setrotatearray( opslquant, rsprot[0] );
     settriggerarray( opslquant, rsptrigger );
@@ -826,6 +828,8 @@ scan( void )
 /* baige addRF: 每两个 imaging 后一个 tracking（view%3==0） */
                 if( (view % 3) == 0 )
                 {
+                    /* Debug: Reached tracking branch */
+                    printf("[SCAN] tracking branch: slice=%d view=%d (about to start seqtrk)\n", slice, view); fflush(stdout);
                     /* Tracking 视图：只配置 tracking 自己的频率与 DAB，然后切到 seqtrk 执行 */
                     /* 非选层：发射用中心频率(0)，接收用系统中心偏置 */
                     setfrequency( 0, &rftrk, 0 );
@@ -841,6 +845,8 @@ scan( void )
                     /* 执行独立的 tracking 序列 */
                     boffset( off_seqtrk );
                     startseq( 0, (short)MAY_PAUSE );
+                    /* Debug: Confirm seqtrk started and returned */
+                    printf("[SCAN] tracking branch: startseq(seqtrk) completed (slice=%d view=%d)\n", slice, view); fflush(stdout);
 
                     /* 如需 chop，仅对 rftrk 做 */
                     /*getiamp( &chopamp, &rftrk, 0 );
