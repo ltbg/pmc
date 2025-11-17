@@ -27,10 +27,6 @@
 #define RF1_SLOT    0
 #define RFTRK_SLOT  1
 #define RF_FREE1    2
-/* Ensure legacy code using RF_FREE sees both RF pulses */
-#ifndef RF_FREE
-#define RF_FREE RF_FREE1
-#endif
 /* baige add RF slot，Local RF count for this module (may be extended further by included headers) */
 
 #define GX1_SLOT 0
