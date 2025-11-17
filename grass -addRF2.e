@@ -833,61 +833,46 @@ scan( void )
 /* baige addRF: 每两个 imaging 后一个 tracking（view%3==0） */
                 if( (view % 3) == 0 )
                 {
-                    /* Debug: Reached tracking branch */
+                    /* 
+                     * 解决方案: 使用 if-else 结构。
+                     * 当这个 if 分支被执行时，else 分支（包含成像序列）将被跳过，
+                     * 从而避免了波形在 plotpulse 中被覆盖的问题。
+                     */
                     printf("[SCAN] tracking branch: slice=%d view=%d (about to start seqtrk)\n", slice, view); fflush(stdout);
-                    /* Tracking 视图：只配置 tracking 自己的频率与 DAB，然后切到 seqtrk 执行 */
-                    /* 非选层：发射用中心频率(0)，接收用系统中心偏置 */
-                    setfrequency( 0, &rftrk, 0 );
-                    /* setfrequency( (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES),
-                                  &echo_trk, 0 );*/
-                    /* baige addRF 去掉slice selection*/
-                    /* setiampt(0, &gzrftrk, 0);*/      /* 取消 slice-select；如宏生成 gzrftrka/gzrftrkd 也需置 0 */
-                    /* baige addRF end */
                     
-                    /* 打开 tracking 的 DAB（不触碰 imaging 的 echo1/DAB/PE 等） */
-                    /* loaddab( &echo_trk, 0, 0, 0, view, DABON, PSD_LOAD_DAB_ALL );*/
-
-                    /* 执行独立的 tracking 序列 */
+                    setfrequency( 0, &rftrk, 0 );
+                    
                     boffset( off_seqtrk );
                     startseq( 0, (short)MAY_PAUSE );
-                    /* Debug: Confirm seqtrk started and returned */
-                    printf("[SCAN] tracking branch: startseq(seqtrk) completed (slice=%d view=%d)\n", slice, view); fflush(stdout);
-
-                    /* 如需 chop，仅对 rftrk 做 */
-                    /*getiamp( &chopamp, &rftrk, 0 );
-                    setiamp( -chopamp, &rftrk, 0 );*/
-
-                    /* 回到 imaging 默认序列偏移（不需要清零任何 imaging 元素） */
+                    
                     boffset( off_seqcore );
-                    /* 继续执行 imaging 分支，不跳过 view */
+                }
+                else /* Imaging 视图：只有在不执行 tracking 时才执行 */
+                {
+                    if( excitation == 1 )
+                    {
+                        dabop = 0;
+                    }
+                    else
+                    {
+                        dabop = 3 - 2 * (excitation % 2);
+                    }
+
+                    setiampt( viewtable[view], &gy1, 0 );
+                    setiampt( viewtable[view], &gyr1, 0 );
+                    loaddab( &echo1, 0, 0, dabop, view, DABON, PSD_LOAD_DAB_ALL );
+
+                    startseq( 0, (short)MAY_PAUSE );
+                    getiamp( &chopamp, &rf1, 0 );
+                    setiamp( -chopamp, &rf1, 0 );
+
+                    if( rtpDemo )
+                    {
+                        getRtpDemoFrames(rtpDemoFramesPerCall);
+                        boffset(off_seqcore);
+                    }
                 }
 /* baige addRF end */
-
-                /* Imaging 视图：保持原有逻辑 */
-                if( excitation == 1 )
-                {
-                    dabop = 0;
-                }
-                else
-                {
-                    dabop = 3 - 2 * (excitation % 2);
-                }
-
-                setiampt( viewtable[view], &gy1, 0 );
-                setiampt( viewtable[view], &gyr1, 0 );
-                /* loaddab loads SSP packet used by data acquisition */
-                loaddab( &echo1, 0, 0, dabop, view, DABON, PSD_LOAD_DAB_ALL );  /* each slice is a pass, slice index in each pass should be 0 */
-
-                startseq( 0, (short)MAY_PAUSE );
-                getiamp( &chopamp, &rf1, 0 );
-                setiamp( -chopamp, &rf1, 0 );
-
-                if( rtpDemo )
-                {
-                    getRtpDemoFrames(rtpDemoFramesPerCall);
-                    boffset(off_seqcore);
-                }
-
             } /* end-of-excitation loop */
         }  /* end-of-view loop */
 
