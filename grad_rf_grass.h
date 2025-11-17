@@ -58,7 +58,7 @@ RF_PULSE rfpulse[MAX_RFPULSE] = {
        MAX_RMS_B1_SINC1_90,
        90.0,
        &flip_rftrk,
-       3200.0,
+       6400.0,
        1250.0,
        PSD_APS2_ON + PSD_MPS2_ON + PSD_SCAN_ON,
        0,

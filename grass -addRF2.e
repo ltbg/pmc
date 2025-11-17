@@ -330,7 +330,7 @@ predownload( void )
     flip_rf1= opflip;
 
     /* Tracking RF (复制 RF1；后续可改为非选层) */
-    a_rftrk    = 0.5f*a_rf1;
+    a_rftrk    = 3f*a_rf1;
     thk_rftrk  = thk_rf1;
     res_rftrk  = res_rf1;
     flip_rftrk = flip_rf1;
@@ -426,6 +426,7 @@ predownload( void )
     (void)strcpy( entry_point_table[L_SCAN].epname, "scan" );
     entry_point_table[L_SCAN].epfilter = (unsigned char)echo1_filt->fslot;
 
+
     /* First, find the peak B1 for the whole sequence. */
     maxB1Seq = 0.0;
     for( entry=0; entry < MAX_ENTRY_POINTS; ++entry )
@@ -472,10 +473,14 @@ predownload( void )
     /* baige addRF */
     ia_rftrk = max_pg_iamp * (*rfpulse[RFTRK_SLOT].amp);
     /* baige addRF end */
+     /*baige AddRF */
+    entry_point_table[L_SCAN].epxmtadd = (short) rint((double)xmtaddScan);
+    /*baige AddRF end*/ 
     /* APS2 & MPS2 */
     entry_point_table[L_APS2] = entry_point_table[L_MPS2] = entry_point_table[L_SCAN];	/* copy scan into APS2 & MPS2 */
     (void)strcpy( entry_point_table[L_APS2].epname, "aps2" );
     (void)strcpy( entry_point_table[L_MPS2].epname, "mps2" );
+  
 
     if( orderslice( TYPNCAT, (int)opslquant, (int)1, TRIG_INTERN ) == FAILURE )
     {
@@ -682,7 +687,7 @@ psdinit( void )
     scopeon( &seqcore );	/* Activate scope for core */
     syncon( &seqcore );		/* Activate sync for core */
     /* baige addRF */
-scopeon( &seqtrk );  syncon( &seqtrk );      /* 新增 */
+/* scopeon( &seqtrk );  syncon( &seqtrk );       新增 */
     /* baige addRF end*/
     syncoff( &pass );		/* Deactivate sync during pass */
     seqCount = 0;		/* Set SPGR sequence counter */
@@ -692,7 +697,7 @@ scopeon( &seqtrk );  syncon( &seqtrk );      /* 新增 */
 /* baige addRF */
     /* RF-only 测试：不需要 tracking 的 echo_trk 过滤器 */
     /* 确保 tracking RF 有幅度（避免在 tracking 分支重复 setiamp） */
-    setiamp( ia_rf1,   &rf1,   0 );
+     setiamp( ia_rf1,   &rf1,   0 );
     setiamp( ia_rftrk, &rftrk, 0 );
 /* baige addRF end*/
     rtpDemoRspInit();
