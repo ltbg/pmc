@@ -225,7 +225,32 @@ GRAD_PULSE gradz[MAX_GRADZ] = {
      0,
      0.0	/* for SGD heating */
      /*baige add RF end*/
-   }
+   },
+   /* baige add RF  GRADZ 2- 90 rephaser */
+  {G_TRAP,
+     (int *)&pw_gz2a, 
+     (int *)&pw_gz2d,
+     (int *)&pw_gz2, 
+     (float *)NULL,
+     (float *)&a_gz2, 
+     (float *)NULL,
+     (float *)NULL,
+     (char *)NULL,
+     0,
+     1.0,
+     (int *)NULL, 
+     0,
+     0.0, 
+     0.0, 
+     0.0, 
+     0.0, 
+     0.0, 
+     0.0, 
+     0,
+     0,
+     0.0	/* for SGD heating */
+   },
+   /*baige add RF end*/
  };
 
 #endif  /* grad_rf_grass_INCL */

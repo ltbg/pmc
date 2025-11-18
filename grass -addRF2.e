@@ -45,7 +45,6 @@
 #include "epic_iopt_util.h"
 #include "filter.h"
 
-#include "grad_rf_grass.h"
 #include "grass.h"
 
 @inline Prescan.e PSglobal
@@ -69,11 +68,7 @@ int debugstate = 1;
 RF_PULSE_INFO rfpulseInfo[RF_FREE] = { {0,0}};   
 
 /* Tracking RF 参数（Host/IPG 共享，避免对齐问题，使用 int/float）*/
-float a_rftrk, thk_rftrk, flip_rftrk;   /* RF 振幅、层厚、翻转角（度） */
-int   res_rftrk;                        /* RF 采样点数 */
-int   pw_rftrk;                         /* RF 脉宽（us） */
-int   wg_rftrk;                         /* RF 波形发生器通道（类似 wg_rf1） */
-int   ia_rftrk;                         /* RF 指令幅度（内部单位） */
+                      /* RF 指令幅度（内部单位） */
 /*baige addRF end*/
 
 @cv
@@ -136,9 +131,11 @@ int time_ssi = 250us with {0,,250ms,INVIS, "time from eos to ssi in intern trig"
  *********************************************************************/
 #include <math.h>
 #include <stdlib.h>
+#include "grad_rf_grass.h"
 #include "psdopt.h"
 #include "sar_pm.h"
 #include "support_func.host.h"
+
 
 /* fec : Field strength dependency library */
 #include <sysDep.h>
@@ -530,6 +527,7 @@ predownload( void )
   grady[GY1_SLOT].num = 1;
     gradz[GZRF1_SLOT].num = 1;
     gradz[GZ1_SLOT].num = 1;
+    gradz[GZ2_SLOT].num = 1;
   avepepowscale(&(grady[GY1_SLOT].scale), rhnframes, rhnframes/2);
 
   gradx[GX1_SLOT].powscale = 1.0;
@@ -537,6 +535,7 @@ predownload( void )
   grady[GY1_SLOT].powscale = 1.0;
     gradz[GZRF1_SLOT].powscale = 1.0;
     gradz[GZ1_SLOT].powscale = 1.0;
+    gradz[GZ2_SLOT].powscale = 1.0;
     rtpDemoPredownload();
 
 
@@ -569,11 +568,14 @@ pulsegen( void )
     /* RF wave */
     SLICESELZ(rf1, 1ms, 3200us, opslthick, opflip, 1, , loggrd); 
     /* baige addRF: Manually define rftrk and align it with rf1 to share its gradient */
-    SLICESELZ(rftrk, pbeg(&rf1,"rf1",0), 3200us, opslthick,opflip, 1, , loggrd);
+    SLICESELZ(rftrk, 6ms, 3200us, opslthick,opflip, 1, , loggrd);
 
     /* Z Dephaser */
     TRAPEZOID(ZGRAD, gz1, pend( &gzrf1d, "gzrf1d", 0 ) + pw_gz1a, (int)(-0.5 * a_gzrf1 * (pw_rf1 + pw_gzrf1d)), , loggrd);
 
+    /* baige addRF Z Dephaser */
+    TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + pw_gz2a, (int)(-0.5 * a_gzrftrk * (pw_rftrk + pw_gzrftrkd)), , loggrd);
+    /* baige addRF end Z Dephaser */    
     /* X Readout */
     TRAPEZOID(XGRAD, gxw, RUP_GRD(pmid( &gzrf1, "gzrf1", 0 ) + opte - pw_gxw / 2), 0, TYPNDEF, loggrd);
 

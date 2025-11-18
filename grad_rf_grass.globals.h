@@ -40,7 +40,8 @@
 #define GZ1_SLOT 1
 /*baige add RF*/
 #define GZRFTRK_SLOT 2
-#define GZ_FREE 3
+#define GZ2_SLOT 3
+#define GZ_FREE 4
 /*baige end add RF*/
 #include "rf_Prescan.globals.h"
 
