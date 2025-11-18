@@ -67,10 +67,16 @@ int debugstate = 1;
 /*baige addRF 去掉两个slot epi里并没有增加slot*/
 RF_PULSE_INFO rfpulseInfo[RF_FREE] = { {0,0}};   
 
-/* Tracking RF 参数 */
-/*float a_rftrk, thk_rftrk, flip_rftrk;
-int   res_rftrk;
-int   ia_rftrk;*/
+/* Tracking RF 参数（Host/IPG 共享，避免对齐问题，使用 int/float）*/
+float a_rftrk, thk_rftrk, flip_rftrk;   /* RF 振幅、层厚、翻转角（度） */
+int   res_rftrk;                        /* RF 采样点数 */
+int   pw_rftrk;                         /* RF 脉宽（us） */
+int   wg_rftrk;                         /* RF 波形发生器通道（类似 wg_rf1） */
+int   ia_rftrk;                         /* RF 指令幅度（内部单位） */
+
+/* Tracking Z 选层梯度变量（与 grad_rf_grass.h 中 GZRFTRK 槽位匹配）*/
+int   pw_gzrftrka, pw_gzrftrkd, pw_gzrftrk; /* 选层梯度 上/下/平顶 脉宽（us）*/
+float a_gzrftrk;                            /* 选层梯度幅度（G/cm，内部单位） */
 /*baige addRF end*/
 
 @cv
@@ -569,8 +575,8 @@ pulsegen( void )
 
     /* RF wave */
     SLICESELZ(rf1, 1ms, 3200us, opslthick, opflip, 1, , loggrd); 
-    /* baige addRF: Add tracking pulse to the main sequence block */
-    SLICESELZ(rftrk, 1ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
+    /* baige addRF: Manually define rftrk and align it with rf1 to share its gradient */
+    RF_PULSE(rftrk, rpbeg(&rf1,"rf1",0), 6400us, opflip, 1, , loggrd);
 
     /* Z Dephaser */
     TRAPEZOID(ZGRAD, gz1, pend( &gzrf1d, "gzrf1d", 0 ) + pw_gz1a, (int)(-0.5 * a_gzrf1 * (pw_rf1 + pw_gzrf1d)), , loggrd);
