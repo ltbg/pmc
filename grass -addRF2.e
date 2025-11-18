@@ -569,6 +569,8 @@ pulsegen( void )
 
     /* RF wave */
     SLICESELZ(rf1, 1ms, 3200us, opslthick, opflip, 1, , loggrd); 
+    /* baige addRF: Add tracking pulse to the main sequence block */
+    SLICESELZ(rftrk, 1ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
 
     /* Z Dephaser */
     TRAPEZOID(ZGRAD, gz1, pend( &gzrf1d, "gzrf1d", 0 ) + pw_gz1a, (int)(-0.5 * a_gzrf1 * (pw_rf1 + pw_gzrf1d)), , loggrd);
@@ -592,14 +594,7 @@ pulsegen( void )
     TRAPEZOID(XGRAD, gxk, pend( &gxwd, "gxwd", 0 ) + pw_gxka, 980, , loggrd);
 
     SEQLENGTH(seqcore, optr, seqcore); /* set the sequence length to optr */
-/* baige addRF */
-    /* Tracking 序列：仅新增 RF，不读出（导航 RF 仅测试成形） */
-    /* 脉宽加倍到 6400us，便于可视区分 */
-    SLICESELZ(rftrk, 1ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
-
-    /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
-    SEQLENGTH(seqtrk, optr, seqtrk);
-/* baige addRF */
+/* baige addRF: rftrk is now part of seqcore */
 @inline Prescan.e PSpulsegen
 
     PASSPACK(endpass, 49ms);   /* tell Signa system we're done */
@@ -705,9 +700,7 @@ psdinit( void )
     rspqueueinit( 200 );	/* Initialize to 200 entries */
     scopeon( &seqcore );	/* Activate scope for core */
     syncon( &seqcore );		/* Activate sync for core */
-    /* baige addRF */
- scopeon( &seqtrk );  syncon( &seqtrk );       /*新增 */
-    /* baige addRF end*/
+    /* baige addRF: seqtrk has been removed */
     syncoff( &pass );		/* Deactivate sync during pass */
     seqCount = 0;		/* Set SPGR sequence counter */
     settriggerarray( (short)slquant1, rsptrigger );
@@ -732,7 +725,7 @@ psdinit( void )
 STATUS
 mps2( void )
 {
-    boffset(off_seqtrk);
+    boffset(off_seqcore);
     /* Initialize RSP parameters */
     rspent = L_MPS2;	
     rspdda = 2;
@@ -761,7 +754,7 @@ mps2( void )
 STATUS
 aps2( void )
 {
-    boffset(off_seqtrk);
+    boffset(off_seqcore);
     /* Initialize RSP parameters */
     rspent = L_APS2;	
     rspdda = 2;
@@ -800,7 +793,7 @@ scan( void )
     printf("[SCAN] enter scan()\n"); fflush(stdout);
     
 
-    boffset( off_seqtrk );
+    boffset( off_seqcore );
     
     setrotatearray( opslquant, rsprot[0] );
     settriggerarray( opslquant, rsptrigger );
@@ -865,36 +858,33 @@ scan( void )
 /* baige addRF: 调试修改：前100个view播放tracking pulse，之后播放imaging */
                 if( view <= 100 )
                 {
-                    short rftrk_amp_check; /* 用于存储从硬件读回的幅度 */
-
-                    /* 打印信息，确认进入了 Tracking 分支 */
+                    /* --- Tracking Branch --- */
                     printf("[SCAN] --> Tracking branch: slice=%d, view=%d\n", slice, view);
-
-                    /* 从硬件实时读取 rftrk 的幅度并打印 */
-                    getiamp(&rftrk_amp_check, &rftrk, 0);
-                    printf("[SCAN]     rftrk amp from hardware = %d\n", rftrk_amp_check);
                     fflush(stdout);
-                    
-                    /* baige addRF Set frequency for rftrk based on the current slice */
-                    setfrequency( rftrk_freq[slice], &rftrk, 0 );
-                    /*baige addRF end*/
-                    /* 切换硬件指针到 'seqtrk' 序列块 */
-                    boffset( off_seqtrk );
-                    startseq( 0, (short)MAY_PAUSE );
-                }
-                else /* Imaging 视图：只有在不执行 tracking 时才执行 */
-                {
-                    /* 
-                     * 在播放成像序列之前，确保硬件指针指向 'seqcore'。
-                     * 这是解决问题的关键步骤。
-                     */
-                    boffset( off_seqtrk );
 
-                    /* 打印信息，确认进入了 Imaging 分支 */
-                    if (excitation == 1) { /* 只在每次视图的第一次激发时打印，避免信息过多 */
-                        printf("[SCAN] --> Imaging branch:  slice=%d, view=%d\n", slice, view);
-                        fflush(stdout);
-                    }
+                    /* Turn ON rftrk, turn OFF imaging pulses */
+                    setiamp(ia_rftrk, &rftrk, 0);
+                    setiamp(0, &rf1, 0);
+                    setiampt(0, &gy1, 0);
+                    setiampt(0, &gyr1, 0);
+                    /* Note: Imaging gradients like gxw are not explicitly turned off
+                       as they are outside the conditional logic of the original imaging path.
+                       The DAQ is also off by default here. */
+
+                    /* Set frequency for the active tracking pulse */
+                    setfrequency(rftrk_freq[slice], &rftrk, 0);
+
+                    /* All pulses are in seqcore, so we always start it */
+                    startseq(off_seqcore, (short)MAY_PAUSE);
+                }
+                else /* --- Imaging Branch --- */
+                {
+                    printf("[SCAN] --> Imaging branch:  slice=%d, view=%d\n", slice, view);
+                    fflush(stdout);
+
+                    /* Turn ON imaging pulses, turn OFF rftrk */
+                    setiamp(ia_rf1, &rf1, 0);
+                    setiamp(0, &rftrk, 0);
 
                     if( excitation == 1 )
                     {
@@ -909,14 +899,14 @@ scan( void )
                     setiampt( viewtable[view], &gyr1, 0 );
                     loaddab( &echo1, 0, 0, dabop, view, DABON, PSD_LOAD_DAB_ALL );
 
-                    startseq( 0, (short)MAY_PAUSE );
+                    startseq(off_seqcore, (short)MAY_PAUSE );
                     getiamp( &chopamp, &rf1, 0 );
                     setiamp( -chopamp, &rf1, 0 );
 
                     if( rtpDemo )
                     {
                         getRtpDemoFrames(rtpDemoFramesPerCall);
-                        boffset(off_seqtrk);
+                        boffset(off_seqcore);
                     }
                 }
 /* baige addRF end */
@@ -936,7 +926,7 @@ scan( void )
         }
         startseq( 0, (short)MAY_PAUSE );
 
-        boffset( off_seqtrk ); /* reset the hardware in the 'core' sequence */
+        boffset( off_seqcore ); /* reset the hardware in the 'core' sequence */
     } /* end-of-slice loop */
 
     if (isrtplaunched)
@@ -976,7 +966,7 @@ prescanCore( void )
      * Core rsp routine for prescan entry points. Same as scan, only
      *  no PE gradients or chopping. 
      */
-    boffset( off_seqtrk );
+    boffset( off_seqcore );
 
     if( psdinit() == FAILURE )
     {
