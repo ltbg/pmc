@@ -58,7 +58,7 @@ RF_PULSE rfpulse[MAX_RFPULSE] = {
        MAX_RMS_B1_SINC1_90,
        90.0,
        &flip_rftrk,
-       6400.0,
+   3200.0,
        1250.0,
        PSD_APS2_ON + PSD_MPS2_ON + PSD_SCAN_ON,
        0,
@@ -199,32 +199,7 @@ GRAD_PULSE gradz[MAX_GRADZ] = {
      0,
      0.0	/* for SGD heating */
    },
-   /*baige add RF*/
-  /* GRADZ 2 - Tracking Slice Select (rftrk) */
-  {G_TRAP,
-     (int *)&pw_gzrftrka,
-     (int *)&pw_gzrftrkd,
-     (int *)&pw_gzrftrk,
-     (float *)NULL,
-     (float *)&a_gzrftrk,
-     (float *)NULL,
-     (float *)NULL,
-     (char *)NULL,
-     0,
-     1.0,
-     (int *)NULL,
-     0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0.0,
-     0,
-     0,
-     0.0	/* for SGD heating */
-     /*baige add RF end*/
-   }
+   
  };
 
 #endif  /* grad_rf_grass_INCL */
