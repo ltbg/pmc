@@ -17,6 +17,9 @@
 #ifndef  grad_rf_grass_INCL
 #define  grad_rf_grass_INCL
 
+PULSE_DEF(rf1, 0)
+PULSE_DEF(rftrk, 1)
+
 RF_PULSE rfpulse[MAX_RFPULSE] = {
   /* RFPULSE 0 - RF1 Pulse */
   {  (int *)&pw_rf1,
