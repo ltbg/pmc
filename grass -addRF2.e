@@ -67,10 +67,12 @@ int debugstate = 1;
 /*baige addRF 去掉两个slot epi里并没有增加slot*/
 RF_PULSE_INFO rfpulseInfo[RF_FREE] = { {0,0}};   
 
-/* Tracking RF 参数 */
-/*float a_rftrk, thk_rftrk, flip_rftrk;
-int   res_rftrk;
-int   ia_rftrk;*/
+/* Tracking RF 参数（Host/IPG 共享，避免对齐问题，使用 int/float）*/
+float a_rftrk, thk_rftrk, flip_rftrk;   /* RF 振幅、层厚、翻转角（度） */
+int   res_rftrk;                        /* RF 采样点数 */
+int   pw_rftrk;                         /* RF 脉宽（us） */
+int   wg_rftrk;                         /* RF 波形发生器通道（类似 wg_rf1） */
+int   ia_rftrk;                         /* RF 指令幅度（内部单位） */
 /*baige addRF end*/
 
 @cv
@@ -334,8 +336,11 @@ predownload( void )
     thk_rftrk  = thk_rf1;
     res_rftrk  = res_rf1;
     flip_rftrk = flip_rf1;
-    pw_rftrk   = 2*pw_rf1;   /* make tracking RF wider for visibility */
-    wg_rftrk   = wg_rf1;   /* replicate waveform index/weight if used */
+    pw_rftrk   = pw_rf1;     /* keep same width as rf1 to match shared gzrf1 */
+     wg_rftrk   = wg_rf1;     /* replicate waveform index/weight if used */
+     /* 让 tracking 的选层梯度幅度与 rf1 一致，保证同层激发；
+         这里只设置幅度供 setupslices 计算频率使用，实际播放时我们复用 gzrf1。 */
+    /* rftrk shares the same slice-select gradient as rf1; no separate a_gzrftrk */
 /*baige addRF end*/
     /* Set the phase encode amplitude*/
 
@@ -523,21 +528,15 @@ predownload( void )
   gradx[GX1_SLOT].num = 1;
   gradx[GXW2_SLOT].num = 1;
   grady[GY1_SLOT].num = 1;
-  gradz[GZRF1_SLOT].num = 1;
-  gradz[GZ1_SLOT].num = 1;
-  /*baige addRF*/
-  gradz[GZRFTRK_SLOT].num = 1;
-  /*baige addRF end*/
+    gradz[GZRF1_SLOT].num = 1;
+    gradz[GZ1_SLOT].num = 1;
   avepepowscale(&(grady[GY1_SLOT].scale), rhnframes, rhnframes/2);
 
   gradx[GX1_SLOT].powscale = 1.0;
   gradx[GXW2_SLOT].powscale = 1.0;
   grady[GY1_SLOT].powscale = 1.0;
-  gradz[GZRF1_SLOT].powscale = 1.0;
-  gradz[GZ1_SLOT].powscale = 1.0;
-    /*baige addRF*/
-  gradz[GZRFTRK_SLOT].powscale = 1.0;
-  /*baige addRF end*/
+    gradz[GZRF1_SLOT].powscale = 1.0;
+    gradz[GZ1_SLOT].powscale = 1.0;
     rtpDemoPredownload();
 
 
@@ -569,8 +568,8 @@ pulsegen( void )
 
     /* RF wave */
     SLICESELZ(rf1, 1ms, 3200us, opslthick, opflip, 1, , loggrd); 
-    /* baige addRF: Add tracking pulse to the main sequence block */
-    SLICESELZ(rftrk, 1ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
+    /* baige addRF: Manually define rftrk and align it with rf1 to share its gradient */
+    RF_PULSE(rftrk, pbeg(&rf1,"rf1",0), 3200us, opflip, 1, , loggrd);
 
     /* Z Dephaser */
     TRAPEZOID(ZGRAD, gz1, pend( &gzrf1d, "gzrf1d", 0 ) + pw_gz1a, (int)(-0.5 * a_gzrf1 * (pw_rf1 + pw_gzrf1d)), , loggrd);
@@ -809,8 +808,8 @@ scan( void )
     /* Set the Slice Frequency */
     setupslices( rf1_freq, rsp_info, opslquant, a_gzrf1, (float)1, opfov,
                  TYPTRANSMIT );
-    /* baige addRF Set the Slice Frequency for the tracking pulse */
-    setupslices( rftrk_freq, rsp_info, opslquant, a_gzrftrk, (float)1, opfov,
+    /* baige addRF Set the Slice Frequency for the tracking pulse (reuse gzrf1) */
+    setupslices( rftrk_freq, rsp_info, opslquant, a_gzrf1, (float)1, opfov,
                  TYPTRANSMIT );
     /*baige addRF end*/
     setupslices( receive_freq1, rsp_info, opslquant,(float)0, echo1bw, opfov,
@@ -875,7 +874,7 @@ scan( void )
                     setfrequency(rftrk_freq[slice], &rftrk, 0);
 
                     /* All pulses are in seqcore, so we always start it */
-                    startseq(off_seqcore, (short)MAY_PAUSE);
+                    startseq( 0, (short)MAY_PAUSE );
                 }
                 else /* --- Imaging Branch --- */
                 {
@@ -899,7 +898,7 @@ scan( void )
                     setiampt( viewtable[view], &gyr1, 0 );
                     loaddab( &echo1, 0, 0, dabop, view, DABON, PSD_LOAD_DAB_ALL );
 
-                    startseq(off_seqcore, (short)MAY_PAUSE );
+                    startseq( 0, (short)MAY_PAUSE );
                     getiamp( &chopamp, &rf1, 0 );
                     setiamp( -chopamp, &rf1, 0 );
 

@@ -38,12 +38,7 @@
 
 #define GZRF1_SLOT 0
 #define GZ1_SLOT 1
-
-
-/*baige add RF*/
-#define GZRFTRK_SLOT 2
-#define GZ_FREE 3
-/*baige end add RF*/
+#define GZ_FREE 2
 #include "rf_Prescan.globals.h"
 
 #define MAX_RFPULSE RF_FREE
