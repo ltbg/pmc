@@ -330,7 +330,7 @@ predownload( void )
     flip_rf1= opflip;
 
     /* Tracking RF (复制 RF1；后续可改为非选层) */
-    a_rftrk    = 3f*a_rf1;
+    a_rftrk    = 3*a_rf1;
     thk_rftrk  = thk_rf1;
     res_rftrk  = res_rf1;
     flip_rftrk = flip_rf1;
@@ -473,6 +473,13 @@ predownload( void )
     /* baige addRF */
     ia_rftrk = max_pg_iamp * (*rfpulse[RFTRK_SLOT].amp);
     /* baige addRF end */
+
+    /* Debug: Print RF pulse parameters before download */
+    printf("--- RF Pulse Parameters ---\n");
+    printf("rf1:   a=%.4f, pw=%d, ia=%d\n", *rfpulse[RF1_SLOT].amp, pw_rf1, ia_rf1);
+    printf("rftrk: a=%.4f, pw=%d, ia=%d\n", *rfpulse[RFTRK_SLOT].amp, pw_rftrk, ia_rftrk);
+    fflush(stdout);
+
      /*baige AddRF */
     entry_point_table[L_SCAN].epxmtadd = (short) rint((double)xmtaddScan);
     /*baige AddRF end*/ 
@@ -681,13 +688,22 @@ psdinit( void )
 {
     /* Initialize everything to a known state */
     view = slice = excitation = 0;
-    setrfconfig( (short)5 );	/* Only activate rho1 */
+    /*
+     * Configure RF hardware channels.
+     * 141 (binary 10001101) enables:
+     * - ENBL_RHO1 (RHO1 amplitude)
+     * - ENBL_THETA (Phase)
+     * - ENBL_OMEGA (Frequency)
+     * - ENBL_OMEGA_FREQ_XTR1 (Omega external frequency source)
+     * This is a standard configuration for playing RF pulses.
+     */
+    setrfconfig( (short)141 );
     setssitime( 100 );		/* Set ssi counter to 400 us. */
     rspqueueinit( 200 );	/* Initialize to 200 entries */
     scopeon( &seqcore );	/* Activate scope for core */
     syncon( &seqcore );		/* Activate sync for core */
     /* baige addRF */
-/* scopeon( &seqtrk );  syncon( &seqtrk );       新增 */
+ scopeon( &seqtrk );  syncon( &seqtrk );       /*新增 */
     /* baige addRF end*/
     syncoff( &pass );		/* Deactivate sync during pass */
     seqCount = 0;		/* Set SPGR sequence counter */
@@ -830,25 +846,39 @@ scan( void )
         {
             for( excitation = 1; excitation <= opnex; ++excitation )
             {
-/* baige addRF: 每两个 imaging 后一个 tracking（view%3==0） */
-                if( (view % 3) == 0 )
+/* baige addRF: 调试修改：前5个view播放tracking pulse，之后播放imaging */
+                if( view <= 50 )
                 {
-                    /* 
-                     * 解决方案: 使用 if-else 结构。
-                     * 当这个 if 分支被执行时，else 分支（包含成像序列）将被跳过，
-                     * 从而避免了波形在 plotpulse 中被覆盖的问题。
-                     */
-                    printf("[SCAN] tracking branch: slice=%d view=%d (about to start seqtrk)\n", slice, view); fflush(stdout);
+                    short rftrk_amp_check; /* 用于存储从硬件读回的幅度 */
+
+                    /* 打印信息，确认进入了 Tracking 分支 */
+                    printf("[SCAN] --> Tracking branch: slice=%d, view=%d\n", slice, view);
+
+                    /* 从硬件实时读取 rftrk 的幅度并打印 */
+                    getiamp(&rftrk_amp_check, &rftrk, 0);
+                    printf("[SCAN]     rftrk amp from hardware = %d\n", rftrk_amp_check);
+                    fflush(stdout);
                     
                     setfrequency( 0, &rftrk, 0 );
                     
+                    /* 切换硬件指针到 'seqtrk' 序列块 */
                     boffset( off_seqtrk );
                     startseq( 0, (short)MAY_PAUSE );
-                    
-                    boffset( off_seqcore );
                 }
                 else /* Imaging 视图：只有在不执行 tracking 时才执行 */
                 {
+                    /* 
+                     * 在播放成像序列之前，确保硬件指针指向 'seqcore'。
+                     * 这是解决问题的关键步骤。
+                     */
+                    boffset( off_seqcore );
+
+                    /* 打印信息，确认进入了 Imaging 分支 */
+                    if (excitation == 1) { /* 只在每次视图的第一次激发时打印，避免信息过多 */
+                        printf("[SCAN] --> Imaging branch:  slice=%d, view=%d\n", slice, view);
+                        fflush(stdout);
+                    }
+
                     if( excitation == 1 )
                     {
                         dabop = 0;
