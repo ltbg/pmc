@@ -594,11 +594,11 @@ pulsegen( void )
     SEQLENGTH(seqcore, optr, seqcore); /* set the sequence length to optr */
 /* baige addRF */
     /* Tracking 序列：仅新增 RF，不读出（导航 RF 仅测试成形） */
-    /* 延长 RF（1.5ms 上升/下降时间）并将脉宽加倍到 6400us，便于可视区分 */
-    SLICESELZ(rftrk, 1.5ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
+    /* 脉宽加倍到 6400us，便于可视区分 */
+    SLICESELZ(rftrk, 1ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
 
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
-    SEQLENGTH(seqtrk, pend( &rftrk, "rftrk", 0 ) + 1ms, seqtrk);
+    SEQLENGTH(seqtrk, optr, seqtrk);
 /* baige addRF */
 @inline Prescan.e PSpulsegen
 
@@ -679,6 +679,9 @@ const CHAR *entry_name_list[ENTRY_POINT_MAX] = {
    adds more entry points and closes the list. */
 
 int *rf1_freq;
+/*baige addRF*/
+int *rftrk_freq; /* New frequency array for the tracking pulse */
+/*baige addRF end*/
 int *receive_freq1;
 
 int isrtplaunched = 0;
@@ -729,7 +732,7 @@ psdinit( void )
 STATUS
 mps2( void )
 {
-    boffset(off_seqcore);
+    boffset(off_seqtrk);
     /* Initialize RSP parameters */
     rspent = L_MPS2;	
     rspdda = 2;
@@ -758,7 +761,7 @@ mps2( void )
 STATUS
 aps2( void )
 {
-    boffset(off_seqcore);
+    boffset(off_seqtrk);
     /* Initialize RSP parameters */
     rspent = L_APS2;	
     rspdda = 2;
@@ -795,22 +798,35 @@ scan( void )
     }
     /* Debug: Confirm entering scan() on IPG side */
     printf("[SCAN] enter scan()\n"); fflush(stdout);
-    boffset( off_seqcore );	/* start the hardware in the 'core' sequence */
+    
+
+    boffset( off_seqtrk );
+    
     setrotatearray( opslquant, rsprot[0] );
     settriggerarray( opslquant, rsptrigger );
     setssitime( time_ssi );	/* allow time to update sequencer memory */
 
     /* Calculate the RF & slice frequencies */
     rf1_freq = (int *)AllocNode( opslquant * sizeof(int) );
+    /*baige addRF*/
+    rftrk_freq = (int *)AllocNode( opslquant * sizeof(int) ); /* Allocate memory for rftrk frequencies */
+    /*baige addRF end*/
     receive_freq1 = (int *)AllocNode( opslquant * sizeof(int) );
 
     /* Set the Slice Frequency */
     setupslices( rf1_freq, rsp_info, opslquant, a_gzrf1, (float)1, opfov,
                  TYPTRANSMIT );
+    /* baige addRF Set the Slice Frequency for the tracking pulse */
+    setupslices( rftrk_freq, rsp_info, opslquant, a_gzrftrk, (float)1, opfov,
+                 TYPTRANSMIT );
+    /*baige addRF end*/
     setupslices( receive_freq1, rsp_info, opslquant,(float)0, echo1bw, opfov,
                  TYPREC);
 
     setiamp( ia_rf1, &rf1, 0 );
+     /*baige addRF*/
+    setiamp( ia_rftrk, &rftrk, 0 ); /* For consistency, set rftrk amplitude here as well */
+     /*baige addRF end*/
     setupphasetable( viewtable, TYPNORM, opyres );
 
     /* The SLICE loop */
@@ -846,8 +862,8 @@ scan( void )
         {
             for( excitation = 1; excitation <= opnex; ++excitation )
             {
-/* baige addRF: 调试修改：前5个view播放tracking pulse，之后播放imaging */
-                if( view <= 50 )
+/* baige addRF: 调试修改：前100个view播放tracking pulse，之后播放imaging */
+                if( view <= 100 )
                 {
                     short rftrk_amp_check; /* 用于存储从硬件读回的幅度 */
 
@@ -859,8 +875,9 @@ scan( void )
                     printf("[SCAN]     rftrk amp from hardware = %d\n", rftrk_amp_check);
                     fflush(stdout);
                     
-                    setfrequency( 0, &rftrk, 0 );
-                    
+                    /* baige addRF Set frequency for rftrk based on the current slice */
+                    setfrequency( rftrk_freq[slice], &rftrk, 0 );
+                    /*baige addRF end*/
                     /* 切换硬件指针到 'seqtrk' 序列块 */
                     boffset( off_seqtrk );
                     startseq( 0, (short)MAY_PAUSE );
@@ -871,7 +888,7 @@ scan( void )
                      * 在播放成像序列之前，确保硬件指针指向 'seqcore'。
                      * 这是解决问题的关键步骤。
                      */
-                    boffset( off_seqcore );
+                    boffset( off_seqtrk );
 
                     /* 打印信息，确认进入了 Imaging 分支 */
                     if (excitation == 1) { /* 只在每次视图的第一次激发时打印，避免信息过多 */
@@ -899,7 +916,7 @@ scan( void )
                     if( rtpDemo )
                     {
                         getRtpDemoFrames(rtpDemoFramesPerCall);
-                        boffset(off_seqcore);
+                        boffset(off_seqtrk);
                     }
                 }
 /* baige addRF end */
@@ -919,7 +936,7 @@ scan( void )
         }
         startseq( 0, (short)MAY_PAUSE );
 
-        boffset( off_seqcore ); /* reset the hardware in the 'core' sequence */
+        boffset( off_seqtrk ); /* reset the hardware in the 'core' sequence */
     } /* end-of-slice loop */
 
     if (isrtplaunched)
@@ -959,7 +976,7 @@ prescanCore( void )
      * Core rsp routine for prescan entry points. Same as scan, only
      *  no PE gradients or chopping. 
      */
-    boffset( off_seqcore );
+    boffset( off_seqtrk );
 
     if( psdinit() == FAILURE )
     {
