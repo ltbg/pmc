@@ -26,7 +26,7 @@
 /* baige add RF slots: add tracking RF (rftrk) as slot 1 */
 #define RF1_SLOT    0
 #define RFTRK_SLOT  1
-#define RF_FREE     2
+#define RF_FREE1    2
 /* baige add RF slot，Local RF count for this module (may be extended further by included headers) */
 
 #define GX1_SLOT 0
@@ -38,7 +38,10 @@
 
 #define GZRF1_SLOT 0
 #define GZ1_SLOT 1
-#define GZ_FREE 2
+/*baige add RF*/
+#define GZRFTRK_SLOT 2
+#define GZ_FREE 3
+/*baige end add RF*/
 #include "rf_Prescan.globals.h"
 
 #define MAX_RFPULSE RF_FREE

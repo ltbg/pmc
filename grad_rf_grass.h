@@ -17,8 +17,6 @@
 #ifndef  grad_rf_grass_INCL
 #define  grad_rf_grass_INCL
 
-PULSE_DEF(rf1, 0)
-PULSE_DEF(rftrk, 1)
 
 RF_PULSE rfpulse[MAX_RFPULSE] = {
   /* RFPULSE 0 - RF1 Pulse */
@@ -202,7 +200,32 @@ GRAD_PULSE gradz[MAX_GRADZ] = {
      0,
      0.0	/* for SGD heating */
    },
-   
+   /*baige add RF*/
+  /* GRADZ 2 - Tracking Slice Select (rftrk) */
+  {G_TRAP,
+     (int *)&pw_gzrftrka,
+     (int *)&pw_gzrftrkd,
+     (int *)&pw_gzrftrk,
+     (float *)NULL,
+     (float *)&a_gzrftrk,
+     (float *)NULL,
+     (float *)NULL,
+     (char *)NULL,
+     0,
+     1.0,
+     (int *)NULL,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0,
+     0,
+     0.0	/* for SGD heating */
+     /*baige add RF end*/
+   }
  };
 
 #endif  /* grad_rf_grass_INCL */

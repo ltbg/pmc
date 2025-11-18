@@ -45,6 +45,7 @@
 #include "epic_iopt_util.h"
 #include "filter.h"
 
+#include "grad_rf_grass.h"
 #include "grass.h"
 
 @inline Prescan.e PSglobal
@@ -135,7 +136,6 @@ int time_ssi = 250us with {0,,250ms,INVIS, "time from eos to ssi in intern trig"
  *********************************************************************/
 #include <math.h>
 #include <stdlib.h>
-#include "grad_rf_grass.h"
 #include "psdopt.h"
 #include "sar_pm.h"
 #include "support_func.host.h"
