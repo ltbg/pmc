@@ -569,7 +569,7 @@ pulsegen( void )
     /* RF wave */
     SLICESELZ(rf1, 1ms, 3200us, opslthick, opflip, 1, , loggrd); 
     /* baige addRF: Manually define rftrk and align it with rf1 to share its gradient */
-    RF_PULSE(rftrk, pbeg(&rf1,"rf1",0), 3200us, opflip, 1, , loggrd);
+    SLICESELZ(rftrk, pbeg(&rf1,"rf1",0), 3200us, opslthick,opflip, 1, , loggrd);
 
     /* Z Dephaser */
     TRAPEZOID(ZGRAD, gz1, pend( &gzrf1d, "gzrf1d", 0 ) + pw_gz1a, (int)(-0.5 * a_gzrf1 * (pw_rf1 + pw_gzrf1d)), , loggrd);
@@ -709,7 +709,6 @@ psdinit( void )
     /* RF-only 测试：不需要 tracking 的 echo_trk 过滤器 */
     /* 确保 tracking RF 有幅度（避免在 tracking 分支重复 setiamp） */
      setiamp( ia_rf1,   &rf1,   0 );
-    setiamp( ia_rftrk, &rftrk, 0 );
 /* baige addRF end*/
     rtpDemoRspInit();
 
@@ -813,12 +812,9 @@ scan( void )
                  TYPTRANSMIT );
     /*baige addRF end*/
     setupslices( receive_freq1, rsp_info, opslquant,(float)0, echo1bw, opfov,
-                 TYPREC);
+                 (INT)TYPREC);
 
     setiamp( ia_rf1, &rf1, 0 );
-     /*baige addRF*/
-    setiamp( ia_rftrk, &rftrk, 0 ); /* For consistency, set rftrk amplitude here as well */
-     /*baige addRF end*/
     setupphasetable( viewtable, TYPNORM, opyres );
 
     /* The SLICE loop */
