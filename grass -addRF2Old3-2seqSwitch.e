@@ -595,7 +595,7 @@ pulsegen( void )
 /* baige addRF */
     /* Tracking 序列：仅新增 RF，不读出（导航 RF 仅测试成形） */
     /* 脉宽加倍到 6400us，便于可视区分 */
-    SLICESELZ(rftrk, 1ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
+    SLICESELZ(rftrk, 10ms, 6400us, opslthick, opflip, 1, , loggrd);  /* 可后续改为非选层 RF 宏 */
 
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
