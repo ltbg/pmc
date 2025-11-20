@@ -101,6 +101,9 @@ int tlead = 25us with {
 float echo1bw = 16 with {
     , , , INVIS, "Echo1 filter bw.in KHz",
 };
+float echo2bw = 16 with {
+    , , , INVIS, "Echo2 filter bw.in KHz",
+};
 int obl_debug = 0 with {
     0, 1, 0, INVIS, "On(=1) to print messages for obloptimize",
 };
@@ -155,10 +158,14 @@ float maxB1[MAX_ENTRY_POINTS], maxB1Seq;
 /* This will point to a structure defining parameters of the filter
    used for the 1st echo */
 FILTER_INFO *echo1_filt; 
+/* baige add Gradx*/
+FILTER_INFO *echo2_filt; 
+/* baige add Gradx end*/
 
 /* Use real time filters, so allocate space for them instead of trying
    to point to an infinite number of structures in filter.h. */
 FILTER_INFO echo1_rtfilt;
+FILTER_INFO echo2_rtfilt;
 
 @inline Prescan.e PShostVars            /* added with new filter calcs */
 
@@ -246,6 +253,7 @@ cveval( void )
 
     echo1_filt = &echo1_rtfilt;
 
+
     /* Divide by 0 protection */
     if( (echo1_filt->tdaq == 0) || 
         floatsAlmostEqualEpsilons(echo1_filt->decimation, 0.0f, 2) ) 
@@ -264,6 +272,41 @@ cveval( void )
      * readout + the time for the end of sequence killers
      */
     avmintr = 1ms + pw_rf1 / 2 + exist(opte) + echo1_rtfilt.tdaq / 2 + 2ms;
+
+     /* baige add Gradx*/
+      if( calcfilter( &echo2_rtfilt,
+                    exist(oprbw),
+                    exist(opxres),
+                    OVERWRITE_OPRBW ) == FAILURE)
+    {
+        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+                    EE_ARGS(1), STRING_ARG, "calcfilter:echo2" );
+        return FAILURE;
+    }
+
+    echo2_filt = &echo2_rtfilt;
+
+
+    /* Divide by 0 protection */
+    if( (echo2_filt->tdaq == 0) || 
+        floatsAlmostEqualEpsilons(echo2_filt->decimation, 0.0f, 2) ) 
+    {
+        epic_error( use_ermes, "echo2 tdaq or decimation = 0",
+                    EM_PSD_BAD_FILTER, EE_ARGS(0) );
+        return FAILURE;
+    }
+
+    /* For use on the RSP side */
+    echo2bw = echo2_filt->bw;
+
+    /*
+     * The minimum TR is based on the time before the RF pulse +
+     * half the RF pulse + the TE time + the last half of the
+     * readout + the time for the end of sequence killers
+     */
+    avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
+    /* baige add Gradx end*/
+
 
 @inline Prescan.e PScveval
 
@@ -369,9 +412,19 @@ predownload( void )
                     EE_ARGS(1), STRING_ARG, "ampfov" );
         return FAILURE;
     }
-
+       /* baige Add Gradx Set the Read Out gradient amplitude */
+    if( ampfov( &a_gxwtrk, echo2_filt->bw, opfov ) == FAILURE )
+    {
+        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+                    EE_ARGS(1), STRING_ARG, "ampfov" );
+        return FAILURE;
+    }
+       /* baige Add Gradx end Set the Read Out gradient amplitude */
     /* Duration of read lobe to match acquisition interval */
     pw_gxw = echo1_filt->tdaq;
+     /* baige Add Gradx */
+    pw_gxwtrk = echo2_filt->tdaq;
+     /* baige Add Gradx end*/
 
     a_gy1a = -a_gy1a;
     a_gy1b = -a_gy1b;
@@ -395,6 +448,10 @@ predownload( void )
        filter selection - LxMGD, RJF */
     setfilter( echo1_filt, SCAN );
     filter_echo1 = echo1_filt->fslot;
+/*baige add Gradx*/
+    setfilter( echo2_filt, SCAN );
+    filter_echo2 = echo2_filt->fslot;
+/*baige add Gradx end*/
 
 @inline Prescan.e PSfilter
 
@@ -406,6 +463,17 @@ predownload( void )
         return FAILURE;
     }
     pw_gxwd = pw_gxwa;		/* Set trailing edge ramp to same duration. */
+
+/* baige add Gradx Set the Slope of the Read Out window's leading edge */
+    if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
+    {
+        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+                    EE_ARGS(1), STRING_ARG, "optramp" );
+        return FAILURE;
+    }
+    pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
+
+/* baige add Gradx end*/
 
     /* For Prescan: Inform 'Auto' Prescan about prescan parameters 	*/
     pislquant = opslquant;	/* # of 2nd pass slices */
@@ -424,6 +492,9 @@ predownload( void )
     (void)strcpy( entry_point_table[L_SCAN].epname, "scan" );
     entry_point_table[L_SCAN].epfilter = (unsigned char)echo1_filt->fslot;
 
+/*baige add Gradx*/
+entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;
+/*baige add Gradx*/
 
     /* First, find the peak B1 for the whole sequence. */
     maxB1Seq = 0.0;
@@ -612,6 +683,8 @@ pulsegen( void )
 
     /* Frequency Dephaser */
     TRAPEZOID(XGRAD, gx1trk, pbeg( &gxwtrka, "gxwtrka", 0 ) - pw_gx1trk - pw_gx1trkd, (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)), , loggrd);
+      /* Data Acquisition */
+    ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
     /* baige addGx end */
      /* Z & X Killers */
     TRAPEZOID(ZGRAD, gzktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gzktrka, 980, , loggrd);
@@ -702,6 +775,7 @@ int *rf1_freq;
 int *rftrk_freq; /* New frequency array for the tracking pulse */
 /*baige addRF end*/
 int *receive_freq1;
+int *receive_freq2;
 
 int isrtplaunched = 0;
 
@@ -732,6 +806,7 @@ psdinit( void )
     settriggerarray( (short)slquant1, rsptrigger );
     setrotatearray( (short)slquant1, rsprot[0] );
     setrfltrs( (int)filter_echo1, &echo1 );
+     setrfltrs( (int)filter_echo2, &echo2 );
 /* baige addRF */
     /* RF-only 测试：不需要 tracking 的 echo_trk 过滤器 */
     /* 确保 tracking RF 有幅度（避免在 tracking 分支重复 setiamp） */
@@ -830,6 +905,7 @@ scan( void )
     rftrk_freq = (int *)AllocNode( opslquant * sizeof(int) ); /* Allocate memory for rftrk frequencies */
     /*baige addRF end*/
     receive_freq1 = (int *)AllocNode( opslquant * sizeof(int) );
+     receive_freq2 = (int *)AllocNode( opslquant * sizeof(int) );
 
     /* Set the Slice Frequency */
     setupslices( rf1_freq, rsp_info, opslquant, a_gzrf1, (float)1, opfov,
@@ -840,6 +916,8 @@ scan( void )
     /*baige addRF end*/
       setupslices( receive_freq1, rsp_info, opslquant,(float)0, echo1bw, opfov,
                  (INT)TYPREC);
+       setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
+                 (INT)TYPREC);           
 
     setiamp( ia_rf1, &rf1, 0 );
    
@@ -856,7 +934,7 @@ scan( void )
         loaddab( &echo1, 0, 0, dabop, (int)0, DABOFF, PSD_LOAD_DAB_ALL );  /* each slice is a pass, slice index in each pass should be 0 */
         setiampt( viewtable[1], &gy1, 0 );
         setiampt( viewtable[1], &gyr1, 0 );  
-
+       
         for( view = 0; view < 4; ++view )
         {
             startseq( 0, (short)MAY_PAUSE );
@@ -894,8 +972,10 @@ scan( void )
                     setiamp(ia_rftrk, &rftrk, 0);
                     /* baige addRF Set frequency for rftrk based on the current slice */
                     setfrequency( rftrk_freq[slice], &rftrk, 0 );
+                     setfrequency( receive_freq2[slice], &echo2, 0 );
                     /*baige addRF end*/
-                   
+                     dabop = 0;
+                   loaddab( &echo2, 0, 0, dabop, (int)0, DABON, PSD_LOAD_DAB_ALL );  /* each slice is a pass, slice index in each pass should be 0 */
                     startseq(0, (short)MAY_PAUSE );
                 }
                 else /* Imaging 视图：只有在不执行 tracking 时才执行 */
