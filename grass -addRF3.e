@@ -493,7 +493,7 @@ predownload( void )
     entry_point_table[L_SCAN].epfilter = (unsigned char)echo1_filt->fslot;
 
 /*baige add Gradx*/
-entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;
+/*entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;*/
 /*baige add Gradx*/
 
     /* First, find the peak B1 for the whole sequence. */
