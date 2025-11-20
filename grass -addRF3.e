@@ -523,9 +523,12 @@ predownload( void )
   grady[GY1_SLOT].num = 1;
   gradz[GZRF1_SLOT].num = 1;
   gradz[GZ1_SLOT].num = 1;
- gradz[GZ2_SLOT].num = 1;
   /*baige addRF*/
   gradz[GZRFTRK_SLOT].num = 1;
+   gradz[GZ2_SLOT].num = 1;
+  gradx[GX1TRK_SLOT].num = 1;
+  gradx[GXW2TRK_SLOT].num = 1;
+ 
   /*baige addRF end*/
   avepepowscale(&(grady[GY1_SLOT].scale), rhnframes, rhnframes/2);
 
@@ -536,7 +539,10 @@ predownload( void )
   gradz[GZ1_SLOT].powscale = 1.0;
     /*baige addRF*/
   gradz[GZRFTRK_SLOT].powscale = 1.0;
-  gradz[GZ2_SLOT].powscale = 1.0;
+gradz[GZ2_SLOT].powscale = 1.0;
+  gradx[GX1TRK_SLOT].powscale = 1;
+  gradx[GXW2TRK_SLOT].powscale = 1;
+
   /*baige addRF end*/
     rtpDemoPredownload();
 
@@ -596,9 +602,20 @@ pulsegen( void )
     /* Tracking 序列：仅新增 RF，不读出（导航 RF 仅测试成形） */
     /* 脉宽加倍到 6400us，便于可视区分 */
     SLICESELZ(rftrk, 15ms, 6400us, opslthick,opflip, 1, , loggrd);
+    
     /* Z Dephaser */
     TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + pw_gz2a, (int)(-0.5 * a_gzrftrk * (pw_rftrk + pw_gzrftrkd)), , loggrd);
+     
+     /* baige addGx */
+    /* X Readout */
+    TRAPEZOID(XGRAD, gxwtrk, RUP_GRD(pmid( &gzrftrk, "gzrftrk", 0 ) + opte - pw_gxwtrk / 2), 0, TYPNDEF, loggrd);
 
+    /* Frequency Dephaser */
+    TRAPEZOID(XGRAD, gx1trk, pbeg( &gxwtrka, "gxwtrka", 0 ) - pw_gx1trk - pw_gx1trkd, (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)), , loggrd);
+    /* baige addGx end */
+     /* Z & X Killers */
+    TRAPEZOID(ZGRAD, gzktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gzktrka, 980, , loggrd);
+    TRAPEZOID(XGRAD, gxktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gxktrka, 980, , loggrd);
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
 /* baige addRF */

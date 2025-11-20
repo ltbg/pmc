@@ -98,7 +98,6 @@ GRAD_PULSE gradx[MAX_GRADX] = {
      0,
      0.0	/* for SGD heating */
   },
-  /* GRADX 1 - First Echo Readout */
   {G_TRAP,
      (int *)&pw_gxwa, 
      (int *)&pw_gxwd,
@@ -121,7 +120,56 @@ GRAD_PULSE gradx[MAX_GRADX] = {
      0,
      0,
      0.0	/* for SGD heating */
+  },
+  /* baige add gradx GRADX 2 - tracking Echo Readout */
+  {G_TRAP,
+     (int *)&pw_gx1trka, 
+     (int *)&pw_gx1trkd,
+     (int *)&pw_gx1trk, 
+     (float *)NULL,
+     (float *)&a_gx1trk,
+     (float *)NULL,
+     (float *)NULL,
+     (char *)NULL,
+     0, 
+     1.0,
+     (int *)NULL,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0,
+     0,
+     0.0	/* for SGD heating */
+  },
+  /* GRADX 1 - First Echo Readout */
+  {G_TRAP,
+     (int *)&pw_gxwtrka, 
+     (int *)&pw_gxwtrkd,
+     (int *)&pw_gxwtrk,
+     (float *)NULL,
+     (float *)&a_gxwtrk,
+     (float *)NULL,
+     (float *)NULL,
+     (char *)NULL,
+     0, 
+     1.0,
+     (int *)NULL,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0,
+     0,
+     0.0	/* for SGD heating */
   }
+  /*baige add gradx end*/
 };
  
 GRAD_PULSE grady[MAX_GRADY] = { 
@@ -249,7 +297,7 @@ GRAD_PULSE gradz[MAX_GRADZ] = {
      0,
      0,
      0.0	/* for SGD heating */
-   },
+   }
    /*baige add RF end*/
  };
 

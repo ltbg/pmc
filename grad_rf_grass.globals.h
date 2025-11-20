@@ -31,7 +31,11 @@
 
 #define GX1_SLOT 0
 #define GXW2_SLOT 1
-#define GX_FREE 2
+/*baige add gradx*/
+#define GX1TRK_SLOT 2
+#define GXW2TRK_SLOT 3
+#define GX_FREE 4
+/*baige add gradx end*/
 
 #define GY1_SLOT 0
 #define GY_FREE 1
