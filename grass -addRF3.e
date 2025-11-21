@@ -379,7 +379,7 @@ predownload( void )
     thk_rftrk = thk_rf1; /* Non-selective: gradient forced to zero later; thickness not functionally used. */
     res_rftrk  = res_rf1;
     flip_rftrk = flip_rf1;
-    pw_rftrk   = 6400;   /* Unify pulse width to 6400us */
+    pw_rftrk   = 3200;   /* Unify pulse width to 6400us */
     wg_rftrk   = wg_rf1;
 /*baige addRF end*/
     /* Set the phase encode amplitude*/
@@ -675,19 +675,14 @@ pulsegen( void )
     SEQLENGTH(seqcore, optr, seqcore); /* set the sequence length to optr */
 /* baige addRF */
     /* Tracking 序列：非层选脉冲 */
-    SLICESELZ(rftrk, 15ms, 6400us, opslthick, opflip, 1, , loggrd);
-    /* 强制关闭 tracking 脉冲的 Z 层选梯度；非层选依赖显式梯度归零（thk_rftrk 仅占位，无功能性） */
-    #ifdef a_gzrftrk
-        a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
-        printf("[DBG] pulsegen: a_gzrftrk set to %.4f (expect 0)\n", a_gzrftrk); fflush(stdout);
-    #endif
-    #ifdef ia_gzrftrk
-        ia_gzrftrk = 0;              /* 指令幅度置 0 */
-        printf("[DBG] pulsegen: ia_gzrftrk set to %d (expect 0)\n", ia_gzrftrk); fflush(stdout);
-    #endif
+    SLICESELZ(rftrk, 15ms, 3200us, opslthick, opflip, 1, , loggrd);
+    /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
+    a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
+    ia_gzrftrk = 0;              /* 指令幅度置 0 */
+    printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
     
-    /* Z Dephaser (Crusher) */
-    TRAPEZOID(ZGRAD, gz2, pend( &rftrk, "rftrk", 0 ) + rfupd, (int)crusher_area, , loggrd);
+    /* Z Dephaser (Crusher)*/
+    TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + rfupd, (int)crusher_area, , loggrd);
      
      /* baige addGx */
     /* X Readout */
@@ -979,6 +974,9 @@ scan( void )
                     /* 从硬件实时读取 rftrk 的幅度并打印 */
                     getiamp(&rftrk_amp_check, &rftrk, 0);
                     printf("[SCAN]     rftrk amp from hardware = %d\n", rftrk_amp_check);
+                    getiamp(&gzrftrk_amp_check, &gzrftrk, 0);
+                    printf("[SCAN]     gzrftrk amp from hardware = %d\n", gzrftrk_amp_check);
+                    fflush(stdout);
                     fflush(stdout);
                     setiamp(ia_rftrk, &rftrk, 0);
                     /* baige addRF Set frequency for rftrk to center frequency */
