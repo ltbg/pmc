@@ -1639,7 +1639,11 @@ int nreps     = 0 with {0,,0,INVIS, "number of sequences played out",};
 
 /* Scaling CVs */
 float xmtaddScan;
-
+/*baige add gradX */
+float echo2bw = 16 with {
+    , , , INVIS, "Echo2 filter bw.in KHz",
+};
+/*baige add gradX end */
 /* needed for Inversion.e */
 float rfscale = 1.0 with {,,1.0,INVIS,"Rf pulse width scaling factor",};
 
@@ -2115,6 +2119,9 @@ int save_newgeo;
 /* needed for Inversion.e */
 FILTER_INFO scan_filt;         /* parameters for xres=256 filter */
 FILTER_INFO echo1_filt;         /* Used by epi.e */
+/* baige add Gradx*/
+FILTER_INFO *echo2_filt; 
+/* baige add Gradx end*/
 
 /* Array to hold max B1 for each entry point. */
 float maxB1[MAX_ENTRY_POINTS], maxB1Seq;
@@ -11181,7 +11188,39 @@ cveval1( void )
     }
 
     frqx = 1000.0/tsp;
+/* baige add Gradx*/
+      if( calcfilter( &echo2_rtfilt,
+                    exist(oprbw),
+                    exist(opxres),
+                    OVERWRITE_OPRBW ) == FAILURE)
+    {
+        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+                    EE_ARGS(1), STRING_ARG, "calcfilter:echo2" );
+        return FAILURE;
+    }
 
+    echo2_filt = &echo2_rtfilt;
+
+
+    /* Divide by 0 protection */
+    if( (echo2_filt->tdaq == 0) || 
+        floatsAlmostEqualEpsilons(echo2_filt->decimation, 0.0f, 2) ) 
+    {
+        epic_error( use_ermes, "echo2 tdaq or decimation = 0",
+                    EM_PSD_BAD_FILTER, EE_ARGS(0) );
+        return FAILURE;
+    }
+
+    /* For use on the RSP side */
+    echo2bw = echo2_filt->bw;
+
+    /*
+     * The minimum TR is based on the time before the RF pulse +
+     * half the RF pulse + the TE time + the last half of the
+     * readout + the time for the end of sequence killers
+     */
+    avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
+    /* baige add Gradx end*/
     return SUCCESS;
 }   /* end cveval1() */
 
@@ -15047,6 +15086,10 @@ predownload1( void )
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "setfilter" );
         return FAILURE;
     } 
+    /*baige add Gradx*/
+    setfilter( echo2_filt, SCAN );
+    filter_echo2 = echo2_filt->fslot;
+    /*baige add Gradx end*/
 
 @inline Monitor.e MonitorFilter
 
@@ -15057,6 +15100,20 @@ predownload1( void )
 @inline RTB0.e RTB0Filter
 
 @inline Prescan.e PSfilter
+/* baige add Gradx Set the Slope of the Read Out window's leading edge */
+    if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
+    {
+        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+                    EE_ARGS(1), STRING_ARG, "optramp" );
+        return FAILURE;
+    }
+    pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
+
+/* baige add Gradx end*/
+
+/*baige add Gradx*/
+/*entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;*/
+/*baige add Gradx*/
   
     rhfast_rec = STD_REC;
     frtime = (float)((rhfrsize-1)*tsp);
@@ -15151,7 +15208,14 @@ predownload1( void )
     }
 /*baige addRF*/
   gradz[GZRFTRK_SLOT].num = 1;
+    gradz[GZ2_SLOT].num = 1;
+  gradx[GX1TRK_SLOT].num = 1;
+  gradx[GXW2TRK_SLOT].num = 1;
+
    gradz[GZRFTRK_SLOT].powscale = 1.0;
+   gradz[GZ2_SLOT].powscale = 1.0;
+  gradx[GX1TRK_SLOT].powscale = 1;
+  gradx[GXW2TRK_SLOT].powscale = 1;
   /*baige addRF end*/
     return SUCCESS;
 }    /* end predownload1() */
@@ -16542,6 +16606,9 @@ STATUS pulsegen( void )
     ctlend_tab = (int *)AllocNode((opphases*opslquant + 2)*sizeof(int));
     slc_in_acq = (short *)AllocNode((act_acqs*pass_reps + 2)*sizeof(short));
     rf1_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
+     /*baige addRF*/    
+         receive_freq2 = (int *)AllocNode( opslquant * sizeof(int) );
+    /*baige addRF end*/
     theta_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
     rf2_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
     thetarf2_freq = (int *)AllocNode((mux_slquant + 2)*sizeof(int));
@@ -17818,9 +17885,30 @@ STATUS pulsegen( void )
 
         /* baige addRF */
     /* Tracking 序列 */
-    SLICESELZ(rftrk, 15ms, 6400us, opslthick, opflip, 1, , loggrd);
-       SEQLENGTH(seqtrk, optr, seqtrk);
-    /* baige addRF end */
+    SLICESELZ(rftrk, 40ms, 6400us, opslthick, opflip, 1, , loggrd);
+    /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
+    a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
+    ia_gzrftrk = 0;              /* 指令幅度置 0 */
+    printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
+    
+    /* Z Dephaser (Crusher)*/
+    TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + pw_gz2a, (int)crusher_area, , loggrd);
+     
+     /* baige addGx */
+    /* X Readout */
+    TRAPEZOID(XGRAD, gxwtrk, RUP_GRD(pmid( &gzrftrk, "gzrftrk", 0 ) + opte - pw_gxwtrk / 2), 0, TYPNDEF, loggrd);
+
+    /* Frequency Dephaser */
+    TRAPEZOID(XGRAD, gx1trk, pbeg( &gxwtrka, "gxwtrka", 0 ) - pw_gx1trk - pw_gx1trkd, (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)), , loggrd);
+      /* Data Acquisition */
+    ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
+    /* baige addGx end */
+     /* Z & X Killers */
+    TRAPEZOID(ZGRAD, gzktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gzktrka, 980, , loggrd);
+    TRAPEZOID(XGRAD, gxktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gxktrka, 980, , loggrd);
+    /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
+    SEQLENGTH(seqtrk, optr, seqtrk);
+    /* baige addRF end*/
     }
 
     if(ir_on)
@@ -17931,6 +18019,8 @@ STATUS pulsegen( void )
     rsp_preview = 0;
   
 #ifdef IPG
+setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
+                 (INT)TYPREC);   
     /*
      * Execute this code only on the Tgt side
      */
@@ -18471,7 +18561,9 @@ psdinit( void )
         }
     }
 #endif /* PSD_HW */
-
+/*baige add Gradx */
+     setrfltrs( (int)filter_echo2, &echo2 );
+/*baige add Gradx end*/
     return SUCCESS;  
 } /* End psdinit */	    
 
@@ -18899,7 +18991,10 @@ STATUS scan( void )
         /* reset trigger status */
         nav_active = 0;
     }
-
+    /*baige addRF*/
+    int rftrk_center_freq; /* Center frequency for non-selective pulse */
+    rftrk_center_freq = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES); /* host offset不可见，使用接收频率偏移作为中心频率 */
+    /*baige addRF end*/
     scanloop();
 
 #ifdef PSD_HW

@@ -706,7 +706,56 @@ GRAD_PULSE gradx[MAX_GRADX] = {
         0.0,                 /* amptran */
         0,                   /* pwm time */
         0,                   /* bridge */
-        0.0}                 /* SGD */
+        0.0},
+           /* baige add gradx GRADX 11 - tracking Echo Readout */
+  {G_TRAP,
+     (int *)&pw_gx1trka, 
+     (int *)&pw_gx1trkd,
+     (int *)&pw_gx1trk, 
+     (float *)NULL,
+     (float *)&a_gx1trk,
+     (float *)NULL,
+     (float *)NULL,
+     (char *)NULL,
+     0, 
+     1.0,
+     (int *)NULL,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0,
+     0,
+     0.0	/* for SGD heating */
+  },
+  /* GRADX 12 - First Echo Readout */
+  {G_TRAP,
+     (int *)&pw_gxwtrka, 
+     (int *)&pw_gxwtrkd,
+     (int *)&pw_gxwtrk,
+     (float *)NULL,
+     (float *)&a_gxwtrk,
+     (float *)NULL,
+     (float *)NULL,
+     (char *)NULL,
+     0, 
+     1.0,
+     (int *)NULL,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0,
+     0,
+     0.0	/* for SGD heating */
+  }
+  /*baige add gradx end*/            /* SGD */
 };
  
 GRAD_PULSE grady[MAX_GRADY] = { 
@@ -1791,7 +1840,31 @@ GRAD_PULSE gradz[MAX_GRADZ] = {
      0,
      0.0	/* for SGD heating */
      /*baige add RF end*/
+   },/* baige add RF  GRADZ 21- 90 rephaser */
+  {G_TRAP,
+     (int *)&pw_gz2a, 
+     (int *)&pw_gz2d,
+     (int *)&pw_gz2, 
+     (float *)NULL,
+     (float *)&a_gz2, 
+     (float *)NULL,
+     (float *)NULL,
+     (char *)NULL,
+     0,
+     1.0,
+     (int *)NULL, 
+     0,
+     0.0, 
+     0.0, 
+     0.0, 
+     0.0, 
+     0.0, 
+     0.0, 
+     0,
+     0,
+     0.0	/* for SGD heating */
    }
+
    /* baige add RF  GRADZ 2- 90 rephaser */
     };
 
