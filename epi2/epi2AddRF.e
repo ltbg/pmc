@@ -2124,6 +2124,7 @@ int save_newgeo;
 FILTER_INFO scan_filt;         /* parameters for xres=256 filter */
 FILTER_INFO echo1_filt;         /* Used by epi.e */
 /* baige add Gradx*/
+FILTER_INFO *echo2_filt; 
 FILTER_INFO echo2_rtfilt;
 /* baige add Gradx end*/
 
