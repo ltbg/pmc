@@ -682,7 +682,7 @@ pulsegen( void )
     printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
     
     /* Z Dephaser (Crusher)*/
-    TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + rfupd, (int)crusher_area, , loggrd);
+    TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + pw_gz2a, (int)crusher_area, , loggrd);
      
      /* baige addGx */
     /* X Readout */
@@ -974,10 +974,8 @@ scan( void )
                     /* 从硬件实时读取 rftrk 的幅度并打印 */
                     getiamp(&rftrk_amp_check, &rftrk, 0);
                     printf("[SCAN]     rftrk amp from hardware = %d\n", rftrk_amp_check);
-                    getiamp(&gzrftrk_amp_check, &gzrftrk, 0);
-                    printf("[SCAN]     gzrftrk amp from hardware = %d\n", gzrftrk_amp_check);
-                    fflush(stdout);
-                    fflush(stdout);
+                    printf("[SCAN]     a_gzrftrk amp from hardware = %.4f\n", a_gzrftrk);
+                    printf("[SCAN]     ia_gzrftrk amp from hardware = %d\n", ia_gzrftrk);                    fflush(stdout);
                     setiamp(ia_rftrk, &rftrk, 0);
                     /* baige addRF Set frequency for rftrk to center frequency */
                     setfrequency( rftrk_center_freq, &rftrk, 0 );
