@@ -120,6 +120,10 @@ float endview_scale; /* ratio of last instruction amp to maximum value */
 
 int time_ssi = 250us with {0,,250ms,INVIS, "time from eos to ssi in intern trig",};
 
+float crusher_area = 980.0 with {
+    -30000.0, 30000.0, 980.0, VIS, "Area of gz2 crusher G/cm*us",
+};
+
 @inline Prescan.e PScvs
 
 
@@ -370,13 +374,13 @@ predownload( void )
     res_rf1= 320;
     flip_rf1= opflip;
 
-    /* Tracking RF (复制 RF1；后续可改为非选层) */
-    a_rftrk    = 3*a_rf1;
-    thk_rftrk  = thk_rf1;
+    /* Tracking RF: Non-selective pulse */
+    a_rftrk    = a_rf1;
+    thk_rftrk = thk_rf1; /* Non-selective: gradient forced to zero later; thickness not functionally used. */
     res_rftrk  = res_rf1;
     flip_rftrk = flip_rf1;
-    pw_rftrk   = pw_rf1;   /* make tracking RF wider for visibility */
-    wg_rftrk   = wg_rf1;   /* replicate waveform index/weight if used */
+    pw_rftrk   = 6400;   /* Unify pulse width to 6400us */
+    wg_rftrk   = wg_rf1;
 /*baige addRF end*/
     /* Set the phase encode amplitude*/
 
@@ -670,12 +674,18 @@ pulsegen( void )
 
     SEQLENGTH(seqcore, optr, seqcore); /* set the sequence length to optr */
 /* baige addRF */
-    /* Tracking 序列：仅新增 RF，不读出（导航 RF 仅测试成形） */
-    /* 脉宽加倍到 6400us，便于可视区分 */
-    SLICESELZ(rftrk, 15ms, 6400us, opslthick,opflip, 1, , loggrd);
+    /* Tracking 序列：非层选脉冲 */
+    SLICESELZ(rftrk, 15ms, 6400us, thk_rftrk, opflip, 1, , loggrd);
+    /* 强制关闭 tracking 脉冲的Z层选梯度    thk_rftrk = thk_rf1; /* Non-selective: gradient forced to zero later; thickness not functionally used. */ */
+    #ifdef a_gzrftrk
+        a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
+    #endif
+    #ifdef ia_gzrftrk
+        ia_gzrftrk = 0;              /* 指令幅度置 0 */
+    #endif
     
-    /* Z Dephaser */
-    TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + pw_gz2a, (int)(-0.5 * a_gzrftrk * (pw_rftrk + pw_gzrftrkd)), , loggrd);
+    /* Z Dephaser (Crusher) */
+    TRAPEZOID(ZGRAD, gz2, pend( &rftrkd, "rftrk", 0 ) + rfupd, (int)crusher_area, , loggrd);
      
      /* baige addGx */
     /* X Readout */
@@ -902,7 +912,7 @@ scan( void )
     /* Calculate the RF & slice frequencies */
     rf1_freq = (int *)AllocNode( opslquant * sizeof(int) );
     /*baige addRF*/
-    rftrk_freq = (int *)AllocNode( opslquant * sizeof(int) ); /* Allocate memory for rftrk frequencies */
+    int rftrk_center_freq; /* Center frequency for non-selective pulse */
     /*baige addRF end*/
     receive_freq1 = (int *)AllocNode( opslquant * sizeof(int) );
      receive_freq2 = (int *)AllocNode( opslquant * sizeof(int) );
@@ -910,9 +920,8 @@ scan( void )
     /* Set the Slice Frequency */
     setupslices( rf1_freq, rsp_info, opslquant, a_gzrf1, (float)1, opfov,
                  TYPTRANSMIT );
-    /* baige addRF Set the Slice Frequency for the tracking pulse */
-    setupslices( rftrk_freq, rsp_info, opslquant, a_gzrftrk, (float)1, opfov,
-                 TYPTRANSMIT );
+    /* baige addRF: For non-selective pulse, set frequency to B0 center */
+    rftrk_center_freq = (int)((float)cfrhostoffsetfreq / TARDIS_FREQ_RES);
     /*baige addRF end*/
       setupslices( receive_freq1, rsp_info, opslquant,(float)0, echo1bw, opfov,
                  (INT)TYPREC);
@@ -970,8 +979,8 @@ scan( void )
                     printf("[SCAN]     rftrk amp from hardware = %d\n", rftrk_amp_check);
                     fflush(stdout);
                     setiamp(ia_rftrk, &rftrk, 0);
-                    /* baige addRF Set frequency for rftrk based on the current slice */
-                    setfrequency( rftrk_freq[slice], &rftrk, 0 );
+                    /* baige addRF Set frequency for rftrk to center frequency */
+                    setfrequency( rftrk_center_freq, &rftrk, 0 );
                      setfrequency( receive_freq2[slice], &echo2, 0 );
                     /*baige addRF end*/
                      dabop = 0;
