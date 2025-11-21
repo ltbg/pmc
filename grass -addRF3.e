@@ -675,17 +675,19 @@ pulsegen( void )
     SEQLENGTH(seqcore, optr, seqcore); /* set the sequence length to optr */
 /* baige addRF */
     /* Tracking 序列：非层选脉冲 */
-    SLICESELZ(rftrk, 15ms, 6400us, thk_rftrk, opflip, 1, , loggrd);
-    /* 强制关闭 tracking 脉冲的Z层选梯度    thk_rftrk = thk_rf1; /* Non-selective: gradient forced to zero later; thickness not functionally used. */ */
+    SLICESELZ(rftrk, 15ms, 6400us, opslthick, opflip, 1, , loggrd);
+    /* 强制关闭 tracking 脉冲的 Z 层选梯度；非层选依赖显式梯度归零（thk_rftrk 仅占位，无功能性） */
     #ifdef a_gzrftrk
         a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
+        printf("[DBG] pulsegen: a_gzrftrk set to %.4f (expect 0)\n", a_gzrftrk); fflush(stdout);
     #endif
     #ifdef ia_gzrftrk
         ia_gzrftrk = 0;              /* 指令幅度置 0 */
+        printf("[DBG] pulsegen: ia_gzrftrk set to %d (expect 0)\n", ia_gzrftrk); fflush(stdout);
     #endif
     
     /* Z Dephaser (Crusher) */
-    TRAPEZOID(ZGRAD, gz2, pend( &rftrkd, "rftrk", 0 ) + rfupd, (int)crusher_area, , loggrd);
+    TRAPEZOID(ZGRAD, gz2, pend( &rftrk, "rftrk", 0 ) + rfupd, (int)crusher_area, , loggrd);
      
      /* baige addGx */
     /* X Readout */
@@ -921,7 +923,7 @@ scan( void )
     setupslices( rf1_freq, rsp_info, opslquant, a_gzrf1, (float)1, opfov,
                  TYPTRANSMIT );
     /* baige addRF: For non-selective pulse, set frequency to B0 center */
-    rftrk_center_freq = (int)((float)cfrhostoffsetfreq / TARDIS_FREQ_RES);
+    rftrk_center_freq = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES); /* host offset不可见，使用接收频率偏移作为中心频率 */
     /*baige addRF end*/
       setupslices( receive_freq1, rsp_info, opslquant,(float)0, echo1bw, opfov,
                  (INT)TYPREC);
