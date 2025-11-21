@@ -2124,6 +2124,7 @@ int save_newgeo;
 FILTER_INFO scan_filt;         /* parameters for xres=256 filter */
 FILTER_INFO echo1_filt;         /* Used by epi.e */
 /* baige add Gradx*/
+FILTER_INFO *echo2_filt; 
 FILTER_INFO echo2_rtfilt;
 /* baige add Gradx end*/
 
@@ -18999,6 +19000,9 @@ STATUS scan( void )
     /*baige addRF*/
     int rftrk_center_freq; /* Center frequency for non-selective pulse */
     rftrk_center_freq = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES); /* host offset不可见，使用接收频率偏移作为中心频率 */
+    setfrequency( rftrk_center_freq, &rftrk, 0 );
+    printf("[SCAN]     rftrk_center_freq = %d\n", rftrk_center_freq);
+
     /*baige addRF end*/
     scanloop();
 
@@ -19986,14 +19990,24 @@ STATUS core( void )
                     if (rsptrigger[sliceindex] != TRIG_INTERN) {	
                         if ((rspent == L_SCAN)||(rspent == L_MPS2)
                             ||(rspent == L_APS2)) {
-                            /* Use cardiac trigger delay */
-                            setperiod(td0, &x_td0, 0);
-                            setperiod(td0, &y_td0, 0);
-                            setperiod(td0, &z_td0, 0);
-                            setperiod(td0, &rho_td0, 0);
-                            setperiod(td0, &theta_td0, 0);
-                            setperiod(td0, &omega_td0, 0);
-                            setperiod(td0, &ssp_td0, 0);
+                                /* Use cardiac trigger delay.
+                                   baige add Gradx safety: td0 can occasionally be computed as 0 which
+                                   produces invalid zero-width WAIT pulses (x_td0 etc) and causes
+                                   calcPulseParams() failure. Clamp to at least one GRAD_UPDATE_TIME.
+                                   This preserves original timing intent when td0>0 while ensuring
+                                   hardware cycle divisibility and >0 width requirement. */
+                                int td0_effective = td0;
+                                if (td0_effective <= 0) {
+                                    td0_effective = (int)GRAD_UPDATE_TIME; /* minimal positive width */
+                                }
+                                setperiod(td0_effective, &x_td0, 0);
+                                setperiod(td0_effective, &y_td0, 0);
+                                setperiod(td0_effective, &z_td0, 0);
+                                setperiod(td0_effective, &rho_td0, 0);
+                                setperiod(td0_effective, &theta_td0, 0);
+                                setperiod(td0_effective, &omega_td0, 0);
+                                setperiod(td0_effective, &ssp_td0, 0);
+                                /* baige add Gradx end */
                         }
                     } else {
                         /* Bypass cardiac trigger delay */
