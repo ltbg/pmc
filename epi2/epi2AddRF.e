@@ -1470,7 +1470,11 @@ int rep_num = 1 with {1,256,1,VIS,"rep number within total reps.",};
 
 int endview_iamp;  /* end instruction phase amp */
 int endview_scale; /* ratio of last instruction amp to maximum value */
-
+/*baige add gradX*/
+float crusher_area = 980.0 with {
+    -30000.0, 30000.0, 980.0, VIS, "Area of gz2 crusher G/cm*us",
+};
+/*baige add gradX end*/
 int gx1pos   = 1 with {0,1,1,VIS,"gx1 placement: 0=pre-180, 1=post-180.",};
 int gy1pos   = 1 with {0,1,1,VIS,"gy1 placement: 0=pre-180, 1=post-180.",};
 
@@ -2120,7 +2124,7 @@ int save_newgeo;
 FILTER_INFO scan_filt;         /* parameters for xres=256 filter */
 FILTER_INFO echo1_filt;         /* Used by epi.e */
 /* baige add Gradx*/
-FILTER_INFO *echo2_filt; 
+FILTER_INFO echo2_rtfilt;
 /* baige add Gradx end*/
 
 /* Array to hold max B1 for each entry point. */
@@ -16272,6 +16276,7 @@ short *slc_in_acq;            /* number of slices in each pass */
 int   *rf1_freq;
 /*baige addRF*/
 int *rftrk_freq; /* New frequency array for the tracking pulse */
+int *receive_freq2;
 /*baige addRF end*/
 int   *theta_freq;
 int   *rf2_freq;
