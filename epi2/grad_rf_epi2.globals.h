@@ -16,7 +16,8 @@
 #define RF2_SLOT 14
 #define RF0_SLOT 15
 #define RFWK_SLOT 16 /* focus walking sat */
-#define RF_FREE2 17
+#define RFTRK_SLOT 17
+#define RF_FREE2 18
 
 #include "rf_navmonitor.globals.h"
 #include "rf_Prescan.globals.h"
@@ -84,7 +85,8 @@
 #define GZDR_SLOT 17
 #define GZ_BLIP_SLOT 18
 #define GZWKSP_SLOT 19 /* focus walking sat */
-#define GZ_FREE 20
+#define GZRFTRK_SLOT 20
+#define GZ_FREE 21
 
 #define MAX_RFPULSE RF_FREE
 #define MAX_GRADX GX_FREE

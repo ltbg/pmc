@@ -418,7 +418,32 @@ RF_PULSE rfpulse[MAX_RFPULSE] = {
         (int *)&res_rfwk,
         0,
         (int *)&wg_rfwk,
-        1},     
+        1}, /*baige addRF*/
+   /* RFPULSE 17 - Tracking RF Pulse (rftrk) */
+   {  (int *)&pw_rftrk,
+       (float *)&a_rftrk,
+       SAR_ABS_SINC1,
+       SAR_PSINC1,
+       SAR_ASINC1,
+       SAR_DTYCYC_SINC1,
+       SAR_MAXPW_SINC1,
+       1,
+       MAX_B1_SINC1_90,
+       MAX_INT_B1_SQ_SINC1_90,
+       MAX_RMS_B1_SINC1_90,
+       90.0,
+       &flip_rftrk,
+   3200.0,
+       1250.0,
+       PSD_APS2_ON + PSD_MPS2_ON + PSD_SCAN_ON,
+       0,
+       0,
+       1.0,
+       (int *)&res_rftrk,
+       0,
+       (int *)&wg_rftrk,
+       1
+   },    
 
 #include "rf_navmonitor.h"
 #include "rf_Prescan.h"
@@ -1740,6 +1765,33 @@ GRAD_PULSE gradz[MAX_GRADZ] = {
         0.0,                 /* amptran */
         0,                   /* pwm time */
         0,                   /* bridge */
-        0.0}                 /* SGD */     
-};
+        0.0},                 /* SGD */     
+/*baige add RF*/
+  /* GRADZ 20 - Tracking Slice Select (rftrk) */
+  {G_TRAP,
+     (int *)&pw_gzrftrka,
+     (int *)&pw_gzrftrkd,
+     (int *)&pw_gzrftrk,
+     (float *)NULL,
+     (float *)&a_gzrftrk,
+     (float *)NULL,
+     (float *)NULL,
+     (char *)NULL,
+     0,
+     1.0,
+     (int *)NULL,
+     0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0,
+     0,
+     0.0	/* for SGD heating */
+     /*baige add RF end*/
+   }
+   /* baige add RF  GRADZ 2- 90 rephaser */
+    };
 
