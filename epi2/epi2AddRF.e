@@ -16140,13 +16140,13 @@ calcPulseParams( int encode_mode )
        clamp here before returning. This is minimal-impact: only acts when pw_x_td0 <=0. */
     if (pw_x_td0 <= 0) {
         pw_x_td0 = (int)GRAD_UPDATE_TIME; /* minimal legal width */
-        /*setperiod(pw_x_td0, &x_td0, 0);
-        setperiod(pw_x_td0, &y_td0, 0);
-        setperiod(pw_x_td0, &z_td0, 0);
-        setperiod(pw_x_td0, &rho_td0, 0);
-        setperiod(pw_x_td0, &theta_td0, 0);
-        setperiod(pw_x_td0, &omega_td0, 0);
-        setperiod(pw_x_td0, &ssp_td0, 0);*/
+        setperiodrsp(pw_x_td0, 0);
+        setperiodrsp(pw_x_td0, 0);
+        setperiodrsp(pw_x_td0, 0);
+        setperiodrsp(pw_x_td0, 0);
+        setperiodrsp(pw_x_td0, 0);
+        setperiodrsp(pw_x_td0,0);
+        setperiodrsp(pw_x_td0, 0);
         printf("[pw_x_td0 clamp] Applied GRAD_UPDATE_TIME=%d to *_td0 waits\n", pw_x_td0);
         fflush(stdout);
     }
@@ -20022,7 +20022,7 @@ STATUS core( void )
                                 setperiod(td0, &omega_td0, 0);
                                 setperiod(td0, &ssp_td0, 0);
 
-                                if (x_td0.width <= 0) {
+                                if (pw_x_td0 <= 0) {
                                     setperiod(GRAD_UPDATE_TIME, &x_td0, 0);
                                     setperiod(GRAD_UPDATE_TIME, &y_td0, 0);
                                     setperiod(GRAD_UPDATE_TIME, &z_td0, 0);
@@ -20808,7 +20808,7 @@ STATUS core( void )
                                     setperiod(td0, &omega_td0, 0);
                                     setperiod(td0, &ssp_td0, 0);
 
-                                    if (x_td0.width <= 0) {
+                                    if (pw_x_td0 <= 0) {
                                         setperiod(GRAD_UPDATE_TIME, &x_td0, 0);
                                         setperiod(GRAD_UPDATE_TIME, &y_td0, 0);
                                         setperiod(GRAD_UPDATE_TIME, &z_td0, 0);
