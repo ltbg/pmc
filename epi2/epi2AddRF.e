@@ -15776,10 +15776,22 @@ calcPulseParams( int encode_mode )
         {
             int i;
 
+    #if defined(HOST_TGT)
+        /* Progress marker 1: after entry before predownload inline */
+        printf("[Host dbg][cp step1] encode_mode=%d td0=%d rfov_flag=%d walk_sat_flag=%d\n",
+               encode_mode, td0, rfov_flag, walk_sat_flag);
+        fflush(stdout);
+    #endif
             if (obl_3in1_opt_debug)
             {
                 printf("Obl3in1:  \n");
                 printf("Obl3in1: weighted_avg_grad=%d pgen_calc_bval_flag=%d\n", weighted_avg_grad, pgen_calc_bval_flag);
+    #if defined(HOST_TGT)
+        /* Progress marker 2: after pos_start calculation */
+        printf("[Host dbg][cp step2 pos_start] pos_start=%d tlead=%d pw_gzrf1a=%d rfupa=%d\n",
+               pos_start, tlead, pw_gzrf1a, rfupa);
+        fflush(stdout);
+    #endif
                 printf("Obl3in1: scale_difx=%f scale_dify=%f scale_difz=%f\n", scale_difx, scale_dify, scale_difz);
                 printf("Obl3in1:  \n");
                 printf("Obl3in1: Input logical MPG amplitude in each axis in G/cm.\n");
@@ -15789,10 +15801,36 @@ calcPulseParams( int encode_mode )
             gx_phys = norot_incdifx*scale_difx;
             gy_phys = norot_incdify*scale_dify;
             gz_phys = norot_incdifz*scale_difz;
+    #if defined(HOST_TGT)
+        /* Progress marker 3: after gating branch selection */
+        printf("[Host dbg][cp step3 gating_done] pidmode=%d sp_satstart=%d cs_satstart=%d pos_start=%d\n",
+               pidmode, sp_satstart, cs_satstart, pos_start);
+        fflush(stdout);
+    #endif
 
             log_incdifx_scaled = inversRR[0]*gx_phys + inversRR[1]*gy_phys + inversRR[2]*gz_phys;
             log_incdify_scaled = inversRR[3]*gx_phys + inversRR[4]*gy_phys + inversRR[5]*gz_phys;
             log_incdifz_scaled = inversRR[6]*gx_phys + inversRR[7]*gy_phys + inversRR[8]*gz_phys;
+
+            /* baige fixbug Instrument walk_sat_timing */
+    #if defined(HOST_TGT)
+            printf("[Host dbg][cp before walk_sat_timing] rfov_flag=%d walk_sat_flag=%d pos_start=%d\n",
+                   rfov_flag, walk_sat_flag, pos_start);
+            fflush(stdout);
+    #endif
+            int _ws_ret = walk_sat_timing();
+    #if defined(HOST_TGT)
+            printf("[Host dbg][cp after walk_sat_timing] ret=%d\n", _ws_ret);
+            fflush(stdout);
+    #endif
+            if ( FAILURE == _ws_ret ) {
+    #if defined(HOST_TGT)
+                printf("[Host dbg][cp FAIL walk_sat_timing early return]\n");
+                fflush(stdout);
+    #endif
+    /* baige fixbug end*/
+                return FAILURE;
+            }
 
             if (obl_3in1_opt_debug)
             {
