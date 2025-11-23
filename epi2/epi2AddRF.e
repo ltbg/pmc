@@ -15241,6 +15241,14 @@ calcPulseParams( int encode_mode )
     calcPulseParams() 
 #endif /* __STDC__ */
 {
+/* BAIGE_ENTRY_DBG: earliest entry print to see if we reach function at all before any inline returns */
+#if defined(HOST_TGT)
+    printf("[Host dbg][calcPulseParams entry] encode_mode=%d td0=%d optdel1=%d pitdel1=%d opcgate_exist=%d opcgate_on=%d\n",
+           encode_mode, td0, optdel1, pitdel1,
+           existcv(opcgate)?1:0,
+           (existcv(opcgate) && exist(opcgate)==PSD_ON)?1:0);
+    fflush(stdout);
+#endif
     /* Obl 3in1 opt */
     float log_incdifx_scaled = 0;
     float log_incdify_scaled = 0;
@@ -15538,6 +15546,17 @@ calcPulseParams( int encode_mode )
            (int)GRAD_UPDATE_TIME, td0, pw_x_td0, pw_y_td0, pw_z_td0);
     fflush(stdout);
 #endif
+    /* BAIGE_FIX_X_TD0: ensure x_td0 period is non-zero BEFORE any early Eval checks, using td0 if > update time */
+#ifdef BAIGE_FIX_X_TD0
+    {
+        int _x_td0_width = (td0 > (int)GRAD_UPDATE_TIME) ? td0 : (int)GRAD_UPDATE_TIME;
+        setperiod(_x_td0_width, &x_td0, 0); /* pre-set x_td0 width */
+#if defined(HOST_TGT)
+        printf("[Host dbg][x_td0 pre-setperiod] td0=%d chosen_width=%d GRAD_UPDATE_TIME=%d\n", td0, _x_td0_width, (int)GRAD_UPDATE_TIME);
+        fflush(stdout);
+#endif
+    }
+#endif /* BAIGE_FIX_X_TD0 */
 /*baige add GradX end*/
 
     freq_dwi=0.0;   /* B0 frequency offset */
