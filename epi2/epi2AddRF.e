@@ -15523,7 +15523,7 @@ calcPulseParams( int encode_mode )
      * Pulse widths of wait will be set to td0 for first slice
      * of an R-R in RSP.  All other slices will be set to 
      * the GRAD_UPDATE_TIME.
-     */
+     *//* 初始化 wait 的宽度变量 */
     pw_x_td0 = GRAD_UPDATE_TIME;
     pw_y_td0 = GRAD_UPDATE_TIME;
     pw_z_td0 = GRAD_UPDATE_TIME;
@@ -15531,6 +15531,14 @@ calcPulseParams( int encode_mode )
     pw_ssp_td0 = GRAD_UPDATE_TIME;
     pw_theta_td0 = GRAD_UPDATE_TIME;
     pw_omega_td0 = GRAD_UPDATE_TIME;
+/*baige add GradX*/
+#if defined(HOST_TGT)
+    /* Instrumentation: confirm initial wait widths on Host side */
+    printf("[Host dbg][init waits] GRAD_UPDATE_TIME=%d td0=%d pw_x_td0=%d pw_y_td0=%d pw_z_td0=%d\n",
+           (int)GRAD_UPDATE_TIME, td0, pw_x_td0, pw_y_td0, pw_z_td0);
+    fflush(stdout);
+#endif
+/*baige add GradX end*/
 
     freq_dwi=0.0;   /* B0 frequency offset */
     phase_dwi=0.0;  /* B0 phase offset */
@@ -16138,18 +16146,6 @@ calcPulseParams( int encode_mode )
        Observed runtime Coding Error reporting Pulse Width=0 for pulse x_td0 despite earlier
        initialization. If some inline code or retry path zeroes pw_x_td0 or skips setperiod,
        clamp here before returning. This is minimal-impact: only acts when pw_x_td0 <=0. */
-    if (pw_x_td0 <= 0) {
-        pw_x_td0 = (int)GRAD_UPDATE_TIME; /* minimal legal width */
-        setperiodrsp(pw_x_td0, 0);
-        setperiodrsp(pw_x_td0, 0);
-        setperiodrsp(pw_x_td0, 0);
-        setperiodrsp(pw_x_td0, 0);
-        setperiodrsp(pw_x_td0, 0);
-        setperiodrsp(pw_x_td0,0);
-        setperiodrsp(pw_x_td0, 0);
-        printf("[pw_x_td0 clamp] Applied GRAD_UPDATE_TIME=%d to *_td0 waits\n", pw_x_td0);
-        fflush(stdout);
-    }
      /* baige add Gradx safety end*/
 
     return SUCCESS;
@@ -16838,6 +16834,14 @@ STATUS pulsegen( void )
     {
         SSPPACKET(dynr1,tlead-pw_dynr1-GRAD_UPDATE_TIME,pw_dynr1,sspwm_dynr1,);
     }
+
+    /* baige add GradX Instrumentation before WAITs to verify widths right before macro expansion */
+#if defined(HOST_TGT)
+    printf("[Host dbg][before WAIT] tlead=%d pw_x_td0=%d pw_y_td0=%d pw_z_td0=%d pw_rho_td0=%d pw_theta_td0=%d pw_omega_td0=%d pw_ssp_td0=%d\n",
+           tlead, pw_x_td0, pw_y_td0, pw_z_td0, pw_rho_td0, pw_theta_td0, pw_omega_td0, pw_ssp_td0);
+    fflush(stdout);
+#endif
+/*baige add GradX end*/
 
     WAIT(XGRAD, x_td0, tlead, pw_x_td0);
     WAIT(YGRAD, y_td0, tlead, pw_y_td0);
