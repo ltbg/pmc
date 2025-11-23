@@ -20014,17 +20014,23 @@ STATUS core( void )
                                    calcPulseParams() failure. Clamp to at least one GRAD_UPDATE_TIME.
                                    This preserves original timing intent when td0>0 while ensuring
                                    hardware cycle divisibility and >0 width requirement. */
-                                int td0_effective = td0;
-                                if (td0_effective <= 0) {
-                                    td0_effective = (int)GRAD_UPDATE_TIME; /* minimal positive width */
+                                setperiod(td0, &x_td0, 0);
+                                setperiod(td0, &y_td0, 0);
+                                setperiod(td0, &z_td0, 0);
+                                setperiod(td0, &rho_td0, 0);
+                                setperiod(td0, &theta_td0, 0);
+                                setperiod(td0, &omega_td0, 0);
+                                setperiod(td0, &ssp_td0, 0);
+
+                                if (x_td0.width <= 0) {
+                                    setperiod(GRAD_UPDATE_TIME, &x_td0, 0);
+                                    setperiod(GRAD_UPDATE_TIME, &y_td0, 0);
+                                    setperiod(GRAD_UPDATE_TIME, &z_td0, 0);
+                                    setperiod(GRAD_UPDATE_TIME, &rho_td0, 0);
+                                    setperiod(GRAD_UPDATE_TIME, &theta_td0, 0);
+                                    setperiod(GRAD_UPDATE_TIME, &omega_td0, 0);
+                                    setperiod(GRAD_UPDATE_TIME, &ssp_td0, 0);
                                 }
-                                setperiod(td0_effective, &x_td0, 0);
-                                setperiod(td0_effective, &y_td0, 0);
-                                setperiod(td0_effective, &z_td0, 0);
-                                setperiod(td0_effective, &rho_td0, 0);
-                                setperiod(td0_effective, &theta_td0, 0);
-                                setperiod(td0_effective, &omega_td0, 0);
-                                setperiod(td0_effective, &ssp_td0, 0);
                                 /* baige add Gradx end */
                         }
                     } else {
@@ -20794,17 +20800,23 @@ STATUS core( void )
                                 if ((rspent == L_SCAN)||(rspent == L_MPS2)||(rspent == L_APS2)) {
                                     /* Use cardiac trigger delay */
                                     /* baige add Gradx safety: guard against td0==0 to avoid zero-width pulses */
-                                    int td0_effective = td0;
-                                    if (td0_effective <= 0) {
-                                        td0_effective = (int)GRAD_UPDATE_TIME;
+                                    setperiod(td0, &x_td0, 0);
+                                    setperiod(td0, &y_td0, 0);
+                                    setperiod(td0, &z_td0, 0);
+                                    setperiod(td0, &rho_td0, 0);
+                                    setperiod(td0, &theta_td0, 0);
+                                    setperiod(td0, &omega_td0, 0);
+                                    setperiod(td0, &ssp_td0, 0);
+
+                                    if (x_td0.width <= 0) {
+                                        setperiod(GRAD_UPDATE_TIME, &x_td0, 0);
+                                        setperiod(GRAD_UPDATE_TIME, &y_td0, 0);
+                                        setperiod(GRAD_UPDATE_TIME, &z_td0, 0);
+                                        setperiod(GRAD_UPDATE_TIME, &rho_td0, 0);
+                                        setperiod(GRAD_UPDATE_TIME, &theta_td0, 0);
+                                        setperiod(GRAD_UPDATE_TIME, &omega_td0, 0);
+                                        setperiod(GRAD_UPDATE_TIME, &ssp_td0, 0);
                                     }
-                                    setperiod(td0_effective, &x_td0, 0);
-                                    setperiod(td0_effective, &y_td0, 0);
-                                    setperiod(td0_effective, &z_td0, 0);
-                                    setperiod(td0_effective, &rho_td0, 0);
-                                    setperiod(td0_effective, &theta_td0, 0);
-                                    setperiod(td0_effective, &omega_td0, 0);
-                                    setperiod(td0_effective, &ssp_td0, 0);
                                 /* baige add Gradx end*/
                                 }
                             } else {
