@@ -11218,7 +11218,7 @@ cveval1( void )
 
     /* For use on the RSP side */
     echo2bw = echo2_filt->bw;
-
+    pw_rftrk = 3200;
     /*
      * The minimum TR is based on the time before the RF pulse +
      * half the RF pulse + the TE time + the last half of the
@@ -16134,6 +16134,24 @@ calcPulseParams( int encode_mode )
     a_omega = 1;
     ia_omega = (a_omega*max_pg_iamp)/loggrd.tz;
 
+    /* baige add Gradx safety: ensure x_td0 (and sibling td0 waits) have non-zero, cycle-aligned width.
+       Observed runtime Coding Error reporting Pulse Width=0 for pulse x_td0 despite earlier
+       initialization. If some inline code or retry path zeroes pw_x_td0 or skips setperiod,
+       clamp here before returning. This is minimal-impact: only acts when pw_x_td0 <=0. */
+    if (pw_x_td0 <= 0) {
+        pw_x_td0 = (int)GRAD_UPDATE_TIME; /* minimal legal width */
+        setperiod(pw_x_td0, &x_td0, 0);
+        setperiod(pw_x_td0, &y_td0, 0);
+        setperiod(pw_x_td0, &z_td0, 0);
+        setperiod(pw_x_td0, &rho_td0, 0);
+        setperiod(pw_x_td0, &theta_td0, 0);
+        setperiod(pw_x_td0, &omega_td0, 0);
+        setperiod(pw_x_td0, &ssp_td0, 0);
+        printf("[pw_x_td0 clamp] Applied GRAD_UPDATE_TIME=%d to *_td0 waits\n", pw_x_td0);
+        fflush(stdout);
+    }
+     /* baige add Gradx safety end*/
+
     return SUCCESS;
 }   /* end calcPulseParams() */
 
@@ -20775,13 +20793,19 @@ STATUS core( void )
                             if (rsptrigger[sliceindex] != TRIG_INTERN) {	
                                 if ((rspent == L_SCAN)||(rspent == L_MPS2)||(rspent == L_APS2)) {
                                     /* Use cardiac trigger delay */
-                                    setperiod(td0, &x_td0, 0);
-                                    setperiod(td0, &y_td0, 0);
-                                    setperiod(td0, &z_td0, 0);
-                                    setperiod(td0, &rho_td0, 0);
-                                    setperiod(td0, &theta_td0, 0);
-                                    setperiod(td0, &omega_td0, 0);
-                                    setperiod(td0, &ssp_td0, 0);
+                                    /* baige add Gradx safety: guard against td0==0 to avoid zero-width pulses */
+                                    int td0_effective = td0;
+                                    if (td0_effective <= 0) {
+                                        td0_effective = (int)GRAD_UPDATE_TIME;
+                                    }
+                                    setperiod(td0_effective, &x_td0, 0);
+                                    setperiod(td0_effective, &y_td0, 0);
+                                    setperiod(td0_effective, &z_td0, 0);
+                                    setperiod(td0_effective, &rho_td0, 0);
+                                    setperiod(td0_effective, &theta_td0, 0);
+                                    setperiod(td0_effective, &omega_td0, 0);
+                                    setperiod(td0_effective, &ssp_td0, 0);
+                                /* baige add Gradx end*/
                                 }
                             } else {
                                 /* Bypass cardiac trigger delay */
