@@ -17969,128 +17969,120 @@ STATUS pulsegen( void )
     printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
     
     /* Z Dephaser (Crusher)*/
-
-    STATUS st_gz2;
-    st_gz2 = TRAPEZOID(ZGRAD, gz2,
+    #if defined(HOST_TGT){
+        int start= pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a;
+        int zrt=loggrd.zrt*loggrd.scale_3axis_risetime;
+        printf("[DBG gz2] crusher_area=%f start=%d zrt=%d minplat=%d\n",
+            crusher_area,
+            start,
+            zrt,
+            MIN_PLATEAU_TIME);
+        fflush(stdout);
+    }
+    #endif
+     TRAPEZOID(ZGRAD, gz2,
                     pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a,
                     (int)crusher_area,
                     , loggrd);
-    if (st_gz2 == FAILURE) {
-    #if defined(HOST_TGT)
-        printf("[DBG gz2] crusher_area=%f start=%d zrt=%d minplat=%d\n",
-            crusher_area,
-            pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a,
-            loggrd.zrt*loggrd.scale_3axis_risetime,
-            MIN_PLATEAU_TIME);
-        fflush(stdout);
-    #endif
-          epic_error(use_ermes, supfailfmt,
-                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
-                    STRING_ARG, "TRAPEZOID:gz2");
-            return FAILURE;
-    }
-     
+
      /* baige addGx */
     /* X Readout */
-    STATUS st_gxwtrk;
-
-    st_gxwtrk = TRAPEZOID(XGRAD, gxwtrk,
-                          RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
-                          0,
-                          TYPNDEF,
-                          loggrd);
-
-    if (st_gxwtrk == FAILURE) {
     #if defined(HOST_TGT)
-            printf("[DBG gxwtrk] fail: start=%d area=0 risetime=%d tx=%d pw=%d\n",
-                RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
-                (int)(loggrd.xrt * loggrd.scale_3axis_risetime),
-                loggrd.tx_xyz,
-                pw_gxwtrk);
-            fflush(stdout);
+    {
+        int start_gx1trk = pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd;
+        int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
+
+        printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d pw_gxwtrka=%d tx=%d\n",
+            start_gx1trk,
+            area_gx1trk,
+            a_gxwtrk,
+            pw_gxwtrk,
+            pw_gxwtrka,
+            (int)loggrd.tx_xyz);
+        fflush(stdout);
+    }
     #endif
-            epic_error(use_ermes, supfailfmt,
-                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
-                    STRING_ARG, "TRAPEZOID:gxwtrk");
-            return FAILURE;
-        }
+    /* ---- Real pulse ---- */
+    TRAPEZOID(XGRAD, gx1trk,
+            pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
+            (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
+            TYPNDEF,
+            loggrd);
 
 
     /* Frequency Dephaser */
-       STATUS st_gx1trk;
-
-    st_gx1trk = TRAPEZOID(XGRAD, gx1trk,
-                          pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
-                          (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
-                          ,
-                          loggrd);
-
-    if (st_gx1trk == FAILURE) {
+       /* ---- Debug gx1trk params ---- */
     #if defined(HOST_TGT)
-            printf("[DBG gx1trk] fail: start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
-                pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
-                (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
-                a_gxwtrk,
-                pw_gxwtrk,
-                loggrd.tx_xyz);
-            fflush(stdout);
+    {
+        int start_gx1trk = pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd;
+        int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
+
+        printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d pw_gxwtrka=%d tx=%d\n",
+            start_gx1trk,
+            area_gx1trk,
+            a_gxwtrk,
+            pw_gxwtrk,
+            pw_gxwtrka,
+            (int)loggrd.tx_xyz);
+        fflush(stdout);
+    }
     #endif
-            epic_error(use_ermes, supfailfmt,
-                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
-                    STRING_ARG, "TRAPEZOID:gx1trk");
-            return FAILURE;
-        }
+    /* ---- Real pulse ---- */
+    TRAPEZOID(XGRAD, gx1trk,
+            pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
+            (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
+            TYPNDEF,
+            loggrd);
+
 
       
       /* Data Acquisition */
     ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
     /* baige addGx end */
      /* Z & X Killers */
-    STATUS st_gzktrk;
-
-    st_gzktrk = TRAPEZOID(ZGRAD, gzktrk,
-                          pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
-                          980,
-                          ,
-                          loggrd);
-
-    if (st_gzktrk == FAILURE) {
+    /* ---- Debug gzktrk params ---- */
     #if defined(HOST_TGT)
-            printf("[DBG gzktrk] fail: start=%d area=%d rt=%d tx=%d\n",
-                pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
-                980,
-                (int)(loggrd.zrt * loggrd.scale_3axis_risetime),
-                loggrd.tz_xyz);
-            fflush(stdout);
+    {
+        int start_gzktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka;
+        int area_gzktrk  = 980;
+
+        printf("[DBG gzktrk] start=%d area=%d tx=%d rt=%d\n",
+            start_gzktrk,
+            area_gzktrk,
+            (int)loggrd.tz_xyz,
+            (int)(loggrd.zrt * loggrd.scale_3axis_risetime));
+        fflush(stdout);
+    }
     #endif
-            epic_error(use_ermes, supfailfmt,
-                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
-                    STRING_ARG, "TRAPEZOID:gzktrk");
-            return FAILURE;
-        }
+    /* ---- Real pulse ---- */
+    TRAPEZOID(ZGRAD, gzktrk,
+            pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
+            980,
+            TYPNDEF,
+            loggrd);
+
     
-    STATUS st_gxktrk;
-
-    st_gxktrk = TRAPEZOID(XGRAD, gxktrk,
-                          pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
-                          980,
-                          ,
-                          loggrd);
-
-    if (st_gxktrk == FAILURE) {
+    /* ---- Debug gxktrk params ---- */
     #if defined(HOST_TGT)
-            printf("[DBG gxktrk] fail: start=%d area=%d rt=%d tx=%d\n",
-                pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
-                980,
-                (int)(loggrd.xrt * loggrd.scale_3axis_risetime),
-                loggrd.tx_xyz);
-            fflush(stdout);
+    {
+        int start_gxktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka;
+        int area_gxktrk  = 980;
+
+        printf("[DBG gxktrk] start=%d area=%d tx=%d rt=%d\n",
+            start_gxktrk,
+            area_gxktrk,
+            (int)loggrd.tx_xyz,
+            (int)(loggrd.xrt * loggrd.scale_3axis_risetime));
+        fflush(stdout);
+    }
     #endif
-            epic_error(use_ermes, supfailfmt,
-                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
-                    STRING_ARG, "TRAPEZOID:gxktrk");
-            return FAILURE;
-        }
+    /* ---- Real pulse ---- */
+    TRAPEZOID(XGRAD, gxktrk,
+            pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
+            980,
+            TYPNDEF,
+            loggrd);
+
     
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
