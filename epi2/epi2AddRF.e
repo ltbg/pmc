@@ -15548,27 +15548,6 @@ calcPulseParams( int encode_mode )
     fflush(stdout);
 #endif
 
-/* 
-#if defined(HOST_TGT)
-    /* Instrumentation: confirm initial wait widths on Host side */
-    printf("[Host dbg][init waits] GRAD_UPDATE_TIME=%d td0=%d pw_x_td0=%d pw_y_td0=%d pw_z_td0=%d\n",
-           (int)GRAD_UPDATE_TIME, td0, pw_x_td0, pw_y_td0, pw_z_td0);
-    fflush(stdout);
-#endif
-*/ 
- /*
-    /* BAIGE_FIX_X_TD0: ensure x_td0 period is non-zero BEFORE any early Eval checks, using td0 if > update time */
- #ifdef BAIGE_FIX_X_TD0
-    {
-        int _x_td0_width = (td0 > (int)GRAD_UPDATE_TIME) ? td0 : (int)GRAD_UPDATE_TIME;
-        setperiod(_x_td0_width, &x_td0, 0); /* pre-set x_td0 width */
-#if defined(HOST_TGT)
-        printf("[Host dbg][x_td0 pre-setperiod] td0=%d chosen_width=%d GRAD_UPDATE_TIME=%d\n", td0, _x_td0_width, (int)GRAD_UPDATE_TIME);
-        fflush(stdout);
-#endif
-    }
-#endif 
-*/
 /* BAIGE_FIX_X_TD0 */
 /*baige add GradX end*/
 
@@ -17990,20 +17969,129 @@ STATUS pulsegen( void )
     printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
     
     /* Z Dephaser (Crusher)*/
-    TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + pw_gz2a, (int)crusher_area, , loggrd);
+
+    STATUS st_gz2;
+    st_gz2 = TRAPEZOID(ZGRAD, gz2,
+                    pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a,
+                    (int)crusher_area,
+                    , loggrd);
+    if (st_gz2 == FAILURE) {
+    #if defined(HOST_TGT)
+        printf("[DBG gz2] crusher_area=%f start=%d zrt=%d minplat=%d\n",
+            crusher_area,
+            pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a,
+            loggrd.zrt*loggrd.scale_3axis_risetime,
+            MIN_PLATEAU_TIME);
+        fflush(stdout);
+    #endif
+          epic_error(use_ermes, supfailfmt,
+                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
+                    STRING_ARG, "TRAPEZOID:gz2");
+            return FAILURE;
+    }
      
      /* baige addGx */
     /* X Readout */
-    TRAPEZOID(XGRAD, gxwtrk, RUP_GRD(pmid( &gzrftrk, "gzrftrk", 0 ) + opte - pw_gxwtrk / 2), 0, TYPNDEF, loggrd);
+    STATUS st_gxwtrk;
+
+    st_gxwtrk = TRAPEZOID(XGRAD, gxwtrk,
+                          RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
+                          0,
+                          TYPNDEF,
+                          loggrd);
+
+    if (st_gxwtrk == FAILURE) {
+    #if defined(HOST_TGT)
+            printf("[DBG gxwtrk] fail: start=%d area=0 risetime=%d tx=%d pw=%d\n",
+                RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
+                (int)(loggrd.xrt * loggrd.scale_3axis_risetime),
+                loggrd.tx_xyz,
+                pw_gxwtrk);
+            fflush(stdout);
+    #endif
+            epic_error(use_ermes, supfailfmt,
+                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
+                    STRING_ARG, "TRAPEZOID:gxwtrk");
+            return FAILURE;
+        }
+
 
     /* Frequency Dephaser */
-    TRAPEZOID(XGRAD, gx1trk, pbeg( &gxwtrka, "gxwtrka", 0 ) - pw_gx1trk - pw_gx1trkd, (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)), , loggrd);
+       STATUS st_gx1trk;
+
+    st_gx1trk = TRAPEZOID(XGRAD, gx1trk,
+                          pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
+                          (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
+                          ,
+                          loggrd);
+
+    if (st_gx1trk == FAILURE) {
+    #if defined(HOST_TGT)
+            printf("[DBG gx1trk] fail: start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
+                pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
+                (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
+                a_gxwtrk,
+                pw_gxwtrk,
+                loggrd.tx_xyz);
+            fflush(stdout);
+    #endif
+            epic_error(use_ermes, supfailfmt,
+                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
+                    STRING_ARG, "TRAPEZOID:gx1trk");
+            return FAILURE;
+        }
+
+      
       /* Data Acquisition */
     ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
     /* baige addGx end */
      /* Z & X Killers */
-    TRAPEZOID(ZGRAD, gzktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gzktrka, 980, , loggrd);
-    TRAPEZOID(XGRAD, gxktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gxktrka, 980, , loggrd);
+    STATUS st_gzktrk;
+
+    st_gzktrk = TRAPEZOID(ZGRAD, gzktrk,
+                          pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
+                          980,
+                          ,
+                          loggrd);
+
+    if (st_gzktrk == FAILURE) {
+    #if defined(HOST_TGT)
+            printf("[DBG gzktrk] fail: start=%d area=%d rt=%d tx=%d\n",
+                pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
+                980,
+                (int)(loggrd.zrt * loggrd.scale_3axis_risetime),
+                loggrd.tz_xyz);
+            fflush(stdout);
+    #endif
+            epic_error(use_ermes, supfailfmt,
+                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
+                    STRING_ARG, "TRAPEZOID:gzktrk");
+            return FAILURE;
+        }
+    
+    STATUS st_gxktrk;
+
+    st_gxktrk = TRAPEZOID(XGRAD, gxktrk,
+                          pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
+                          980,
+                          ,
+                          loggrd);
+
+    if (st_gxktrk == FAILURE) {
+    #if defined(HOST_TGT)
+            printf("[DBG gxktrk] fail: start=%d area=%d rt=%d tx=%d\n",
+                pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
+                980,
+                (int)(loggrd.xrt * loggrd.scale_3axis_risetime),
+                loggrd.tx_xyz);
+            fflush(stdout);
+    #endif
+            epic_error(use_ermes, supfailfmt,
+                    EM_PSD_SUPPORT_FAILURE, EE_ARGS(1),
+                    STRING_ARG, "TRAPEZOID:gxktrk");
+            return FAILURE;
+        }
+    
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
     /* baige addRF end*/
