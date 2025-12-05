@@ -889,20 +889,6 @@ MR30.1 25/May/2023 GW HCSDM00737055 Enabled high-res for Stage 2 MUSE recon when
 #define PSD_FSE_RF2_fPW   4.0ms
 #define PSD_FSE_RF2_R     400
 
-/*baige add GradX for */
-/* 只在 HOST 侧调试时用到 */
-#if defined(HOST_TGT)
-extern int   pw_gx1trk;
-extern int   pw_gx1trkd;
-extern int   pw_gx1trka;
-extern float a_gx1trk;
-extern int   ia_gx1trk;
-/* 如果需要用到 wave 名字，也可以提前声明 */
-extern WAVEFORM gx1trk;
-#endif
-
-/*baige add GradX end*/
-
 #define RUP_HRD(A)  (((A)%hrdwr_period) ? (int)((A) + hrdwr_period) & ~(hrdwr_period - 1) : (A))
 
 #define NAV_EPI
@@ -17983,7 +17969,8 @@ STATUS pulsegen( void )
     printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
     
     /* Z Dephaser (Crusher)*/
-    #if defined(HOST_TGT){
+    #if defined(HOST_TGT)
+    {
         int start= pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a;
         int zrt=loggrd.zrt*loggrd.scale_3axis_risetime;
         printf("[DBG gz2] crusher_area=%f start=%d zrt=%d minplat=%d\n",
@@ -18001,27 +17988,27 @@ STATUS pulsegen( void )
 
      /* baige addGx */
     /* X Readout */
-    #if defined(HOST_TGT)
-    {
-        int start_gx1trk = pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd;
-        int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
+    /* ---- Debug gxwtrk params ---- */
+#if defined(HOST_TGT)
+{
+    int start_gxwtrk = RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2);
+    int area_gxwtrk  = 0;
 
-        printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d pw_gxwtrka=%d tx=%d\n",
-            start_gx1trk,
-            area_gx1trk,
-            a_gxwtrk,
-            pw_gxwtrk,
-            pw_gxwtrka,
-            (int)loggrd.tx_xyz);
-        fflush(stdout);
-    }
-    #endif
-    /* ---- Real pulse ---- */
-    TRAPEZOID(XGRAD, gx1trk,
-            pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
-            (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
-            TYPNDEF,
-            loggrd);
+    printf("[DBG gxwtrk] start=%d area=%d tx=%d rt=%d pw_gxwtrk=%d\n",
+           start_gxwtrk,
+           area_gxwtrk,
+           (int)loggrd.tx_xyz,
+           (int)(loggrd.xrt * loggrd.scale_3axis_risetime),
+           pw_gxwtrk);
+    fflush(stdout);
+}
+#endif
+/* ---- Real pulse ---- */
+TRAPEZOID(XGRAD, gxwtrk,
+          RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
+          0,
+          TYPNDEF,
+          loggrd);
 
 
     /* Frequency Dephaser */
