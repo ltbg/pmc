@@ -889,6 +889,20 @@ MR30.1 25/May/2023 GW HCSDM00737055 Enabled high-res for Stage 2 MUSE recon when
 #define PSD_FSE_RF2_fPW   4.0ms
 #define PSD_FSE_RF2_R     400
 
+/*baige add GradX for */
+/* 只在 HOST 侧调试时用到 */
+#if defined(HOST_TGT)
+extern int   pw_gx1trk;
+extern int   pw_gx1trkd;
+extern int   pw_gx1trka;
+extern float a_gx1trk;
+extern int   ia_gx1trk;
+/* 如果需要用到 wave 名字，也可以提前声明 */
+extern WAVEFORM gx1trk;
+#endif
+
+/*baige add GradX end*/
+
 #define RUP_HRD(A)  (((A)%hrdwr_period) ? (int)((A) + hrdwr_period) & ~(hrdwr_period - 1) : (A))
 
 #define NAV_EPI
