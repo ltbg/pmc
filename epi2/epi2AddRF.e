@@ -7937,9 +7937,8 @@ cveval1( void )
         return FAILURE;
     }
     pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
-    pw_gxwtrk  = pw_gxw;          /* 让pw_gxwtrk非零 */
 
-    printf("[DBG pre1 gxwtrk] pw_gxw=%d pw_gxwtrk=%d\n", pw_gxw, pw_gxwtrk);
+    printf("[DBG pre1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d\n", pw_gxwtrka, pw_gxwtrkd);
     fflush(stdout);
 
     /* baige add Gradx end*/
@@ -15120,20 +15119,6 @@ predownload1( void )
 @inline RTB0.e RTB0Filter
 
 @inline Prescan.e PSfilter
-/* baige add Gradx Set the Slope of the Read Out window's leading edge */
-    if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
-    {
-        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
-                    EE_ARGS(1), STRING_ARG, "optramp" );
-        return FAILURE;
-    }
-    pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
-    pw_gxwtrk  = pw_gxw;          /* 让pw_gxwtrk非零 */
-
-    printf("[DBG pre1 gxwtrk] pw_gxw=%d pw_gxwtrk=%d\n", pw_gxw, pw_gxwtrk);
-    fflush(stdout);
-
-/* baige add Gradx end*/
 
 /*baige add Gradx*/
 /*entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;*/
@@ -18032,26 +18017,25 @@ TRAPEZOID(XGRAD, gxwtrk,
 
     /* Frequency Dephaser */
        /* ---- Debug gx1trk params ---- */
-   /*
-   * #if defined(HOST_TGT)
-   * {
-    *    int start_gx1trk = pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd;
-     *   int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
-*
- *       printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
-  *          start_gx1trk,
-   *         area_gx1trk,
-    *        a_gxwtrk,
-     *       pw_gxwtrk,
-      *      (int)loggrd.tx_xyz);
-       * fflush(stdout);
-    *}
-    *#endif
-    */
+
+    #if defined(HOST_TGT)
+   {
+       int start_gx1trk = pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd;
+      int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
+
+       printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
+           start_gx1trk,
+           area_gx1trk,
+            a_gxwtrk,
+           pw_gxwtrk,
+           (int)loggrd.tx_xyz);
+       fflush(stdout);
+    }
+    #endif
 
     /* ---- Real pulse ---- */
     TRAPEZOID(XGRAD, gx1trk,
-            pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd,
+            pbeg( &gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
             (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
             TYPNDEF,
             loggrd);
