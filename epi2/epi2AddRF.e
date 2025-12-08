@@ -17962,7 +17962,7 @@ STATUS pulsegen( void )
 
         /* baige addRF */
     /* Tracking 序列 */
-    SLICESELZ(rftrk, 40ms, 6400us, opslthick, opflip, 1, , loggrd);
+    SLICESELZ(rftrk, 1ms, 3200us, opslthick, opflip, 1, , loggrd);
     /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
     a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
     ia_gzrftrk = 0;              /* 指令幅度置 0 */
