@@ -15113,6 +15113,10 @@ predownload1( void )
         return FAILURE;
     }
     pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
+    pw_gxwtrk  = pw_gxw;          /* 让pw_gxwtrk非零 */
+
+    printf("[DBG pre1 gxwtrk] pw_gxw=%d pw_gxwtrk=%d\n", pw_gxw, pw_gxwtrk);
+    fflush(stdout);
 
 /* baige add Gradx end*/
 
@@ -18029,7 +18033,7 @@ TRAPEZOID(XGRAD, gxwtrk,
     *}
     *#endif
     */
-    
+
     /* ---- Real pulse ---- */
     TRAPEZOID(XGRAD, gx1trk,
             pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd,
