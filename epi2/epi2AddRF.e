@@ -15106,12 +15106,13 @@ predownload1( void )
         return FAILURE;
     } 
     /*baige add Gradx*/
-    pw_gxwtrk = echo2_filt->tdaq;
 
     setfilter( echo2_filt, SCAN );
     filter_echo2 = echo2_filt->fslot;
+
+     pw_gxwtrk = echo2_filt->tdaq;
     /*baige add Gradx end*/
-    
+
     /* baige add Gradx Set the Slope of the Read Out window's leading edge */
     if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
     {
