@@ -18015,25 +18015,25 @@ TRAPEZOID(XGRAD, gxwtrk,
        /* ---- Debug gx1trk params ---- */
     #if defined(HOST_TGT)
     {
-        int start_gx1trk = pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd;
+        int start_gx1trk = pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd;
         int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
 
-        printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d pw_gxwtrka=%d tx=%d\n",
+        printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
             start_gx1trk,
             area_gx1trk,
             a_gxwtrk,
             pw_gxwtrk,
-            pw_gxwtrka,
             (int)loggrd.tx_xyz);
         fflush(stdout);
     }
     #endif
     /* ---- Real pulse ---- */
     TRAPEZOID(XGRAD, gx1trk,
-            pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
+            pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd,
             (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
             TYPNDEF,
             loggrd);
+
 
 
       
