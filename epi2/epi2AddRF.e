@@ -7929,6 +7929,21 @@ cveval1( void )
                 loggrd.zrt*loggrd.scale_3axis_risetime, TYPDEF) == FAILURE)
         return FAILURE;
     
+    /* baige add Gradx Set the Slope of the Read Out window's leading edge */
+    if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
+    {
+        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+                    EE_ARGS(1), STRING_ARG, "optramp" );
+        return FAILURE;
+    }
+    pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
+    pw_gxwtrk  = pw_gxw;          /* 让pw_gxwtrk非零 */
+
+    printf("[DBG pre1 gxwtrk] pw_gxw=%d pw_gxwtrk=%d\n", pw_gxw, pw_gxwtrk);
+    fflush(stdout);
+
+    /* baige add Gradx end*/
+    
     crusher_type = PSD_TYPCMEMP;
     if (crusherutil(crusher_scale, crusher_type) == FAILURE) 
     {
