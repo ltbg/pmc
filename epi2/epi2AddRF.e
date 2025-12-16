@@ -7929,7 +7929,46 @@ cveval1( void )
                 loggrd.zrt*loggrd.scale_3axis_risetime, TYPDEF) == FAILURE)
         return FAILURE;
     
-    /* baige add Gradx Set the Slope of the Read Out window's leading edge */
+    
+    /* baige add Gradx*/
+      if( calcfilter( &echo2_rtfilt,
+                    exist(oprbw),
+                    exist(opxres),
+                    OVERWRITE_OPRBW ) == FAILURE)
+    {
+        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+                    EE_ARGS(1), STRING_ARG, "calcfilter:echo2" );
+        return FAILURE;
+    }
+
+    echo2_filt = &echo2_rtfilt;
+
+
+    /* Divide by 0 protection */
+    if( (echo2_filt->tdaq == 0) || 
+        floatsAlmostEqualEpsilons(echo2_filt->decimation, 0.0f, 2) ) 
+    {
+        epic_error( use_ermes, "echo2 tdaq or decimation = 0",
+                    EM_PSD_BAD_FILTER, EE_ARGS(0) );
+        return FAILURE;
+    }
+
+    /* For use on the RSP side */
+    echo2bw = echo2_filt->bw;
+
+    /*
+     * The minimum TR is based on the time before the RF pulse +
+     * half the RF pulse + the TE time + the last half of the
+     * readout + the time for the end of sequence killers
+     */
+    avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
+    
+    setfilter( echo2_filt, SCAN );
+    filter_echo2 = echo2_filt->fslot;
+    #if defined(HOST_TGT)
+    pw_gxwtrk = echo2_filt->tdaq;
+    #endif
+
     if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
     {
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
@@ -7937,8 +7976,8 @@ cveval1( void )
         return FAILURE;
     }
     pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
-
-    printf("[DBG cveval1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d\n", pw_gxwtrka, pw_gxwtrkd);
+    /*pw_gxwtrk = pw_gxw; /* set pw_gxwtrk equal to imgaing readout because if not use optramp will not create pw_gxwtrk, error occurs. */*/
+    printf("[DBG cveval1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d pw_gxwtrk=%d \n", pw_gxwtrka, pw_gxwtrkd,pw_gxwtrk);
     fflush(stdout);
 
     /* baige add Gradx end*/
@@ -11207,39 +11246,7 @@ cveval1( void )
     }
 
     frqx = 1000.0/tsp;
-/* baige add Gradx*/
-      if( calcfilter( &echo2_rtfilt,
-                    exist(oprbw),
-                    exist(opxres),
-                    OVERWRITE_OPRBW ) == FAILURE)
-    {
-        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
-                    EE_ARGS(1), STRING_ARG, "calcfilter:echo2" );
-        return FAILURE;
-    }
 
-    echo2_filt = &echo2_rtfilt;
-
-
-    /* Divide by 0 protection */
-    if( (echo2_filt->tdaq == 0) || 
-        floatsAlmostEqualEpsilons(echo2_filt->decimation, 0.0f, 2) ) 
-    {
-        epic_error( use_ermes, "echo2 tdaq or decimation = 0",
-                    EM_PSD_BAD_FILTER, EE_ARGS(0) );
-        return FAILURE;
-    }
-
-    /* For use on the RSP side */
-    echo2bw = echo2_filt->bw;
-    pw_rftrk = 3200;
-    /*
-     * The minimum TR is based on the time before the RF pulse +
-     * half the RF pulse + the TE time + the last half of the
-     * readout + the time for the end of sequence killers
-     */
-    avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
-    /* baige add Gradx end*/
     return SUCCESS;
 }   /* end cveval1() */
 
@@ -15107,24 +15114,26 @@ predownload1( void )
     } 
     /*baige add Gradx*/
 
-    setfilter( echo2_filt, SCAN );
-    filter_echo2 = echo2_filt->fslot;
-
-     pw_gxwtrk = echo2_filt->tdaq;
+    /*
+    *setfilter( echo2_filt, SCAN );
+    *filter_echo2 = echo2_filt->fslot;
+    */
+    
     /*baige add Gradx end*/
 
     /* baige add Gradx Set the Slope of the Read Out window's leading edge */
-    if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
-    {
-        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
-                    EE_ARGS(1), STRING_ARG, "optramp" );
-        return FAILURE;
-    }
-    pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
+    /* if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
+    *{
+    *    epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+     *               EE_ARGS(1), STRING_ARG, "optramp" );
+      *  return FAILURE;
+    *}
+    *pw_gxwtrkd = pw_gxwtrka;
+    *pw_gxwtrk = pw_gxw;		/* Set trailing edge ramp to same duration. */
 
-    printf("[DBG pre1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d\n", pw_gxwtrka, pw_gxwtrkd);
-    fflush(stdout);
-
+    *printf("[DBG pre1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d\n", pw_gxwtrka, pw_gxwtrkd);
+    *fflush(stdout);
+    */
     /* baige add Gradx end*/
 
 @inline Monitor.e MonitorFilter
