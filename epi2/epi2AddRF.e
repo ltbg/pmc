@@ -7976,8 +7976,7 @@ cveval1( void )
         return FAILURE;
     }
     pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
-    /*pw_gxwtrk = pw_gxw; /* set pw_gxwtrk equal to imgaing readout because if not use optramp will not create pw_gxwtrk, error occurs. */*/
-    printf("[DBG cveval1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d pw_gxwtrk=%d \n", pw_gxwtrka, pw_gxwtrkd,pw_gxwtrk);
+    printf("[DBG cveval1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d pw_gxwtrk=%f \n", pw_gxwtrka, pw_gxwtrkd,pw_gxwtrk);
     fflush(stdout);
 
     /* baige add Gradx end*/
@@ -15112,29 +15111,10 @@ predownload1( void )
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "setfilter" );
         return FAILURE;
     } 
-    /*baige add Gradx*/
-
-    /*
-    *setfilter( echo2_filt, SCAN );
-    *filter_echo2 = echo2_filt->fslot;
-    */
     
-    /*baige add Gradx end*/
+    /*baige add Gradx 下面是之前写setfilter和optramp的地方 现在转移到cveval1*/
 
-    /* baige add Gradx Set the Slope of the Read Out window's leading edge */
-    /* if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
-    *{
-    *    epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
-     *               EE_ARGS(1), STRING_ARG, "optramp" );
-      *  return FAILURE;
-    *}
-    *pw_gxwtrkd = pw_gxwtrka;
-    *pw_gxwtrk = pw_gxw;		/* Set trailing edge ramp to same duration. */
-
-    *printf("[DBG pre1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d\n", pw_gxwtrka, pw_gxwtrkd);
-    *fflush(stdout);
-    */
-    /* baige add Gradx end*/
+    
 
 @inline Monitor.e MonitorFilter
 
