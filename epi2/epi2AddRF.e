@@ -7956,6 +7956,13 @@ cveval1( void )
     /* For use on the RSP side */
     echo2bw = echo2_filt->bw;
 
+    if( ampfov( &a_gxwtrk, echo2_filt->bw, opfov ) == FAILURE )
+    {
+        epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
+                    EE_ARGS(1), STRING_ARG, "ampfov:gxwtrk" );
+        return FAILURE;
+    }
+
     /*
      * The minimum TR is based on the time before the RF pulse +
      * half the RF pulse + the TE time + the last half of the
@@ -7965,9 +7972,7 @@ cveval1( void )
     
     setfilter( echo2_filt, SCAN );
     filter_echo2 = echo2_filt->fslot;
-    #if defined(HOST_TGT)
     pw_gxwtrk = echo2_filt->tdaq;
-    #endif
 
     if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
     {
