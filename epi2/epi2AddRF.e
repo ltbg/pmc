@@ -7970,9 +7970,7 @@ cveval1( void )
      */
     avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
     
-    setfilter( echo2_filt, SCAN );
-    filter_echo2 = echo2_filt->fslot;
-    pw_gxwtrk = echo2_filt->tdaq;
+    pw_gxwtrk = echo2_filt.tdaq;
 
     if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
     {
@@ -15118,7 +15116,9 @@ predownload1( void )
     } 
     
     /*baige add Gradx 下面是之前写setfilter和optramp的地方 现在转移到cveval1*/
-
+    
+     setfilter( echo2_filt, SCAN );
+    filter_echo2 = echo2_filt->fslot;
     
 
 @inline Monitor.e MonitorFilter
