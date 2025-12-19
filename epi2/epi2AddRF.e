@@ -7956,12 +7956,16 @@ cveval1( void )
     /* For use on the RSP side */
     echo2bw = echo2_filt->bw;
 
+    fprintf(stderr,"before CVeval1 ampfov\n");
+    fflush(stderr);
     if( ampfov( &a_gxwtrk, echo2_filt->bw, opfov ) == FAILURE )
     {
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
                     EE_ARGS(1), STRING_ARG, "ampfov:gxwtrk" );
         return FAILURE;
     }
+    fprintf(stderr,"after CVeval1 ampfov\n");
+    fflush(stderr);
 
     /*
      * The minimum TR is based on the time before the RF pulse +
@@ -7969,17 +7973,22 @@ cveval1( void )
      * readout + the time for the end of sequence killers
      */
     avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
+    fprintf(stderr,"after CVeval1 avmintr\n");
+    fflush(stderr);
+    pw_gxwtrk = echo2_filt->tdaq;
     
-    pw_gxwtrk = echo2_filt.tdaq;
-
+    fprintf(stderr,"after CVeval1 pw_gxwtrk\n");
+    fflush(stderr);
     if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
     {
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
                     EE_ARGS(1), STRING_ARG, "optramp" );
         return FAILURE;
     }
+    fprintf(stderr,"after CVeval1 optramp\n");
+    fflush(stderr);
     pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
-    printf("[DBG cveval1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d pw_gxwtrk=%f \n", pw_gxwtrka, pw_gxwtrkd,pw_gxwtrk);
+    printf("[DBG cveval1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d pw_gxwtrk=%d \n", pw_gxwtrka, pw_gxwtrkd,pw_gxwtrk);
     fflush(stdout);
 
     /* baige add Gradx end*/
@@ -14777,6 +14786,8 @@ predownload( void )
 STATUS
 predownload1( void )
 {
+     fprintf(stderr," presownload1 starts");
+    fflush(stderr);
     int i;
     float t_array[7];                     /* timing parametrers for DW-EPI sequence */
     int xfull,yfull,zfull;
@@ -15116,10 +15127,12 @@ predownload1( void )
     } 
     
     /*baige add Gradx 下面是之前写setfilter和optramp的地方 现在转移到cveval1*/
-    
+    fprintf(stderr,"before setfilter\n");
+    fflush(stderr);
      setfilter( echo2_filt, SCAN );
-    filter_echo2 = echo2_filt->fslot;
-    
+     filter_echo2 = echo2_filt->fslot;
+    fprintf(stderr,"after setfilter\n");
+    fflush(stderr);
 
 @inline Monitor.e MonitorFilter
 
@@ -15132,7 +15145,11 @@ predownload1( void )
 @inline Prescan.e PSfilter
 
 /*baige add Gradx*/
-/*entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;*/
+fprintf(stderr,"before entry_point_table[L_SCAN]\n");
+    fflush(stderr);
+entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;
+fprintf(stderr,"after entry_point_table[L_SCAN]\n");
+    fflush(stderr);
 /*baige add Gradx*/
   
     rhfast_rec = STD_REC;
@@ -15227,6 +15244,8 @@ predownload1( void )
         UpdateEntryTabRecCoil(&entry_point_table[L_REF], &volRecCoilInfo[0]);
     }
 /*baige addRF*/
+fprintf(stderr,"before gradz[GZRFTRK_SLOT]\n");
+    fflush(stderr);
   gradz[GZRFTRK_SLOT].num = 1;
     gradz[GZ2_SLOT].num = 1;
   gradx[GX1TRK_SLOT].num = 1;
@@ -15236,6 +15255,8 @@ predownload1( void )
    gradz[GZ2_SLOT].powscale = 1.0;
   gradx[GX1TRK_SLOT].powscale = 1;
   gradx[GXW2TRK_SLOT].powscale = 1;
+  fprintf(stderr,"after gradz[GZRFTRK_SLOT]\n");
+  fflush(stderr);
   /*baige addRF end*/
     return SUCCESS;
 }    /* end predownload1() */
@@ -16691,7 +16712,8 @@ STATUS pulsegen( void )
     slc_in_acq = (short *)AllocNode((act_acqs*pass_reps + 2)*sizeof(short));
     rf1_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
      /*baige addRF*/    
-         receive_freq2 = (int *)AllocNode( opslquant * sizeof(int) );
+         /* receive_freq2 = (int*)AllocNode((opslquant+2)*sizeof(int));*/
+
     /*baige addRF end*/
     theta_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
     rf2_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
@@ -17920,64 +17942,10 @@ STATUS pulsegen( void )
     }
 
     PASSPACK(pass_pulse, temps);
-
-    /* Actual deadtimes for cardiac scans will be rewritten later */
-    if((opcgate==PSD_ON) || (oprtcgate==PSD_ON))
-    {
-        psd_seqtime = RUP_GRD(tmin);
-    }
-    else if(navtrig_flag == PSD_ON)
-    {
-        psd_seqtime = RUP_GRD(nav_image_interval - time_ssi);
-    }
-    else
-    {
-        psd_seqtime = RUP_GRD(avail_se_time/(mux_flag?mux_slquant:false_slquant1) - time_ssi);
-
-        if (t1flair_flag == PSD_ON)
-        {
-            psd_seqtime = RUP_GRD(act_tr/false_slquant1 - time_ssi);
-        }
-    }
-
-    /*  Code to estimate the phase error accumulation for the 90-180-180
-        SE sequence so as to maintain the CPMG condotion...this code based
-        off the correction in fse-xl.e and fixes the slice-to-slice signal 
-        variation issue with dualspinecho ALP */
-    getssppulse(&tmppulseptr, &rf1,"frq", 0); /* Get beginning of rf1 */
-    tmpinstr = (WF_INSTR_HDR *)GetPulseInstrNode(tmppulseptr,0);
-    sync1_pos = (tmpinstr->start);
-    rf1_pos = pbeg(&rf1,"rf1",0);
-    sync_to_rf1 = rf1_pos - ( sync1_pos + frq2sync_dly ); 
-    t_rf1_phase = sync_to_rf1 + hrf1a;
-
-    if (PSD_OFF == dualspinecho_flag)
-    {
-        getssppulse(&tmppulseptr, &rf2,"frq", 0); /* Get beginning of rf2 */
-        tmpinstr = (WF_INSTR_HDR *)GetPulseInstrNode(tmppulseptr,0);
-        sync2_pos = (tmpinstr->start);
-        rf2_pos = pbeg(&rf2,"rf2",0);
-        sync_to_rf2 = rf2_pos - ( sync2_pos + frq2sync_dly ); 
-        t_rf2_phase = sync_to_rf2 + pw_rf2/2;
-    }
-    else {
-        getssppulse(&tmppulseptr, &rf2left,"frq", 0); /* Get beginning of rf2 */
-        tmpinstr = (WF_INSTR_HDR *)GetPulseInstrNode(tmppulseptr,0);
-        sync2_pos = (tmpinstr->start);
-        rf2_pos = pbeg(&rf2left,"rf2left",0);
-        sync_to_rf2 = rf2_pos - ( sync2_pos + frq2sync_dly ); 
-        t_rf2_phase = sync_to_rf2 + pw_rf2left/2;
-    }
-
-    if(!irprep_flag) 
-    {
-        SEQLENGTH(seqcore,psd_seqtime,seqcore);
-        getperiod((long*)&scan_deadtime, &seqcore, 0);
-        scan_deadlast = deadlast;
-
-        /* baige addRF */
+    /* baige addRF */
     /* Tracking 序列 */
-    SLICESELZ(rftrk, 1ms, 3200us, opslthick, opflip, 1, , loggrd);
+   int t_trk0 = temps + 100us; 
+    SLICESELZ(rftrk, t_trk0, 3200us, opslthick, opflip, 1, , loggrd);
     /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
     a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
     ia_gzrftrk = 0;              /* 指令幅度置 0 */
@@ -18100,13 +18068,72 @@ TRAPEZOID(XGRAD, gxwtrk,
             980,
             TYPNDEF,
             loggrd);
+    fprintf(stderr," pulsegen after gxktrk\n");
+    fflush(stderr);
 
-    
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
+    fprintf(stderr,"pulsegen after SEQLENGTH\n");
+    fflush(stderr);
+    
     /* baige addRF end*/
+
+    /* Actual deadtimes for cardiac scans will be rewritten later */
+    if((opcgate==PSD_ON) || (oprtcgate==PSD_ON))
+    {
+        psd_seqtime = RUP_GRD(tmin);
+    }
+    else if(navtrig_flag == PSD_ON)
+    {
+        psd_seqtime = RUP_GRD(nav_image_interval - time_ssi);
+    }
+    else
+    {
+        psd_seqtime = RUP_GRD(avail_se_time/(mux_flag?mux_slquant:false_slquant1) - time_ssi);
+
+        if (t1flair_flag == PSD_ON)
+        {
+            psd_seqtime = RUP_GRD(act_tr/false_slquant1 - time_ssi);
+        }
     }
 
+    /*  Code to estimate the phase error accumulation for the 90-180-180
+        SE sequence so as to maintain the CPMG condotion...this code based
+        off the correction in fse-xl.e and fixes the slice-to-slice signal 
+        variation issue with dualspinecho ALP */
+    getssppulse(&tmppulseptr, &rf1,"frq", 0); /* Get beginning of rf1 */
+    tmpinstr = (WF_INSTR_HDR *)GetPulseInstrNode(tmppulseptr,0);
+    sync1_pos = (tmpinstr->start);
+    rf1_pos = pbeg(&rf1,"rf1",0);
+    sync_to_rf1 = rf1_pos - ( sync1_pos + frq2sync_dly ); 
+    t_rf1_phase = sync_to_rf1 + hrf1a;
+
+    if (PSD_OFF == dualspinecho_flag)
+    {
+        getssppulse(&tmppulseptr, &rf2,"frq", 0); /* Get beginning of rf2 */
+        tmpinstr = (WF_INSTR_HDR *)GetPulseInstrNode(tmppulseptr,0);
+        sync2_pos = (tmpinstr->start);
+        rf2_pos = pbeg(&rf2,"rf2",0);
+        sync_to_rf2 = rf2_pos - ( sync2_pos + frq2sync_dly ); 
+        t_rf2_phase = sync_to_rf2 + pw_rf2/2;
+    }
+    else {
+        getssppulse(&tmppulseptr, &rf2left,"frq", 0); /* Get beginning of rf2 */
+        tmpinstr = (WF_INSTR_HDR *)GetPulseInstrNode(tmppulseptr,0);
+        sync2_pos = (tmpinstr->start);
+        rf2_pos = pbeg(&rf2left,"rf2left",0);
+        sync_to_rf2 = rf2_pos - ( sync2_pos + frq2sync_dly ); 
+        t_rf2_phase = sync_to_rf2 + pw_rf2left/2;
+    }
+
+    if(!irprep_flag) 
+    {
+    SEQLENGTH(seqcore,psd_seqtime,seqcore);
+    getperiod((long*)&scan_deadtime, &seqcore, 0);
+    scan_deadlast = deadlast;
+
+  
+    }
     if(ir_on)
     {
 @inline Inversion_new.e InversionPG
@@ -18213,12 +18240,15 @@ TRAPEZOID(XGRAD, gxwtrk,
     rspech = 0;
     rspchp = CHOP_ALL;
     rsp_preview = 0;
-  
+fprintf(stderr," pulsegen before IPG\n");
+fflush(stderr);
 #ifdef IPG
-setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
-                 (INT)TYPREC);   
+/*setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
+  *               (INT)TYPREC);   
+   */
+
     /*
-     * Execute this code only on the Tgt side
+     * 
      */
     if (rfov_flag)
     {
@@ -18307,6 +18337,8 @@ setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
     maxTGAtOffset = updateTGLimitAtOffset(TGlimit, sat_TGlimit);
 
 #endif /* IPG */
+fprintf(stderr,"pulsegen after IPG\n");
+fflush(stderr);
     sl_rcvcf = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES);
 
     /* Set up SlcInAcq and AcqPtr tables for multipass scans and
@@ -18548,6 +18580,8 @@ psdinit( void )
     psdinit() 
 #endif /* __STDC__ */
 {
+    fprintf(stderr," psdinit start\n");
+    fflush(stderr);
     strcpy(psdexitarg.text_arg, "psdinit");  /* reset global error variable */
     diff_index = 0;
     nex_index = 0;
@@ -18595,10 +18629,14 @@ psdinit( void )
     scopeoff(&seqblineacq);
 
     syncon(&seqcore);  /* reset all synchronizations, not needed in pass */
+    fprintf(stderr,"psdinit before scopeon\n");
+    fflush(stderr);
     /* baige addRF */
     scopeon( &seqtrk );  
     syncon( &seqtrk );       
     /* baige addRF end*/
+    fprintf(stderr,"psdinit after scopeon\n");
+    fflush(stderr);
     /* Set trigger for cf and 1st pass prescan.
        Reset trigger the prescan slice to its scan trigger for 
        scan and second pass prescan entry points. */
@@ -18739,7 +18777,8 @@ psdinit( void )
     if ( FAILURE == set_tensor_orientationsAGP() ){
         return FAILURE;
     } 
-
+ fprintf(stderr," psdinit before setrflt gengzao\n");
+    fflush(stderr);
 #ifdef PSD_HW
     if (PSD_ON == navtrig_flag)
     {
@@ -18757,8 +18796,15 @@ psdinit( void )
         }
     }
 #endif /* PSD_HW */
+ fprintf(stderr,"psdinit after setrflt gengzao\n");
+    fflush(stderr);
+
 /*baige add Gradx */
-     setrfltrs( (int)filter_echo2, &echo2 );
+    fprintf(stderr,"psdinit before setrfltr\n");
+    fflush(stderr);
+    setrfltrs( (int)filter_echo2, &echo2 );
+    fprintf(stderr,"psdinit after setrfltr\n");
+    fflush(stderr);
 /*baige add Gradx end*/
     return SUCCESS;  
 } /* End psdinit */	    
@@ -19188,9 +19234,15 @@ STATUS scan( void )
         nav_active = 0;
     }
     /*baige addRF*/
+    fprintf(stderr,"scan before rftrk_center_freq\n");
+    fflush(stderr);
+    receive_freq2 = (int *)AllocNode( opslquant * sizeof(int) );
+
     int rftrk_center_freq; /* Center frequency for non-selective pulse */
     rftrk_center_freq = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES); /* host offset不可见，使用接收频率偏移作为中心频率 */
     setfrequency( rftrk_center_freq, &rftrk, 0 );
+    fprintf(stderr,"scan after rftrk_center_freq\n");
+    fflush(stderr);
     printf("[SCAN]     rftrk_center_freq = %d\n", rftrk_center_freq);
 
     /*baige addRF end*/
@@ -20186,6 +20238,8 @@ STATUS core( void )
                                    calcPulseParams() failure. Clamp to at least one GRAD_UPDATE_TIME.
                                    This preserves original timing intent when td0>0 while ensuring
                                    hardware cycle divisibility and >0 width requirement. */
+                                  fprintf(stderr,"core before setperiod\n");
+                                  fflush(stderr);
                                 setperiod(td0, &x_td0, 0);
                                 setperiod(td0, &y_td0, 0);
                                 setperiod(td0, &z_td0, 0);
@@ -20193,6 +20247,8 @@ STATUS core( void )
                                 setperiod(td0, &theta_td0, 0);
                                 setperiod(td0, &omega_td0, 0);
                                 setperiod(td0, &ssp_td0, 0);
+                                fprintf(stderr,"core after setperiod\n");
+                                  fflush(stderr);
 
                                 if (pw_x_td0 <= 0) {
                                     setperiod(GRAD_UPDATE_TIME, &x_td0, 0);
@@ -20203,6 +20259,8 @@ STATUS core( void )
                                     setperiod(GRAD_UPDATE_TIME, &omega_td0, 0);
                                     setperiod(GRAD_UPDATE_TIME, &ssp_td0, 0);
                                 }
+                                 fprintf(stderr,"core after pw_x_td0 <= 0\n");
+                                  fflush(stderr);
                                 /* baige add Gradx end */
                         }
                     } else {
@@ -20972,6 +21030,9 @@ STATUS core( void )
                                 if ((rspent == L_SCAN)||(rspent == L_MPS2)||(rspent == L_APS2)) {
                                     /* Use cardiac trigger delay */
                                     /* baige add Gradx safety: guard against td0==0 to avoid zero-width pulses */
+                                    
+                                    fprintf(stderr,"core before 2setperiod\n");
+                                    fflush(stderr);
                                     setperiod(td0, &x_td0, 0);
                                     setperiod(td0, &y_td0, 0);
                                     setperiod(td0, &z_td0, 0);
@@ -20979,6 +21040,8 @@ STATUS core( void )
                                     setperiod(td0, &theta_td0, 0);
                                     setperiod(td0, &omega_td0, 0);
                                     setperiod(td0, &ssp_td0, 0);
+                                    fprintf(stderr,"core after 2setperiod\n");
+                                    fflush(stderr);
 
                                     if (pw_x_td0 <= 0) {
                                         setperiod(GRAD_UPDATE_TIME, &x_td0, 0);
@@ -20989,6 +21052,8 @@ STATUS core( void )
                                         setperiod(GRAD_UPDATE_TIME, &omega_td0, 0);
                                         setperiod(GRAD_UPDATE_TIME, &ssp_td0, 0);
                                     }
+                                     fprintf(stderr,"core after 2pw_x_td0 <= 0\n");
+                                  fflush(stderr);
                                 /* baige add Gradx end*/
                                 }
                             } else {
