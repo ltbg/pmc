@@ -51,8 +51,8 @@ G3 Jan/29/04 SXZ MRIge90940: modify setreadpolarity() to adapt to the
 
 12.0    05/19/04    AMR   MRIge93847: PSD override functionality for ASSET.
                           Only a phase acceleration factor of 2 which is 
-			  also the default will be allowed. Type-in is not 
-			  allowed as per the requirement.
+        also the default will be allowed. Type-in is not 
+        allowed as per the requirement.
 
 12.0    06/23/04    SVR   MRIhc00610: Limit rhnpasses to 512.
 
@@ -88,7 +88,7 @@ Value1.5T 06/15/05  KK    Value1.5T DW-EPI supports IR Prep & slice overlap
 
 14.0    06/06/05    ZL    MRIhc05854 and MRIhc14931
 
-14.0	06/27/2005	 MRIhc08159: Added initializations of SCAN_INFO, RF_PULSE_INFO, PHYS_GRAD 
+14.0  06/27/2005   MRIhc08159: Added initializations of SCAN_INFO, RF_PULSE_INFO, PHYS_GRAD 
                          and LOG_GRAD. Also added explicit braces around if..else constructs the 
                          Vxworks compiler complained about
 
@@ -1277,10 +1277,10 @@ int tmp_deadlast;        /* extra time to be added to scan time  */
 float phase_dither = 0.0 with {,,0.0,VIS, "B0 phase dither value (degrees)",};
 int spgr_flag = 0 with {0,1,0,VIS,"SPGR flag",};
 
-int rhhnover_max = 0;	 /* Maximum allowed rhhnovers due to physical space on the boards */
+int rhhnover_max = 0;  /* Maximum allowed rhhnovers due to physical space on the boards */
 int rhhnover_min = 16;   /* minimum number of overscans *//*LX - 8*/
 int rhhnover_min_per_ilv = 16;   /* minimum number of overscans per shot */
-int newyres= 0;		 /* New yres if opnshots/opte/opyres is incompatible. */
+int newyres= 0;    /* New yres if opnshots/opte/opyres is incompatible. */
 int num_overscan = 8;    /* BJM: this was added for multi-shot EPI */
 
 int smart_numoverscan = 1 with {0,1,1,VIS,"flag for smart number of over-scan lines",};
@@ -1305,10 +1305,10 @@ int ky_dir = 2 with {0,2,2,VIS,"Ky samp dir:0=top/down,1=cent/out,2=bottom/up",}
 int kx_dir = 0 with {0,3,0,VIS,"Kx samp dir:0=same,1=alt w/intleave,2=halfset,3=quarterset.",};
 
 int dc_chop   =  1 with {0,1,1,VIS,"Receiver phase chop flag: 1=on,0=off",};
-/*	  0 = same start polarity (+) for all intleaves.
- 	  1 = odd intleaves start +, even start -
- 	  2 = 1st half of intleaves start +, second half interleaves start -
- 	  3 = 1st & 3rd quarters start +, 2nd & 4th quarters start -.  */
+/*    0 = same start polarity (+) for all intleaves.
+    1 = odd intleaves start +, even start -
+    2 = 1st half of intleaves start +, second half interleaves start -
+    3 = 1st & 3rd quarters start +, 2nd & 4th quarters start -.  */
 
 
 int etot = 0 with {0,,0,VIS,"Total echoes required to feed MPS.",};
@@ -1446,7 +1446,7 @@ int min_acqs;                   /* min number of acqs; insure inv thickness */
 int maxslq_titime;              /* time in opti time available to interleave sliles */
 int maxslq_ilir;
 
-int epi_flair = 0 with {0,1,0,VIS,"Epi flair on=1, off=0",};		
+int epi_flair = 0 with {0,1,0,VIS,"Epi flair on=1, off=0",};    
 int flair_flag = PSD_OFF; /* pass_rep specific flag for flair inversion */
 float dda_fact;       /* multiplier to correct scan time for lack of disdaqs durring dwi and flair  */
  
@@ -1505,7 +1505,7 @@ int osamp = 0 with {0,1024,0,VIS,"Fractional echo oversamples.",};
 int etl = 1 with {1,,1,VIS,"echo train length",};
 int eesp = 0 with {0,,0,VIS,"effective echo spacing",};
 int nblips, blips2cent;   /* total number of blips and number of blips
-							  to the center of ky offset */
+                to the center of ky offset */
 int ep_alt = 0 with {0,2,0,VIS,"Alt read sign:0=no,1=odd/evn,2=halves,3=pairs",};
 
 int tia_gx1, tia_gxw, tia_gxk;  /*temp internal amps that flip in polarity*/
@@ -1604,7 +1604,7 @@ float area_r1, area_gz1, area_gzrf2l1, area_r1_cfh;
 float area_std, area_stde;       /* crusher calcs */
 
 /* gradient echo refocus */
-int avail_pwgz1;		/* avail time for gz1 pulse */
+int avail_pwgz1;    /* avail time for gz1 pulse */
 
 int   prescan1_tr = 2s with {0,,,INVIS,"1st pass prescan time",};
 int ps2_dda     =  0 with {0,,,INVIS,"Number of disdaq in 2nd pass prescan.",};
@@ -1613,9 +1613,9 @@ int   avail_image_time;          /* act_tr for norm scans*/
 int   beg_nontetime;             /* effect time zero of 90 rf pulse */
 int   pos_start_rf0;             /* time of start of inv pulse */
 int   beg_nontitime;             /* effect time zero of inv pulse */
-int   avail_se_time;		 /* tr - inversion times */
+int   avail_se_time;     /* tr - inversion times */
 int   avail_tdaqhxa;             /* available time for sampling prior
-									to te point */
+                  to te point */
 int   full_irtime;                 /* ti - lead time difference of se and inv sequence */
 int   avail_yflow_time=0;        /* time available for gymn1, gymn2 pulses */
 int   avail_zflow_time;          /* time available for gz1, gzmn pulses */
@@ -1673,7 +1673,7 @@ int trig_scan = TRIG_LINE with {0,,TRIG_INTERN, VIS, " scan trigger",};
 int trig_prescan = TRIG_LINE with {0,,TRIG_INTERN, INVIS, "prescan trigger",};
 int read_truncate = 1 with {0,,1,INVIS, "Truncate extra readout on fract echo",};
 
-int tmin_flair;		/* tmin used for maxslquant when flair is used */
+int tmin_flair;   /* tmin used for maxslquant when flair is used */
 int trigger_time = 0 with {0,,0,INVIS, "Time for cardiac trigger window",};
 int use_myscan = 0 with {0,,0,INVIS,"On(=1) to use my scan setup",};
 
@@ -1688,9 +1688,9 @@ int debug_order = 0 with {0,,0,INVIS,"On(=1) to print data acq order table",};
 int debug_tdel = 0 with {0,1,0,VIS,"On(=1) to print ihtdeltab table",};
 int postsat;
 int order_routine = 0 with {,,0,INVIS, " slice ordering routine",};
-int scan_offset;		 /* adds 'x' mm to all scan locations */
+int scan_offset;     /* adds 'x' mm to all scan locations */
 
-int dither_control = 0;		 /* 1 means turn dither on  */
+int dither_control = 0;    /* 1 means turn dither on  */
 int dither_value = 0 with {0,15,6,VIS, "Value for dither",};
 
 int slquant_per_trig = 0 with {0,,0,INVIS, "slices in first pass or slices in first R-R for XRR scans",};
@@ -2231,8 +2231,8 @@ myscan( void )
 {
     int i,j;
     int num_slice;
-    float z_delta;		/* change in z_loc between slices */
-    float r_delta;		/* change in r_loc between slices */
+    float z_delta;    /* change in z_loc between slices */
+    float r_delta;    /* change in r_loc between slices */
     double alpha, beta, gamma; /* rotation angles about x, y, z respectively */
     
     num_slice = exist(opslquant);
@@ -2672,7 +2672,7 @@ cvinit( void )
     }
 
     /***********************************************************************/
-    /*	Init some flair  variables					*/
+    /*  Init some flair  variables          */
     /************************************************************************/
     cvmax(opepi, PSD_ON);  /* enable epi flag selection */
     cvdef(opepi, PSD_ON);
@@ -2836,7 +2836,7 @@ cvinit( void )
 
     if(epi_flair == PSD_ON)
     {
-        false_acqs=2;	/* Force false_acqs=2  */
+        false_acqs=2; /* Force false_acqs=2  */
         cvdef(opslquant,4);
     }
 
@@ -3594,9 +3594,9 @@ cvinit( void )
      * Scan Rx will remove TE2 entry automatically if 
      * 1 or 4 echos selected. */
     piadvmin = (1<<PSD_ADVECHO) +
-        (1<<PSD_ADVTE) + (1<<PSD_ADVTR) +	(1<<PSD_ADVFOV);
+        (1<<PSD_ADVTE) + (1<<PSD_ADVTR) + (1<<PSD_ADVFOV);
     piadvmax = (1<<PSD_ADVECHO) +
-        (1<<PSD_ADVTE) + (1<<PSD_ADVTR) +	(1<<PSD_ADVFOV);
+        (1<<PSD_ADVTE) + (1<<PSD_ADVTR) + (1<<PSD_ADVFOV);
   
     /* bit mask for cardiac adv. panel values */
     piadvcard = (1<<PSD_ADVISEQDELAY)
@@ -3621,11 +3621,11 @@ cvinit( void )
     
     cvmax(opetl, MAXINT);
 
-	if (muse_flag == PSD_OFF){
+  if (muse_flag == PSD_OFF){
             cvdef(opnshots, 1);
             cvmin(opnshots, 1);
             opnshots = 1;
-	}
+  }
 
     /**** Number of SHOTS ******/
     if ((opdiffuse == PSD_ON) || (tensor_flag == PSD_ON)){
@@ -3633,7 +3633,7 @@ cvinit( void )
 @inline Muse.e MuseCVInitNumberOfShots
         }
         else 
-        {	
+        { 
             min_nshots = 1;
             max_nshots = 1;
             pishotnub = 2;
@@ -4180,18 +4180,18 @@ cvinit( void )
     }
 
     /************************************************************************/
-    /*	Init some diffusion  variables					*/
+    /*  Init some diffusion  variables          */
     /************************************************************************/
     pidifrecnub=1;
 
     if(exist(opdiffuse)==PSD_ON) {
-        pidifpage=1; 	/* turn on diffusion page */
+        pidifpage=1;  /* turn on diffusion page */
     } else {
         pidifpage=0;
     }
     
     num_dif=0;
-    acqmode=0;	/* default acmode to 0 */
+    acqmode=0;  /* default acmode to 0 */
     
     /************************************************************************/
     
@@ -5014,7 +5014,7 @@ cveval( void )
         avmaxrbw = (1.0 / (2.0 * (tsptmp / 1000.0)));
         avmaxrbw = (avmaxrbw > RBW_MAX) ? RBW_MAX : avmaxrbw;
     }       
-    avmaxrbw2 = avmaxrbw;		/* avmaxrbw2 is not used in epi. But this value will be
+    avmaxrbw2 = avmaxrbw;   /* avmaxrbw2 is not used in epi. But this value will be
                                            displayed in the insensitive field of bandwidth2 */
     
     if(PSD_ON != exist(opdiffuse) && PSD_ON != tensor_flag) {
@@ -5090,7 +5090,7 @@ cveval( void )
     }
 
     /******************************************************/
-    /*	check for grafidy.dwi file		      */
+    /*  check for grafidy.dwi file          */
     /******************************************************/
     if( hoecc_flag == PSD_OFF && dwicntrl==0 )   /* skip additional linear correction if HOEC is on */
     {
@@ -5098,7 +5098,7 @@ cveval( void )
     }
     
     /******************************************************/
-    /*	init opflip				      */
+    /*  init opflip             */
     /******************************************************/
     if(oppseq==PSD_SE)
     {
@@ -5122,10 +5122,10 @@ cveval( void )
     if (_psd_rf_wait.fixedflag == 0) 
     {
         if (setsysparms() == FAILURE) 
-	{
+  {
             epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "setsysparms" );
             return FAILURE;
-	}
+  }
     }
     
     /* JAH: Force SR20 systems to select ezdwi before selecting anything else */
@@ -6002,7 +6002,7 @@ cveval( void )
         if (cffield ==  B0_15000) {
             ss_override = 1;
         } else {
-	    ss_override = 0;   /* 3T is already delay insensitive */
+      ss_override = 0;   /* 3T is already delay insensitive */
         }
 
     } else {
@@ -6010,7 +6010,7 @@ cveval( void )
         ss_override  = 0;
 
     }
-								    
+                    
     if (exist(oppseq) == PSD_SE || (exist(opflip)>30) ) 
     { 
         /* DTI BJM: (dsp) count pulses correctly */
@@ -6152,7 +6152,7 @@ cveval( void )
         return FAILURE;
     }
 
-    if (ssInit() == FAILURE) return FAILURE;	
+    if (ssInit() == FAILURE) return FAILURE;  
 
 @inline Inversion_new.e InversionEval2
     
@@ -6188,7 +6188,7 @@ cveval( void )
     if (rfpulseInfo[RF1_SLOT].change==PSD_ON)
         off90 *= (int) rint(pw_rf1 / rfpulse[RF1_SLOT].nom_pw);
     
-    /*	iso_delay = pw_rf1/2 + off90; */
+    /*  iso_delay = pw_rf1/2 + off90; */
     
     /* Inner volume selective pulse */
     pw_gyrf2iv = pw_rf2;
@@ -7769,10 +7769,10 @@ cveval1( void )
         end_amp = 0.0;
         if (amppwgradmethod(&gradx[GX1_SLOT], gx1_area, loggrd.tx_xyz, start_amp,
                             end_amp, loggrd.xrt*loggrd.scale_3axis_risetime, MIN_PLATEAU_TIME) == FAILURE) 
-	{
+  {
             epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "amppwgradmethod:gx1" );
             return FAILURE;
-	}
+  }
     }
     
     pw_gx1_tot = pw_gx1a + pw_gx1 + pw_gx1d;
@@ -7877,22 +7877,22 @@ cveval1( void )
     if (exist(oppseq) == PSD_SE) 
     {
         if (innerVol == PSD_ON) 
-	{  /* refocus pulse on logical Y */
+  {  /* refocus pulse on logical Y */
             gradz[GZRF2_SLOT].num = 0;
             grady[GYRF2IV_SLOT].num = 1;
             if (optramp(&pw_gyrf2iva, loggrd.ty_xyz, loggrd.ty, loggrd.yrt*loggrd.scale_3axis_risetime, TYPDEF)
                 == FAILURE) 
-	    {
+      {
                 epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "optramp:pw_gyrf2iva" );
                 return FAILURE;
-	    }
+      }
             pw_gyrf2ivd = pw_gyrf2iva;
-	} 
+  } 
         else 
-	{  /* refocus pulse on logical Z */
+  {  /* refocus pulse on logical Z */
             gradz[GZRF2_SLOT].num = 1;
             grady[GYRF2IV_SLOT].num = 0;
-	}
+  }
         gradz[GZRF2L1_SLOT].num = 1;
         gradz[GZRF2R1_SLOT].num = 1;
         gradz[GZRF2_SLOT].num = 1;
@@ -7918,7 +7918,7 @@ cveval1( void )
     }
     
     rfpulse[RF1_SLOT].num = 1;
-	
+  
     if (optramp(&pw_gzrf2l1a, loggrd.tz_xyz, loggrd.tz, loggrd.zrt*loggrd.scale_3axis_risetime, TYPDEF) == FAILURE) 
     {
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "optramp:pw_gzrf2l1a" );
@@ -7956,16 +7956,12 @@ cveval1( void )
     /* For use on the RSP side */
     echo2bw = echo2_filt->bw;
 
-    fprintf(stderr,"before CVeval1 ampfov\n");
-    fflush(stderr);
     if( ampfov( &a_gxwtrk, echo2_filt->bw, opfov ) == FAILURE )
     {
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
                     EE_ARGS(1), STRING_ARG, "ampfov:gxwtrk" );
         return FAILURE;
     }
-    fprintf(stderr,"after CVeval1 ampfov\n");
-    fflush(stderr);
 
     /*
      * The minimum TR is based on the time before the RF pulse +
@@ -7973,21 +7969,16 @@ cveval1( void )
      * readout + the time for the end of sequence killers
      */
     avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
-    fprintf(stderr,"after CVeval1 avmintr\n");
-    fflush(stderr);
-    pw_gxwtrk = echo2_filt->tdaq;
     
-    fprintf(stderr,"after CVeval1 pw_gxwtrk\n");
-    fflush(stderr);
+    pw_gxwtrk = 3000us;
+
     if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
     {
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE,
                     EE_ARGS(1), STRING_ARG, "optramp" );
         return FAILURE;
     }
-    fprintf(stderr,"after CVeval1 optramp\n");
-    fflush(stderr);
-    pw_gxwtrkd = pw_gxwtrka;		/* Set trailing edge ramp to same duration. */
+    pw_gxwtrkd = pw_gxwtrka;    /* Set trailing edge ramp to same duration. */
     printf("[DBG cveval1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d pw_gxwtrk=%d \n", pw_gxwtrka, pw_gxwtrkd,pw_gxwtrk);
     fflush(stdout);
 
@@ -8239,7 +8230,7 @@ cveval1( void )
                 }
             }
         }
-    }  /* 	if (zgmn_type == CALC_GMN1) */
+    }  /*   if (zgmn_type == CALC_GMN1) */
 
     pw_gz1_tot = pw_gz1a + pw_gz1 + pw_gz1d + pw_gzmna + pw_gzmn + pw_gzmnd;
     
@@ -8475,13 +8466,13 @@ cveval1( void )
 
             pw_gzrf2rightr1 = pw_gzrf2r1;
 
-	} else {
+  } else {
        
             float origAreaRightr1 =  a_gzrf2r1*(pw_gzrf2r1+(pw_gzrf2r1a+pw_gzrf2r1d)/2);         
             pw_gzrf2rightr1 = RUP_GRD((crusherFactorRight*origAreaRightr1)/a_gzrf2r1-(pw_gzrf2r1a+pw_gzrf2r1d)/2);
             if(pw_gzrf2rightr1 < GRAD_UPDATE_TIME) pw_gzrf2rightr1 = GRAD_UPDATE_TIME; 
 
-	}			
+  }     
   
         pw_gzrf2righta = pw_gzrf2rightl1d;
         pw_gzrf2rightd = pw_gzrf2rightr1a;
@@ -8658,35 +8649,35 @@ cveval1( void )
     {
         target_area = a_gxw*(float)(pw_gxwad + pw_gxw/2);
         if (eosxkiller == PSD_ON) 
-	{   /* X killer pulse */
+  {   /* X killer pulse */
             if (amppwgradmethod(&gradx[GXK_SLOT], target_area, loggrd.tx_xyz,
                                 start_amp, end_amp,
                                 loggrd.xrt*loggrd.scale_3axis_risetime, MIN_PLATEAU_TIME)==FAILURE) 
-	    {
+      {
                 epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "amppwgradmethod:gxk" );
                 return FAILURE;
-	    }
-	}
+      }
+  }
         if (eosykiller == PSD_ON) 
-	{   /* Y killer pulse */
+  {   /* Y killer pulse */
             if (amppwgradmethod(&grady[GYK_SLOT], target_area, loggrd.ty_xyz,
                                 start_amp, end_amp,
                                 loggrd.yrt*loggrd.scale_3axis_risetime, MIN_PLATEAU_TIME)==FAILURE) 
-	    {
+      {
                 epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "amppwgradmethod:gyk" );
                 return FAILURE;
-	    }
-	}
+      }
+  }
         if (eoszkiller == PSD_ON) 
-	{   /* Z killer pulse */
+  {   /* Z killer pulse */
             if (amppwgradmethod(&gradz[GZK_SLOT], target_area, loggrd.tz_xyz,
                                 start_amp, end_amp,
                                 loggrd.zrt*loggrd.scale_3axis_risetime, MIN_PLATEAU_TIME)==FAILURE) 
-	    {
+      {
                 epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "amppwgradmethod:gzk" );
                 return FAILURE;
-	    }
-	}
+      }
+  }
         
         gxktime = pw_gxk + pw_gxka + pw_gxkd;
         gyktime = pw_gyk + pw_gyka + pw_gykd;
@@ -8698,7 +8689,7 @@ cveval1( void )
         gyktime = 0;
         gzktime = 0;
     }
-	  
+    
     gktime  = IMax(3,gxktime, gyktime, gzktime);
     
     /***** Cardiac and advisory panel control *********************************/
@@ -9039,11 +9030,11 @@ cveval1( void )
         if ( ky_dir==PSD_BOTTOM_UP ) 
         {
             delt = RUP_HRD((int)((float)esp/(float)(intleaves)));
-	    	if (muse_flag) {
-				ky_offset = 0.0;
-			} 
-			else 
-			{
+        if (muse_flag) {
+        ky_offset = 0.0;
+      } 
+      else 
+      {
             if (etl % 2 == 0) 
             {
                 if ((etl/2) % 2 == 0)
@@ -9055,10 +9046,10 @@ cveval1( void )
             {
                 ky_offset = (float)(ceil((double)-intleaves));
             }
-			}
+      }
             pw_wgx = (intleaves-1)*delt/2 + GRAD_UPDATE_TIME;
         } 
-        else 	
+        else  
         {    /* full ky CENTER-OUT */
             delt = RUP_HRD((int)((float)esp/(float)(intleaves*2)));
             ky_offset = 0.0;
@@ -9122,7 +9113,7 @@ cveval1( void )
             }
         }
         if (muse_flag && (num_overscan < rhhnover_min_per_ilv*intleaves)) 
-		{
+    {
             num_overscan = rhhnover_min_per_ilv*intleaves;
         }
     } else if ( epi2spec_mode ) {
@@ -9173,17 +9164,17 @@ cveval1( void )
     {
         delt = RUP_HRD((int)((float)esp/(float)(intleaves)));
 
-		if (muse_flag) 
-		{
-			ky_offset = 0.0;
-		} 
-		else 
-		{
+    if (muse_flag) 
+    {
+      ky_offset = 0.0;
+    } 
+    else 
+    {
         if ((num_overscan/intleaves) % 2 == 0)
             ky_offset = (float)(ceil((double)-intleaves/2.0));
         else
             ky_offset = (float)(ceil((double)intleaves/2.0));
-		}
+    }
 
         if (fullk_nframes == exist(opnshots))
             ky_offset = 0.0;
@@ -9319,7 +9310,7 @@ cveval1( void )
         {
             delt = RUP_HRD((int)((float)esp/(float)(intleaves)));
         } 
-        else 	
+        else  
         {
             delt = RUP_HRD((int)((float)esp/(float)(intleaves*2)));
         }
@@ -9340,7 +9331,7 @@ cveval1( void )
     pw_womega = pw_wgx;   /* ufi2_ypd */
 
 
-    if ((intleaves > 1))		
+    if ((intleaves > 1))    
     {
         if ( ky_dir == PSD_BOTTOM_UP && fract_ky == PSD_FRACT_KY ) 
         {
@@ -9592,7 +9583,7 @@ cveval1( void )
     {
         if (PSDDVMR == psd_board_type)
         {
-			time_ssi = muse_flag? 5000: 4000;
+      time_ssi = muse_flag? 5000: 4000;
         }
         else
         {
@@ -9626,7 +9617,7 @@ cveval1( void )
                 }
                 else 
                 {
-					time_ssi = muse_flag? 5000:3300;
+          time_ssi = muse_flag? 5000:3300;
                 }
             }
         }
@@ -10463,7 +10454,7 @@ cveval1( void )
                 advroundup(&tmin_total);
                 break;
             }
-        }	else {
+        } else {
             psd_tseq = avmintseq;
         }
     }
@@ -10586,12 +10577,12 @@ cveval1( void )
         {
             tmin_flair=IMax(2,tmin,tmin_total/2);
             if(tmin_total/2 < tmin) tmin_flair=tmin_total;
-			
+      
             /* SVBranch: GEHmr04247 */
             if(isSVSystem())
             {
                 tmin_flair = tmin_total;
-            }			
+            }     
         }
         if((exist(opdiffuse)==PSD_ON) || (tensor_flag == PSD_ON))
         {
@@ -10888,7 +10879,7 @@ cveval1( void )
     }
 
 
-    /* MRIge57853 (and HiB Diffusion): set lower limit for optr with flair	*/
+    /* MRIge57853 (and HiB Diffusion): set lower limit for optr with flair  */
     if(epi_flair==PSD_ON) {
         avmintr=FLAIR_MIN_TR;
     } else {
@@ -12036,8 +12027,8 @@ cvcheck( void )
                     EM_PSD_FOV_OUT_OF_RANGE4, EE_ARGS(1), FLOAT_ARG,
                     exist(opfov) / 10.0 + 1.0 );
         return FAILURE;
-    }	
-	
+    } 
+  
     /* YMSmr06515, YMSmr06769 May 2005 KK */
     if (exist(opslquant) > MAXSLQUANT_EPI){
         epic_error( use_ermes, "The number of scan locations selected must be reduced to %d for the current prescription.",
@@ -12316,7 +12307,7 @@ cvcheck( void )
                             EE_ARGS(1), INT_ARG, (int)allowed_max_bval );
                 return FAILURE; 
              }
-	   if (bvalstab[bval_counter] < avminbvalstab)
+     if (bvalstab[bval_counter] < avminbvalstab)
             {
                 epic_error( use_ermes, "The min b-value = %d for this prescription", EM_PSD_MIN_BVALUE, 
                             EE_ARGS(1), INT_ARG, (int)allowed_min_bval );
@@ -12751,7 +12742,7 @@ cvcheck( void )
     /* YMSmr07177 */
     if ((opsldelay < (float)avminsldelay) && existcv(opsldelay)) { 
         epic_error( use_ermes, "%s is out of range.", EM_PSD_CV_OUT_OF_RANGE, EE_ARGS(1), STRING_ARG, "Delay After Acq" );
-	return FAILURE;
+  return FAILURE;
     }
 
     /* YMSmr06685, YMSmr07177 */
@@ -12865,10 +12856,10 @@ cvcheck( void )
     }
 
     if ( (1.0/asset_factor>avmaxaccel_ph_stride/(float)exist(opnshots)) && (PSD_ON == muse_flag) && (PSD_ON != exist(opresearch)) && existcv(opnshots) ) {
-		epic_error( use_ermes, "The phase acceleration must be reduced to %0.2f for this prescription.",
-					EM_PSD_GEM_INVALID_ACCEL, EE_ARGS(1),
-					FLOAT_ARG, (avmaxaccel_ph_stride/(float)exist(opnshots))  );
-		return FAILURE;
+    epic_error( use_ermes, "The phase acceleration must be reduced to %0.2f for this prescription.",
+          EM_PSD_GEM_INVALID_ACCEL, EE_ARGS(1),
+          FLOAT_ARG, (avmaxaccel_ph_stride/(float)exist(opnshots))  );
+    return FAILURE;
     }
 
     if ( ( (int)getRxNumChannels()<9 ) && (PSD_ON == mux_flag) && (exist(opaccel_mb_stride)>1))
@@ -13363,7 +13354,7 @@ predownload( void )
     if(ghost_check&&gck_offset_fov)
        rsp_info[0].rspphasoff = get_act_phase_fov() / 4.0;
 
-    /* set slice order for multi phase (seq,intl)	*/
+    /* set slice order for multi phase (seq,intl) */
     if ( order_routine == TYPNCAT && opfphases > 1 && opdiffuse == PSD_OFF && tensor_flag == PSD_OFF) {
 
         if (acqmode == 0)  /* interleaved */
@@ -14120,12 +14111,12 @@ predownload( void )
         }
         else
         {
-			/* Enable phase alignment feature for MUSE */
-			if (muse_flag) 
-			{
-				rhpcctrl |= (RHPCCTRL_NN_WEIGHT | RHPCCTRL_CON_ALIGN);	
-			}
-			else 
+      /* Enable phase alignment feature for MUSE */
+      if (muse_flag) 
+      {
+        rhpcctrl |= (RHPCCTRL_NN_WEIGHT | RHPCCTRL_CON_ALIGN);  
+      }
+      else 
             {
                 /*The phase alignment feature, RHPCCTRL_CON_ALIGN, does not work with multi-shot EPI*/
                 rhpcctrl |= RHPCCTRL_NN_WEIGHT;
@@ -15127,12 +15118,10 @@ predownload1( void )
     } 
     
     /*baige add Gradx 下面是之前写setfilter和optramp的地方 现在转移到cveval1*/
-    fprintf(stderr,"before setfilter\n");
-    fflush(stderr);
+    
      setfilter( echo2_filt, SCAN );
-     filter_echo2 = echo2_filt->fslot;
-    fprintf(stderr,"after setfilter\n");
-    fflush(stderr);
+    filter_echo2 = echo2_filt->fslot;
+    
 
 @inline Monitor.e MonitorFilter
 
@@ -15145,11 +15134,7 @@ predownload1( void )
 @inline Prescan.e PSfilter
 
 /*baige add Gradx*/
-fprintf(stderr,"before entry_point_table[L_SCAN]\n");
-    fflush(stderr);
-entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;
-fprintf(stderr,"after entry_point_table[L_SCAN]\n");
-    fflush(stderr);
+/*entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;*/
 /*baige add Gradx*/
   
     rhfast_rec = STD_REC;
@@ -15177,19 +15162,19 @@ fprintf(stderr,"after entry_point_table[L_SCAN]\n");
     /* Turn on/off bandpass asymmetry correction */
     if(PSDDVMR != psd_board_type) 
     { 
-	if(((rhdab0e - rhdab0s + 1) > number_of_bc_files) || (value_system_flag)) 
-	{
-	   rhbp_corr = 0;  /* turn it off if the number of BC files */
+  if(((rhdab0e - rhdab0s + 1) > number_of_bc_files) || (value_system_flag)) 
+  {
+     rhbp_corr = 0;  /* turn it off if the number of BC files */
         /* does not match the number of active receivers */
-    	} 
-	else 
-    	{    
+      } 
+  else 
+      {    
            rhbp_corr = 1;   /* else turn it on */
-    	}
+      }
     }
     else
     {
-	rhbp_corr = 0; /* MRIhc24730 : Bandpass asymmetry correction will */
+  rhbp_corr = 0; /* MRIhc24730 : Bandpass asymmetry correction will */
                      /* not be applied for DVMR receive chain hardware*/
     } 
 
@@ -15202,7 +15187,7 @@ fprintf(stderr,"after entry_point_table[L_SCAN]\n");
         full_bw = 1.0/(tsp*1.0e-6);
         delta_freq = full_bw/(float)rhfrsize;
 
-        /*	read_offset = a_gxw * GAM * scan_info[0].oprloc / 10.0; */
+        /*  read_offset = a_gxw * GAM * scan_info[0].oprloc / 10.0; */
         read_offset = 0.0;
         rhrecv_freq_s = -((float)rhfrsize*delta_freq/2.0 + read_offset) + 0.5;
         rhrecv_freq_e = (float)((rhfrsize-1)/2)*delta_freq + read_offset;
@@ -15244,8 +15229,6 @@ fprintf(stderr,"after entry_point_table[L_SCAN]\n");
         UpdateEntryTabRecCoil(&entry_point_table[L_REF], &volRecCoilInfo[0]);
     }
 /*baige addRF*/
-fprintf(stderr,"before gradz[GZRFTRK_SLOT]\n");
-    fflush(stderr);
   gradz[GZRFTRK_SLOT].num = 1;
     gradz[GZ2_SLOT].num = 1;
   gradx[GX1TRK_SLOT].num = 1;
@@ -15255,8 +15238,6 @@ fprintf(stderr,"before gradz[GZRFTRK_SLOT]\n");
    gradz[GZ2_SLOT].powscale = 1.0;
   gradx[GX1TRK_SLOT].powscale = 1;
   gradx[GXW2TRK_SLOT].powscale = 1;
-  fprintf(stderr,"after gradz[GZRFTRK_SLOT]\n");
-  fflush(stderr);
   /*baige addRF end*/
     return SUCCESS;
 }    /* end predownload1() */
@@ -16201,9 +16182,9 @@ calcPulseParams( int encode_mode )
     ia_gy1 = endview_iamp; /* GEHmr01804 */
 
     if (eoskillers == PSD_ON) {
-	ia_gxk = (int)(a_gxk * (float)max_pg_iamp / loggrd.tx);
-	ia_gyk = (int)(a_gyk * (float)max_pg_iamp / loggrd.ty);
-	ia_gzk = (int)(a_gzk * (float)max_pg_iamp / loggrd.tz);
+  ia_gxk = (int)(a_gxk * (float)max_pg_iamp / loggrd.tx);
+  ia_gyk = (int)(a_gyk * (float)max_pg_iamp / loggrd.ty);
+  ia_gzk = (int)(a_gzk * (float)max_pg_iamp / loggrd.tz);
     }
     ia_rf1 = max_pg_iamp * (*rfpulse[RF1_SLOT].amp);
     ia_rf2 = max_pg_iamp * (*rfpulse[RF2_SLOT].amp);
@@ -16220,7 +16201,7 @@ calcPulseParams( int encode_mode )
     SpSatIAmp();
 
     if (cs_sat == PSD_ON) {
-	ia_rfcssat = max_pg_iamp * (*rfpulse[RFCSSAT_SLOT].amp);
+  ia_rfcssat = max_pg_iamp * (*rfpulse[RFCSSAT_SLOT].amp);
     }
   
     /* BJM: Omega Freq Mod Pulses */
@@ -16662,9 +16643,9 @@ STATUS pulsegen( void )
 
     /* Set HPC timer set to 10 seconds (5 sec. per count) */
     setwatchdogrsp(watchdogcount); /* First give pulsegen a little extra time */
-#ifdef MGD_TGT		/* if this is MGD */
-    SetHWMem();		/* reset MGD instruction and waveform mem */
-#endif	
+#ifdef MGD_TGT    /* if this is MGD */
+    SetHWMem();   /* reset MGD instruction and waveform mem */
+#endif  
  
     /*MRIhc18005*/
     sspinit(psd_board_type);
@@ -16712,8 +16693,7 @@ STATUS pulsegen( void )
     slc_in_acq = (short *)AllocNode((act_acqs*pass_reps + 2)*sizeof(short));
     rf1_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
      /*baige addRF*/    
-         /* receive_freq2 = (int*)AllocNode((opslquant+2)*sizeof(int));*/
-
+         receive_freq2 = (int *)AllocNode( opslquant * sizeof(int) );
     /*baige addRF end*/
     theta_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
     rf2_freq = (int *)AllocNode((opslquant + 2)*sizeof(int));
@@ -16755,7 +16735,7 @@ STATUS pulsegen( void )
 
     rf_phase_spgr = (int **)AllocMem(opslquant*sizeof(int *));
     for (psd_icnt = 0; psd_icnt < opslquant; psd_icnt++) {
-	rf_phase_spgr[psd_icnt] = (int *)AllocMem(intleaves*sizeof(int));
+  rf_phase_spgr[psd_icnt] = (int *)AllocMem(intleaves*sizeof(int));
     }
 
 @inline HoecCorr.e HoecAllocateMemPG
@@ -16838,16 +16818,16 @@ STATUS pulsegen( void )
   
     switch (ky_dir) {
     case PSD_TOP_DOWN:
-	readpolar = 1;
-	break;
+  readpolar = 1;
+  break;
     case PSD_BOTTOM_UP:
     case PSD_CENTER_OUT:
     default:
-	if (etl % 2 == 1)  /* odd */
+  if (etl % 2 == 1)  /* odd */
             readpolar = 1;
-	else               /* even */
+  else               /* even */
             readpolar = -1;  
-	break;
+  break;
     }
 
     /* BJM: MRIge60610 - added num_overscan */ 
@@ -16867,11 +16847,11 @@ STATUS pulsegen( void )
         if (ygmn_type == CALC_GMN1) {
             tempa = a_gy1a * (float)gy1f[ileave]/(float)endview_iamp;
             tempb = a_gy1b * (float)gy1f[ileave]/(float)endview_iamp;
-	  
+    
             amppwygmn(gyb_tot_0thmoment, gyb_tot_1stmoment, pw_gy1a, pw_gy1,
                       pw_gy1d, tempa, tempb, loggrd.ty_xyz, (float)loggrd.yrt*loggrd.scale_3axis_risetime,
                       1, &pw_gymn1a, &pw_gymn1, &pw_gymn1d, &temp_gmnamp);
-	  
+    
             gymn[ileave] = (int)((float)ia_gymn1 * a_gymn1/ temp_gmnamp);
           
             if (debugileave == 1)
@@ -16905,9 +16885,9 @@ STATUS pulsegen( void )
         delayval[slice] += dacq_adjust;
 
     if (oppseq == PSD_SPGR)
-	spgr_flag = 1;
+  spgr_flag = 1;
     else
-	spgr_flag = 0;
+  spgr_flag = 0;
 
     for (slice = 0; slice < opslquant; slice++) {
         for (ileave = 0; ileave < intleaves; ileave++)
@@ -16941,9 +16921,9 @@ STATUS pulsegen( void )
     for (slice = 0; slice < opslquant; slice++) 
     {
         if (delayval[slice] < 0.0)
-	    gldelaycval[slice] = (int)(delayval[slice] - 0.5);
+      gldelaycval[slice] = (int)(delayval[slice] - 0.5);
         else
-	    gldelaycval[slice] = (int)(delayval[slice] + 0.5);
+      gldelaycval[slice] = (int)(delayval[slice] + 0.5);
     }
 #endif /* IPG */  
 
@@ -16954,7 +16934,7 @@ STATUS pulsegen( void )
     /* Chem Sat **********************************************************/
     cs_satindex = 0;
     if (cs_sat)
-	ChemSatPG(cs_satstart, &cs_satindex);
+  ChemSatPG(cs_satstart, &cs_satindex);
 
     if (rfov_flag)
     {
@@ -17244,11 +17224,11 @@ STATUS pulsegen( void )
   
     /* For now assume a simple retiling. */
     if (fract_ky == PSD_FRACT_KY) {
-	echoOffset  = num_overscan/intleaves;
+  echoOffset  = num_overscan/intleaves;
     } else {
-	if (ky_dir == PSD_TOP_DOWN || ky_dir == PSD_BOTTOM_UP)
+  if (ky_dir == PSD_TOP_DOWN || ky_dir == PSD_BOTTOM_UP)
             echoOffset  = fullk_nframes/intleaves/2;
-	else
+  else
             echoOffset  = 0;
     }
   
@@ -17411,7 +17391,7 @@ STATUS pulsegen( void )
         }
 
         if(hsdab == 1)
-	        HSDAB(hyperdab, temp2);
+          HSDAB(hyperdab, temp2);
         else
             DIFFDAB(diffdab, temp2);
     }  
@@ -17445,10 +17425,10 @@ STATUS pulsegen( void )
 
     /* Y prephaser ************************************************************/
     if (gy1pos == PSD_POST_180) {
-	temp1 = pbeg(&gxw, "gxw", iref_etl) - pw_gxwad - pw_gy1_tot;
-	temp1 = RDN_GRD(temp1);
+  temp1 = pbeg(&gxw, "gxw", iref_etl) - pw_gxwad - pw_gy1_tot;
+  temp1 = RDN_GRD(temp1);
     } else {
-	temp1 = RDN_GRD(pend(&rf1,"rf1",0) + rfupd);
+  temp1 = RDN_GRD(pend(&rf1,"rf1",0) + rfupd);
     }
 
     TRAPEZOID2(YGRAD, gy1, temp1, TRAP_ALL_SLOPED,,,endview_scale, loggrd);
@@ -17474,11 +17454,11 @@ STATUS pulsegen( void )
         {
             temp1 = RDN_GRD(pendall(&gzrf1, gzrf1.ninsts-1) + pw_gz1a);
         }
-	TRAPEZOID( ZGRAD, gz1, temp1, 0, TYPNDEF, loggrd);
-	if (zgmn_type == CALC_GMN1) {
+  TRAPEZOID( ZGRAD, gz1, temp1, 0, TYPNDEF, loggrd);
+  if (zgmn_type == CALC_GMN1) {
             temp1 += (pw_gz1 + pw_gz1d + pw_gzmna);
             TRAPEZOID( ZGRAD, gzmn, temp1, 0, TYPNDEF, loggrd); 
-	}
+  }
     }
 
     /* Added for Inversion.e */
@@ -17576,8 +17556,8 @@ STATUS pulsegen( void )
 
     /* X killer pulse *********************************************************/
     if (eosxkiller == PSD_ON) {
-	tempx = RUP_GRD(pend(&gxwde,"gxwde",0) + gkdelay + pw_gxka);
-	TRAPEZOID(XGRAD, gxk, tempx, 0, TYPNDEF, loggrd);
+  tempx = RUP_GRD(pend(&gxwde,"gxwde",0) + gkdelay + pw_gxka);
+  TRAPEZOID(XGRAD, gxk, tempx, 0, TYPNDEF, loggrd);
     }
   
     /* Y diffusion pulses *****************************************************/
@@ -17671,8 +17651,8 @@ STATUS pulsegen( void )
 
     /* Y killer pulse *****************************************************/
     if (eosykiller == PSD_ON) {
-	tempy = RUP_GRD(pend(&gxwde,"gxwde",0) + gkdelay + pw_gyka);
-	TRAPEZOID(YGRAD, gyk, tempy, 0, TYPNDEF, loggrd);
+  tempy = RUP_GRD(pend(&gxwde,"gxwde",0) + gkdelay + pw_gyka);
+  TRAPEZOID(YGRAD, gyk, tempy, 0, TYPNDEF, loggrd);
     }
   
     /* Z diffusion pulses *****************************************************/
@@ -17798,7 +17778,7 @@ STATUS pulsegen( void )
         } else {
             tempx = pendall(&gxdr2,0);
             tempy = pendall(&gydr2,0);
-        }	
+        } 
     } else {
         if (gy1pos == PSD_POST_180)
             tempy = pbeg(&gy1a, "gy1a", 0) - pw_wgy;
@@ -17825,7 +17805,7 @@ STATUS pulsegen( void )
             tempz = pendall(&gzrf2r1, 0);
         } else {
             tempz = pendall(&gzrf2rightr1, 0);
-        }	
+        } 
     } else {
         if (zgmn_type == CALC_GMN1)
             tempz = pendall(&gzmnd, 0);
@@ -17942,141 +17922,6 @@ STATUS pulsegen( void )
     }
 
     PASSPACK(pass_pulse, temps);
-    /* baige addRF */
-    /* Tracking 序列 */
-   int t_trk0 = temps + 100us; 
-    SLICESELZ(rftrk, t_trk0, 3200us, opslthick, opflip, 1, , loggrd);
-    /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
-    a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
-    ia_gzrftrk = 0;              /* 指令幅度置 0 */
-    printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
-    
-    /* Z Dephaser (Crusher)*/
-    #if defined(HOST_TGT)
-    {
-        int start= pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a;
-        int zrt=loggrd.zrt*loggrd.scale_3axis_risetime;
-        printf("[DBG gz2] crusher_area=%f start=%d zrt=%d minplat=%d\n",
-            crusher_area,
-            start,
-            zrt,
-            MIN_PLATEAU_TIME);
-        fflush(stdout);
-    }
-    #endif
-     TRAPEZOID(ZGRAD, gz2,
-                    pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a,
-                    (int)crusher_area,
-                    , loggrd);
-
-     /* baige addGx */
-    /* X Readout */
-    /* ---- Debug gxwtrk params ---- */
-#if defined(HOST_TGT)
-{
-    int start_gxwtrk = RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2);
-    int area_gxwtrk  = 0;
-
-    printf("[DBG gxwtrk] start=%d area=%d tx=%d rt=%d pw_gxwtrk=%d\n",
-           start_gxwtrk,
-           area_gxwtrk,
-           (int)loggrd.tx_xyz,
-           (int)(loggrd.xrt * loggrd.scale_3axis_risetime),
-           pw_gxwtrk);
-    fflush(stdout);
-}
-#endif
-/* ---- Real pulse ---- */
-TRAPEZOID(XGRAD, gxwtrk,
-          RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
-          0,
-          TYPNDEF,
-          loggrd);
-
-
-    /* Frequency Dephaser */
-       /* ---- Debug gx1trk params ---- */
-
-    #if defined(HOST_TGT)
-   {
-       int start_gx1trk = pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd;
-      int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
-
-       printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
-           start_gx1trk,
-           area_gx1trk,
-            a_gxwtrk,
-           pw_gxwtrk,
-           (int)loggrd.tx_xyz);
-       fflush(stdout);
-    }
-    #endif
-
-    /* ---- Real pulse ---- */
-    TRAPEZOID(XGRAD, gx1trk,
-            pbeg( &gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
-            (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
-            TYPNDEF,
-            loggrd);
-
-
-
-      
-      /* Data Acquisition */
-    ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
-    /* baige addGx end */
-     /* Z & X Killers */
-    /* ---- Debug gzktrk params ---- */
-    #if defined(HOST_TGT)
-    {
-        int start_gzktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka;
-        int area_gzktrk  = 980;
-
-        printf("[DBG gzktrk] start=%d area=%d tx=%d rt=%d\n",
-            start_gzktrk,
-            area_gzktrk,
-            (int)loggrd.tz_xyz,
-            (int)(loggrd.zrt * loggrd.scale_3axis_risetime));
-        fflush(stdout);
-    }
-    #endif
-    /* ---- Real pulse ---- */
-    TRAPEZOID(ZGRAD, gzktrk,
-            pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
-            980,
-            TYPNDEF,
-            loggrd);
-
-    
-    /* ---- Debug gxktrk params ---- */
-    #if defined(HOST_TGT)
-    {
-        int start_gxktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka;
-        int area_gxktrk  = 980;
-
-        printf("[DBG gxktrk] start=%d area=%d tx=%d rt=%d\n",
-            start_gxktrk,
-            area_gxktrk,
-            (int)loggrd.tx_xyz,
-            (int)(loggrd.xrt * loggrd.scale_3axis_risetime));
-        fflush(stdout);
-    }
-    #endif
-    /* ---- Real pulse ---- */
-    TRAPEZOID(XGRAD, gxktrk,
-            pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
-            980,
-            TYPNDEF,
-            loggrd);
-    fprintf(stderr," pulsegen after gxktrk\n");
-    fflush(stderr);
-
-    /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
-    SEQLENGTH(seqtrk, optr, seqtrk);
-    fprintf(stderr,"pulsegen after SEQLENGTH\n");
-    fflush(stderr);
-    
-    /* baige addRF end*/
 
     /* Actual deadtimes for cardiac scans will be rewritten later */
     if((opcgate==PSD_ON) || (oprtcgate==PSD_ON))
@@ -18128,12 +17973,168 @@ TRAPEZOID(XGRAD, gxwtrk,
 
     if(!irprep_flag) 
     {
-    SEQLENGTH(seqcore,psd_seqtime,seqcore);
-    getperiod((long*)&scan_deadtime, &seqcore, 0);
-    scan_deadlast = deadlast;
+        SEQLENGTH(seqcore,psd_seqtime,seqcore);
+        getperiod((long*)&scan_deadtime, &seqcore, 0);
+        scan_deadlast = deadlast;
 
-  
+        /* baige addRF */
+    /* Tracking 序列 */
+    SLICESELZ(rftrk, 1ms, 3200us, opslthick, opflip, 1, , loggrd);
+    /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
+    a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
+    ia_gzrftrk = 0;              /* 指令幅度置 0 */
+    printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
+    
+    /* Z Dephaser (Crusher)*/
+    #if defined(HOST_TGT)
+    {
+        int start= pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a;
+        int zrt=loggrd.zrt*loggrd.scale_3axis_risetime;
+        printf("[DBG gz2] crusher_area=%f start=%d zrt=%d minplat=%d\n",
+            crusher_area,
+            start,
+            zrt,
+            MIN_PLATEAU_TIME);
+        fflush(stdout);
     }
+    #endif
+     TRAPEZOID(ZGRAD, gz2,
+                    pend(&gzrftrkd, "gzrftrkd", 0) + pw_gz2a,
+                    (int)crusher_area,
+                    , loggrd);
+
+     /* baige addGx */
+    /* X Readout */
+    /* ---- Debug gxwtrk params ---- */
+#if defined(HOST_TGT)
+{
+    int start_gxwtrk = RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2);
+    int area_gxwtrk  = (int)(a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
+    
+
+    printf("[DBG gxwtrk] start=%d area=%d tx=%d rt=%d pw_gxwtrk=%d\n",
+           start_gxwtrk,
+           area_gxwtrk,
+           (int)loggrd.tx_xyz,
+           (int)(loggrd.xrt * loggrd.scale_3axis_risetime),
+           pw_gxwtrk);
+    fflush(stdout);
+}
+#endif
+/* ---- Real pulse ---- */
+TRAPEZOID(XGRAD, gxwtrk,
+          RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
+          (int)(a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)), /*Let area be computed from amplitude and width*/
+          TYPNDEF,
+          loggrd);
+
+    
+
+    /* Frequency Dephaser */
+
+        /* ---- trapezoid创建gx1trk ---- */
+
+    #if defined(HOST_TGT)
+   {
+       int start_gx1trk = pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd;
+      int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
+
+       printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
+           start_gx1trk,
+           area_gx1trk,
+            a_gxwtrk,
+           pw_gxwtrk,
+           (int)loggrd.tx_xyz);
+       fflush(stdout);
+    }
+    #endif
+
+    int t_gxw = pbeg(&gxwtrk, "gxwtrk", 0);
+    int t_gx1 = RDN_GRD(t_gxw - 4000);   /* 先硬提前 4ms 做验证 */
+    printf("[CHK] t_gxw=%d t_gx1=%d (dt=%d)\n", t_gxw, t_gx1, t_gxw - t_gx1);
+    printf("[CHK] pw_gx1trk=%d pw_gx1trkd=%d pw_gx1trka=%d\n", pw_gx1trk, pw_gx1trkd, pw_gx1trka);
+    fflush(stdout);
+
+    TRAPEZOID(XGRAD, gx1trk,
+            t_gx1,
+            (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
+            TYPNDEF,
+            loggrd);
+    if (gx1trk.ninsts == 0) {
+        printf("[FATAL] gx1trk collapsed; abort tracking block\n");
+        fflush(stdout);
+        return FAILURE; // 或 goto TRACKING_DONE;
+    }
+
+    printf("[POST gx1trk] ninst=%ld pbeg=%ld pend=%ld\n",
+        gx1trk.ninsts,
+        (gx1trk.ninsts>0?pbeg(&gx1trk,"gx1trk",0):-1L),
+        (gx1trk.ninsts>0?pend(&gx1trk,"gx1trk",0):-1L));
+    fflush(stdout);
+
+
+
+
+
+
+
+
+
+
+      
+      /* Data Acquisition */
+    ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
+    /* baige addGx end */
+     /* Z & X Killers */
+    /* ---- Debug gzktrk params ---- */
+    #if defined(HOST_TGT)
+    {
+        int start_gzktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka;
+        int area_gzktrk  = 980;
+
+        printf("[DBG gzktrk] start=%d area=%d tx=%d rt=%d\n",
+            start_gzktrk,
+            area_gzktrk,
+            (int)loggrd.tz_xyz,
+            (int)(loggrd.zrt * loggrd.scale_3axis_risetime));
+        fflush(stdout);
+    }
+    #endif
+    /* ---- Real pulse ---- */
+    TRAPEZOID(ZGRAD, gzktrk,
+            pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
+            980,
+            TYPNDEF,
+            loggrd);
+
+    
+    /* ---- Debug gxktrk params ---- */
+    #if defined(HOST_TGT)
+    {
+        int start_gxktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka;
+        int area_gxktrk  = 980;
+
+        printf("[DBG gxktrk] start=%d area=%d tx=%d rt=%d\n",
+            start_gxktrk,
+            area_gxktrk,
+            (int)loggrd.tx_xyz,
+            (int)(loggrd.xrt * loggrd.scale_3axis_risetime));
+        fflush(stdout);
+    }
+    #endif
+    /* ---- Real pulse ---- */
+    TRAPEZOID(XGRAD, gxktrk,
+            pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
+            980,
+            TYPNDEF,
+            loggrd);
+
+    
+    /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
+    SEQLENGTH(seqtrk, optr, seqtrk);
+    /* baige addRF end*/
+    }
+
     if(ir_on)
     {
 @inline Inversion_new.e InversionPG
@@ -18175,7 +18176,7 @@ TRAPEZOID(XGRAD, gxwtrk,
                     (LONG)0,
                     (LONG)0,
                     (TYPDAB_PACKETS)DABNORM);
-				 
+         
 
 
     if (hsdab == 1)
@@ -18240,15 +18241,12 @@ TRAPEZOID(XGRAD, gxwtrk,
     rspech = 0;
     rspchp = CHOP_ALL;
     rsp_preview = 0;
-fprintf(stderr," pulsegen before IPG\n");
-fflush(stderr);
+  
 #ifdef IPG
-/*setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
-  *               (INT)TYPREC);   
-   */
-
+setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
+                 (INT)TYPREC);   
     /*
-     * 
+     * Execute this code only on the Tgt side
      */
     if (rfov_flag)
     {
@@ -18271,7 +18269,7 @@ fflush(stderr);
     }
     else
     {
-	
+  
         /* Find frequency offsets */
         setupslices(rf1_freq, rsp_info, opslquant, a_gzrf1,
                     (float)1, (opfov*freq_scale), TYPTRANSMIT);
@@ -18337,7 +18335,7 @@ fflush(stderr);
     maxTGAtOffset = updateTGLimitAtOffset(TGlimit, sat_TGlimit);
 
 #endif /* IPG */
-fprintf(stderr,"pulsegen after IPG\n");
+ fprintf(stderr," pulsegen after IPG starts");
 fflush(stderr);
     sl_rcvcf = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES);
 
@@ -18354,24 +18352,24 @@ fflush(stderr);
         rspcardiacinit((short)ophrep, (short)piclckcnt);
         sliceindex = acqs - 1; /* with cardiac gating, acqs is the no. of slices */
         for (pass = 0; pass < acqs; pass++) 
-	{
+  {
             slc_in_acq[pass] = slquant1*opphases;
             if (pass == 0)
                 acq_ptr[pass] = 0;
             else 
-	    {
+      {
                 acq_ptr[pass] = sliceindex;
                 sliceindex = sliceindex - 1;
-	    }
-  	} /* repeat the table for multi-reps */
+      }
+    } /* repeat the table for multi-reps */
         for (pass_rep = 1; pass_rep < pass_reps; pass_rep++) 
-	{
+  {
             for (pass = 0; pass < acqs; pass++) 
-	    {
+      {
                 slc_in_acq[pass + pass_rep*acqs] = slc_in_acq[pass];
                 acq_ptr[pass + pass_rep*acqs] = acq_ptr[pass];
-	    }
-	}
+      }
+  }
     }
     /* RTG */
     else if ((oprtcgate == PSD_ON) || (navtrig_flag == PSD_ON))
@@ -18413,10 +18411,10 @@ fflush(stderr);
     else 
     {
         if ( mph_flag==PSD_OFF ) 
-	{  /* single-rep interleaved multi-slice */
+  {  /* single-rep interleaved multi-slice */
             slmod_acqs = (opslquant*reps)%act_acqs;
             for (pass = 0; pass < act_acqs; pass++) 
-	    {
+      {
                 slc_in_acq[pass] = (opslquant*reps)/act_acqs;
                 if (slmod_acqs > pass)
                     slc_in_acq[pass] = slc_in_acq[pass] + 1;
@@ -18425,25 +18423,25 @@ fflush(stderr);
                     acq_ptr[pass] = acq_ptr[pass] + slmod_acqs;
                 else
                     acq_ptr[pass] = acq_ptr[pass] + pass;
-	    }
-	}
+      }
+  }
         if ( (mph_flag==PSD_ON) && (acqmode==1)) 
-	{  /* mph, sequential */
+  {  /* mph, sequential */
             for (pass=0; pass<act_acqs; pass++) 
-	    {  /* for sequential, acqs=opslquant */
+      {  /* for sequential, acqs=opslquant */
                 slc_in_acq[pass] = reps;
                 acq_ptr[pass] = pass;
-	    }
-	}
+      }
+  }
         if ( (mph_flag==PSD_ON) && (acqmode==0) ) 
-	{  /* mph, interleaved, single pass */
+  {  /* mph, interleaved, single pass */
             for (pass = 0; pass < act_acqs; pass++) 
-	    {
+      {
                 slc_in_acq[pass] = slquant1;
                 acq_ptr[pass] = 0;
                 slmod_acqs = (opslquant*reps)%act_acqs;
                 for (pass = 0; pass < act_acqs; pass++) 
-		{
+    {
                     slc_in_acq[pass] = (opslquant*reps)/act_acqs;
                     if (slmod_acqs > pass)
                         slc_in_acq[pass] = slc_in_acq[pass] + 1;
@@ -18452,17 +18450,17 @@ fflush(stderr);
                         acq_ptr[pass] = acq_ptr[pass] + slmod_acqs;
                     else
                         acq_ptr[pass] = acq_ptr[pass] + pass;
-		}
-	    }
+    }
+      }
             for (pass_rep = 1; pass_rep < pass_reps; pass_rep++) 
-	    { /* repeat the table for multi-reps */
+      { /* repeat the table for multi-reps */
                 for (pass = 0; pass < act_acqs; pass++) 
-		{
+    {
                     slc_in_acq[pass + pass_rep*act_acqs] = slc_in_acq[pass];
                     acq_ptr[pass + pass_rep*act_acqs] = acq_ptr[pass];
-		}
-	    }
-	}
+    }
+      }
+  }
     }
     
     /* t1flair_stir */
@@ -18524,9 +18522,9 @@ int * rpgUnitTestPtr = NULL; /* Distortion Correction Unit Test */
 int rpgUnitTestPtrSize = -1;
 
 const CHAR *entry_name_list[ENTRY_POINT_MAX] = { "scan",
-					   "mps2",
-					   "aps2",
-					   "ref",
+             "mps2",
+             "aps2",
+             "ref",
 @inline Prescan.e PSeplist
 };
 
@@ -18538,7 +18536,7 @@ const CHAR *entry_name_list[ENTRY_POINT_MAX] = { "scan",
 long deadtime;               /* amount of deadtime */
 short viewtable[1025];        /* view table */
 int xrr_trig_time;             /* trigger time for filled or unfilled
-		                  R-R interval which is not last R-R */
+                      R-R interval which is not last R-R */
 
 short tempamp;
 
@@ -18580,8 +18578,6 @@ psdinit( void )
     psdinit() 
 #endif /* __STDC__ */
 {
-    fprintf(stderr," psdinit start\n");
-    fflush(stderr);
     strcpy(psdexitarg.text_arg, "psdinit");  /* reset global error variable */
     diff_index = 0;
     nex_index = 0;
@@ -18623,20 +18619,16 @@ psdinit( void )
 
     scopeon(&seqcore);    /* reset all scope triggers */
 
-    if (epi_flair == PSD_ON)		/* IR scope triggers */
+    if (epi_flair == PSD_ON)    /* IR scope triggers */
         scopeon(&seqinv);
 
     scopeoff(&seqblineacq);
 
     syncon(&seqcore);  /* reset all synchronizations, not needed in pass */
-    fprintf(stderr,"psdinit before scopeon\n");
-    fflush(stderr);
     /* baige addRF */
     scopeon( &seqtrk );  
     syncon( &seqtrk );       
     /* baige addRF end*/
-    fprintf(stderr,"psdinit after scopeon\n");
-    fflush(stderr);
     /* Set trigger for cf and 1st pass prescan.
        Reset trigger the prescan slice to its scan trigger for 
        scan and second pass prescan entry points. */
@@ -18777,8 +18769,7 @@ psdinit( void )
     if ( FAILURE == set_tensor_orientationsAGP() ){
         return FAILURE;
     } 
- fprintf(stderr," psdinit before setrflt gengzao\n");
-    fflush(stderr);
+
 #ifdef PSD_HW
     if (PSD_ON == navtrig_flag)
     {
@@ -18796,18 +18787,11 @@ psdinit( void )
         }
     }
 #endif /* PSD_HW */
- fprintf(stderr,"psdinit after setrflt gengzao\n");
-    fflush(stderr);
-
 /*baige add Gradx */
-    fprintf(stderr,"psdinit before setrfltr\n");
-    fflush(stderr);
-    setrfltrs( (int)filter_echo2, &echo2 );
-    fprintf(stderr,"psdinit after setrfltr\n");
-    fflush(stderr);
+     setrfltrs( (int)filter_echo2, &echo2 );
 /*baige add Gradx end*/
     return SUCCESS;  
-} /* End psdinit */	    
+} /* End psdinit */     
 
 @inline Monitor.e MonitorCore
 
@@ -19029,7 +19013,7 @@ STATUS mps2( void)
     scanEntryType = ENTRY_PRESCAN;
     rspdda = ps2_dda;
 
-    if (cs_sat ==1)	/* Turn on Chemsat Y crusher */
+    if (cs_sat ==1) /* Turn on Chemsat Y crusher */
         cstun=1;
     psdinit();
     strcpy(psdexitarg.text_arg, "mps2");
@@ -19085,8 +19069,8 @@ STATUS aps2( void )
   
     rspent = L_APS2;
     rspdda = ps2_dda;
-    if (cs_sat ==1)	/* Turn on ChemSat Y crusher */
-	cstun = 1;
+    if (cs_sat ==1) /* Turn on ChemSat Y crusher */
+  cstun = 1;
     psdinit();
  
     strcpy(psdexitarg.text_arg, "aps2");
@@ -19147,8 +19131,8 @@ STATUS scan( void )
     rspent = L_SCAN;
     scanEntryType = ENTRY_SCAN;
     rspdda = scan_dda;
-    if (cs_sat == 1)	/* Turn on ChemSat Y crusher */
-	cstun =1;
+    if (cs_sat == 1)  /* Turn on ChemSat Y crusher */
+  cstun =1;
     psdinit();
 
     /*RTB0 correction*/
@@ -19175,13 +19159,13 @@ STATUS scan( void )
 
 
     if (rawdata == PSD_ON && baseline > 0) {  /* collect reference scan for rawdata */
-	ygradctrl(rspgyc, gyb_amp, etl);
-	scanloop();
+  ygradctrl(rspgyc, gyb_amp, etl);
+  scanloop();
     }
     if (gyctrl == PSD_ON)
-	rspgyc = 1;
+  rspgyc = 1;
     else
-	rspgyc = 0;
+  rspgyc = 0;
     rspgzc = rspgyc;
     ygradctrl(rspgyc, gyb_amp, etl);
 
@@ -19234,15 +19218,9 @@ STATUS scan( void )
         nav_active = 0;
     }
     /*baige addRF*/
-    fprintf(stderr,"scan before rftrk_center_freq\n");
-    fflush(stderr);
-    receive_freq2 = (int *)AllocNode( opslquant * sizeof(int) );
-
     int rftrk_center_freq; /* Center frequency for non-selective pulse */
     rftrk_center_freq = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES); /* host offset不可见，使用接收频率偏移作为中心频率 */
     setfrequency( rftrk_center_freq, &rftrk, 0 );
-    fprintf(stderr,"scan after rftrk_center_freq\n");
-    fflush(stderr);
     printf("[SCAN]     rftrk_center_freq = %d\n", rftrk_center_freq);
 
     /*baige addRF end*/
@@ -19271,8 +19249,8 @@ STATUS ref( void )
     rspent = L_REF;
     scanEntryType = ENTRY_NON_INTEG_REF;
     rspdda = ref_dda; /* Refless EPI */
-    if (cs_sat ==1)	/* Turn on ChemSat Y crusher */
-	cstun=1;
+    if (cs_sat ==1) /* Turn on ChemSat Y crusher */
+  cstun=1;
     psdinit();
 
     rspbas = rhbline;   /* used on blineacq only */
@@ -19370,7 +19348,7 @@ STATUS ref( void )
         rspslq = rspslqb + (mux_flag?mux_slquant:false_slquant1);
         rsprep = rhpctemporal;
     } else if (ref_mode == 1 && rhpctemporal != 0) {
-	rsprep = rhpctemporal;
+  rsprep = rhpctemporal;
         rspacqb = pre_pass;
         rspacq = pre_pass + 1;
         false_rspacqb = 0;
@@ -19389,9 +19367,9 @@ STATUS ref( void )
     }
 
     if (rhpcileave == 0)
-  	rspilv = intleaves;
+    rspilv = intleaves;
     else
-	rspilv = 1;
+  rspilv = 1;
 
     if (PSD_ON == navtrig_flag)
     {
@@ -19655,7 +19633,7 @@ STATUS scanloop( void )
     }
     
     if (cs_sat == PSD_ON) 
-	cstun = 1;
+  cstun = 1;
     
     setiamp(ia_rf1, &rf1, 0);   /* Reset amplitudes */
     if (oppseq == PSD_SE) {
@@ -19673,21 +19651,21 @@ STATUS scanloop( void )
     SpSat_Saton(0);
     
     if (cs_sat > 0)  
-	setiamp(ia_rfcssat, &rfcssat, 0);
+  setiamp(ia_rfcssat, &rfcssat, 0);
     
     strcpy(psdexitarg.text_arg, "scan");
     
     if (opcgate==PSD_ON) {
 #ifndef PSD_HW
-	/* Don't check ecg rate in simulator mode. */
+  /* Don't check ecg rate in simulator mode. */
 #else /* PSD_HW */
-	if (test_getecg == PSD_ON) {
+  if (test_getecg == PSD_ON) {
             getecgrate(&rsp_hrate);
             if (rsp_hrate == 0)
-		psdexit(EM_PSD_NO_HRATE,0,"","psd scan entry point",0);
-	}
+    psdexit(EM_PSD_NO_HRATE,0,"","psd scan entry point",0);
+  }
 #endif /* !PSD_HW */
-	rsp_card_intern = ctlend + scan_deadtime;
+  rsp_card_intern = ctlend + scan_deadtime;
     int acq_cnt = 0;
     for (acq_cnt = 0; acq_cnt < acqs; acq_cnt++)
     {
@@ -19696,11 +19674,11 @@ STATUS scanloop( void )
         rsp_card_unfill[acq_cnt] = ctlend_unfill[acq_cnt] + scan_deadtime;
     }
 
-	CardInit(ctlend_tab, rsp_card_intern, rsp_card_last,
+  CardInit(ctlend_tab, rsp_card_intern, rsp_card_last,
                  rsp_card_fill, rsp_card_unfill, act_acqs, ophrep, opphases);
     } else if (oprtcgate==PSD_ON){
 #ifndef PSD_HW
-	    /* Don't check ecg rate in simulator mode. */
+      /* Don't check ecg rate in simulator mode. */
 #else /* PSD_HW */
         if (test_getecg == PSD_ON) {
             getresprate(&rsp_hrate);
@@ -19722,7 +19700,7 @@ STATUS scanloop( void )
                  rsp_card_fill, rsp_card_unfill, act_acqs, oprtrep, rt_opphases);
  
     } else
-	setperiod(scan_deadtime, &seqcore, 0);
+  setperiod(scan_deadtime, &seqcore, 0);
  
     inversRspRot(inversRR, rsprot_unscaled[0]); 
 
@@ -19785,7 +19763,7 @@ STATUS scanloop( void )
                     scan_init();
                 }
             }
-	    
+      
             /* RTB0 Correction*/
             /* Initialize RTB0 RTP communication*/
             /* dummy seq is played to avoid timeout error because sometimes */
@@ -19796,7 +19774,7 @@ STATUS scanloop( void )
             {
                 if ((ref_in_scan_flag && rtb0_flag && pass_rep == 0) ||
                    (!ref_in_scan_flag && pass_rep == 0))
-                {	
+                { 
                     play_rtb0dummyseq(1);
                     reset_to_epi2scan();
 
@@ -19807,7 +19785,7 @@ STATUS scanloop( void )
                     rtb0_initialized = 1;
                  }
             }
-	
+  
         }
         
         /* Distortion Correction. Note that ref scan or pass is defined rspent==L_REF.
@@ -20064,35 +20042,35 @@ STATUS core( void )
             }
 #endif
 
-	    /*RTB0 correction: determine whether to play rtb0 related things*/
-	    if (dda_rtb0 != 0 && disdaq_index==(dda_packb-dda_rtb0))
-	    {
+      /*RTB0 correction: determine whether to play rtb0 related things*/
+      if (dda_rtb0 != 0 && disdaq_index==(dda_packb-dda_rtb0))
+      {
                 in_rtb0_loop = 1;
-	    }
-	    else
-	    {
+      }
+      else
+      {
                 in_rtb0_loop = 0;
-	    }
-	
-	    /*RTB0 correction*/
-	    if (rtb0_flag)
-	    {
+      }
+  
+      /*RTB0 correction*/
+      if (rtb0_flag)
+      {
                 if(in_rtb0_loop ==1)
-                {	
+                { 
                     attenlockoff(&atten);
                     if(pscR1-rtb0_r1_delta > 0)
                     {
                         set_dynr1(pscR1-rtb0_r1_delta); 
-        	        /* this only works on DV. need to change on HD */
+                  /* this only works on DV. need to change on HD */
                     }
                     setiampt(freqSign*ia_gz1, &gz1, 0);
-                }	
+                } 
                 else
                 {
                     attenlockon(&atten);
                     setiampt(0, &gz1, 0);
-                }	
-            }	
+                } 
+            } 
 
             if (epi_flair && rspent == L_SCAN) 
             {
@@ -20135,7 +20113,7 @@ STATUS core( void )
                     /* Load Transmit Frequencies */
                     setfrequency(freqSign*rf0_freq[sliceindex]+slice_cfoffset_TARDIS[sliceindex], &rf0, false_slice);
                     /* setfrequency(rf0_freq[sliceindex], &rf0, 0); */
-                    /*	setiphase(rf0_pha[sliceindex], &rf0, 0); */
+                    /*  setiphase(rf0_pha[sliceindex], &rf0, 0); */
                       
                     /* MRIge81039  NU */
                     if ((rspent== L_CFH) || (rspent == L_CFL))
@@ -20229,7 +20207,7 @@ STATUS core( void )
                         setperiod(ctlend_tab[sliceindex],&seqcore ,0);
 
                     /*  first slice in RR */
-                    if (rsptrigger[sliceindex] != TRIG_INTERN) {	
+                    if (rsptrigger[sliceindex] != TRIG_INTERN) {  
                         if ((rspent == L_SCAN)||(rspent == L_MPS2)
                             ||(rspent == L_APS2)) {
                                 /* Use cardiac trigger delay.
@@ -20238,8 +20216,6 @@ STATUS core( void )
                                    calcPulseParams() failure. Clamp to at least one GRAD_UPDATE_TIME.
                                    This preserves original timing intent when td0>0 while ensuring
                                    hardware cycle divisibility and >0 width requirement. */
-                                  fprintf(stderr,"core before setperiod\n");
-                                  fflush(stderr);
                                 setperiod(td0, &x_td0, 0);
                                 setperiod(td0, &y_td0, 0);
                                 setperiod(td0, &z_td0, 0);
@@ -20247,8 +20223,6 @@ STATUS core( void )
                                 setperiod(td0, &theta_td0, 0);
                                 setperiod(td0, &omega_td0, 0);
                                 setperiod(td0, &ssp_td0, 0);
-                                fprintf(stderr,"core after setperiod\n");
-                                  fflush(stderr);
 
                                 if (pw_x_td0 <= 0) {
                                     setperiod(GRAD_UPDATE_TIME, &x_td0, 0);
@@ -20259,8 +20233,6 @@ STATUS core( void )
                                     setperiod(GRAD_UPDATE_TIME, &omega_td0, 0);
                                     setperiod(GRAD_UPDATE_TIME, &ssp_td0, 0);
                                 }
-                                 fprintf(stderr,"core after pw_x_td0 <= 0\n");
-                                  fflush(stderr);
                                 /* baige add Gradx end */
                         }
                     } else {
@@ -20539,8 +20511,8 @@ STATUS core( void )
                     rspfskillercycling *= -1;
                 }
 
-		        startseq((short)sliceindex, (SHORT)MAY_PAUSE);
-		
+            startseq((short)sliceindex, (SHORT)MAY_PAUSE);
+    
                 if (debug_unitTest)
                     fprintf(fp_utloopinfo,"%s\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t \n", "dda:", pass_rep, pass, disdaq_index, -1, false_slice, -1,-1, -1,-1,-1,-1);
 
@@ -20560,8 +20532,8 @@ STATUS core( void )
 
 
 #if defined(MGD_TGT) && defined(PSD_HW)
-                    while(cf_counter == rtb0_processed_index)	
-                    {							
+                    while(cf_counter == rtb0_processed_index) 
+                    {             
                         if (0==getRTB0Feedback(&rtb0_processed_index, &rtb0_cfoffset, &rtb0_fidmean, &rtb0_cfstddev, &rtb0_cfresidual))
                         {
                             /* No feedback available.  Play dummy pulse to 
@@ -20580,7 +20552,7 @@ STATUS core( void )
                             printf("getRTB0Feedback Timeout, rtb0_cfoffset %f\n", rtb0_cfoffset);
                             break; /*If timeout, break from the while loop*/
                         }
-                    }                					
+                    }                         
 
                     /*Forcing CF offset to be a user defined value*/
                     /*for debugging/formal verification purpose*/
@@ -20603,7 +20575,7 @@ STATUS core( void )
                     slice_fidmean[sliceindex] = rtb0_fidmean;
                     slice_cfstddev[sliceindex] = rtb0_cfstddev;
                     slice_cfresidual[sliceindex] = rtb0_cfresidual;
-			 
+       
                     if (rtb0_debug)
                     {
                         fprintf(fp_cfdata,"core: While loop: pass_rep=%d,pass=%d,dda=%d/%d, false_slice=%d, num_wait=%d\n",pass_rep, pass, disdaq_index, dda_packe-1, false_slice, num_wait);
@@ -20641,7 +20613,7 @@ STATUS core( void )
             /*RTB0 correction: reset things & do interslice fitting before going into actual disdacqs*/
             /*do fitting & comp only after RTB0 loop is completed*/
             if (rtb0_flag && in_rtb0_loop)
-            {	
+            { 
                 set_dynr1(pscR1); /*reset R1*/
 
                 if (rtb0_gzrf0_off && t1flair_flag==PSD_ON) /*reset gzrf0*/
@@ -20664,8 +20636,8 @@ STATUS core( void )
             }
 
         }  /* disdaq */
-	
-    }	/* if rspdda > 0 */
+  
+    } /* if rspdda > 0 */
     
     /******* end disdaq block ***********************************/
     /*RTB0 correction*/
@@ -20682,9 +20654,9 @@ STATUS core( void )
     }
 
     if (rspent != L_SCAN)
-	attenlockoff(&atten);
+  attenlockoff(&atten);
     else
-	attenlockon(&atten);
+  attenlockon(&atten);
 
     for (core_rep = 0; core_rep <= rsprep-1; core_rep++) 
     {
@@ -20782,14 +20754,14 @@ STATUS core( void )
                 {
                     setiamp(rfpol[ileave], &rf1, 0);   /* odd excitation */
                 }
-	               
+                 
 #ifdef UNDEF
-		if (debugstate==PSD_ON)
+    if (debugstate==PSD_ON)
                     sprintf(psddbgstr,"  Excitation=%6d",excitation);
-		printdbg(psddbgstr, debugstate);
-#endif		
+    printdbg(psddbgstr, debugstate);
+#endif    
                 
-		if (epi_flair) {
+    if (epi_flair) {
                     setiamp(ia_rf0, &rf0, 0);
                     setiamp(freqSign*ia_gzrf0, &gzrf0, 0);
                     setiamp(freqSign*ia_gzrf0, &gzrf0a, 0);
@@ -20797,7 +20769,7 @@ STATUS core( void )
                     setiamp(ia_gyk0, &gyk0, 0);
                     setiamp(ia_gyk0, &gyk0a, 0);
                     setiamp(ia_gyk0, &gyk0d, 0);
-		}
+    }
                 
                 for (false_pass = false_rspacqb; false_pass < false_rspacq; false_pass++) 
                 {
@@ -20903,8 +20875,8 @@ STATUS core( void )
 
                         startseq((short)sliceindex, (SHORT)MAY_PAUSE);
 
-			if (debug_unitTest)
-				fprintf(fp_utloopinfo,"%s\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t \n", "core_flair:", pass_rep, pass, -1, -1, -1, core_rep, ileave, excitation, false_pass, false_slice, -1);
+      if (debug_unitTest)
+        fprintf(fp_utloopinfo,"%s\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t %d\t \n", "core_flair:", pass_rep, pass, -1, -1, -1, core_rep, ileave, excitation, false_pass, false_slice, -1);
 
                         /* MRIge81039  NU */
                         if ((rspent== L_CFH) || (rspent == L_CFL))
@@ -21026,13 +20998,10 @@ STATUS core( void )
                                 setperiod(ctlend_tab[sliceindex],&seqcore ,0);
 
                             /*  first slice in RR */
-                            if (rsptrigger[sliceindex] != TRIG_INTERN) {	
+                            if (rsptrigger[sliceindex] != TRIG_INTERN) {  
                                 if ((rspent == L_SCAN)||(rspent == L_MPS2)||(rspent == L_APS2)) {
                                     /* Use cardiac trigger delay */
                                     /* baige add Gradx safety: guard against td0==0 to avoid zero-width pulses */
-                                    
-                                    fprintf(stderr,"core before 2setperiod\n");
-                                    fflush(stderr);
                                     setperiod(td0, &x_td0, 0);
                                     setperiod(td0, &y_td0, 0);
                                     setperiod(td0, &z_td0, 0);
@@ -21040,8 +21009,6 @@ STATUS core( void )
                                     setperiod(td0, &theta_td0, 0);
                                     setperiod(td0, &omega_td0, 0);
                                     setperiod(td0, &ssp_td0, 0);
-                                    fprintf(stderr,"core after 2setperiod\n");
-                                    fflush(stderr);
 
                                     if (pw_x_td0 <= 0) {
                                         setperiod(GRAD_UPDATE_TIME, &x_td0, 0);
@@ -21052,8 +21019,6 @@ STATUS core( void )
                                         setperiod(GRAD_UPDATE_TIME, &omega_td0, 0);
                                         setperiod(GRAD_UPDATE_TIME, &ssp_td0, 0);
                                     }
-                                     fprintf(stderr,"core after 2pw_x_td0 <= 0\n");
-                                  fflush(stderr);
                                 /* baige add Gradx end*/
                                 }
                             } else {
@@ -21556,7 +21521,7 @@ STATUS core( void )
                                             setwave(om_wave_omthrf2right[sliceindex], &om_omthrf2right, 0);
                                             setwave(th_wave_omthrf2left[sliceindex], &th_omthrf2left, 0);
                                             setwave(th_wave_omthrf2right[sliceindex], &th_omthrf2right, 0);
-                                        }	else if (thetarf2_flag == PSD_OFF) {
+                                        } else if (thetarf2_flag == PSD_OFF) {
                                             setfrequency(freqSign_rf2left*rf2_freq[sliceindex], &rf2left, 0);
                                             setiamp(0, &thetarf2left, 0);
                                             setfrequency(freqSign_rf2right*rf2_freq[sliceindex], &rf2right, 0);
@@ -21737,11 +21702,11 @@ STATUS core( void )
                 }  /* false_pass */
                 
                 if (rspchp == CHOP_NONE) SpSatChop();
-		
+    
 #ifdef UNDEF
-		if (debugstate==1)
+    if (debugstate==1)
                     sprintf(psddbgstr,"Ileave=%6d",ileave);
-		printdbg(psddbgstr,debugstate);
+    printdbg(psddbgstr,debugstate);
 #endif
         if ((diff_order_flag == 2) &&
             (ileave == rspilv-1) &&
@@ -21749,11 +21714,11 @@ STATUS core( void )
         {
             diff_pass_counter++;
         }
-		
+    
             } /* excitation */
 
-	} /* ileave */
-    } /* core_rep */	
+  } /* ileave */
+    } /* core_rep */  
 
     printdbg("Returning from CORE", debugstate);
     return SUCCESS;
@@ -21806,11 +21771,11 @@ STATUS blineacq( void )
     settriggerarray((SHORT)1, rsptrigger_temp);
     if (baseline > 0 && rawdata == PSD_ON) {    /* collect single frame */
         sp_sat_index = 0;
-	startseq((short)0, (SHORT)MAY_PAUSE);
-	printdbg("B", (SHORT)debugstate);
+  startseq((short)0, (SHORT)MAY_PAUSE);
+  printdbg("B", (SHORT)debugstate);
     } else {
-	dabop = 0; /* Store data */
-	for (bcnt = rspbasb; bcnt <= rspbas; bcnt++) {
+  dabop = 0; /* Store data */
+  for (bcnt = rspbasb; bcnt <= rspbas; bcnt++) {
             for (rcnt = 0;rcnt < rsprep; rcnt++) {
                 for (nslice = rspslqb;nslice < bl_slice_end; nslice++) {
 
@@ -21819,7 +21784,7 @@ STATUS blineacq( void )
                         setperiod(bl_acq_tr2, &seqblineacq, 0);
 
                     if (nslice < slc_in_acq[pass_index]) {
-			slindex = nslice + rcnt*rspslq;
+      slindex = nslice + rcnt*rspslq;
                         /* Load the HSDAB or DIFFDAB packet. */
 
                         if(hsdab == 2)
@@ -21842,7 +21807,7 @@ STATUS blineacq( void )
                         }
                         else
                         {
-		  	    loadhsdab(&hyperdabbl,
+            loadhsdab(&hyperdabbl,
                                       (LONG)slindex,
                                       (LONG)0,
                                       (LONG)dabop,
@@ -21858,8 +21823,8 @@ STATUS blineacq( void )
                         sp_sat_index = 0;
                         startseq((short)0, (SHORT)MAY_PAUSE);
                         printdbg("B", (SHORT)debugstate);
-                    }		  
-		
+                    }     
+    
                 } /* for (nslice = rspslqb;nslice <= rspslq; nslice++) */
             } /* reps loop */
             dabop = 1;       /* add baseviews */
@@ -21913,17 +21878,17 @@ STATUS dabrbaload(INT blipsw,
     dabacqctrl = (TYPDAB_PACKETS)acq_data;
     if (hsdab == 1)
     {
-	loadhsdab(&hyperdab,        /* load hyperdab */
-		  (LONG)slicerep,
-	          (LONG)echo_nex,        /* note, this is the echonum slot */
-		  (LONG)dabop,
-		  (LONG)view1st[ileave],
-		  (LONG)viewskip[ileave],
-		  (LONG)etl,
+  loadhsdab(&hyperdab,        /* load hyperdab */
+      (LONG)slicerep,
+            (LONG)echo_nex,        /* note, this is the echonum slot */
+      (LONG)dabop,
+      (LONG)view1st[ileave],
+      (LONG)viewskip[ileave],
+      (LONG)etl,
                   (LONG)1, /* card_rpt */
                   (LONG)1, /* k_read */
-	          dabacqctrl,
-	          (LONG)hsdabmask);
+            dabacqctrl,
+            (LONG)hsdabmask);
     }
     else if (hsdab == 2)
     {
@@ -22186,7 +22151,7 @@ STATUS diffstep( INT dshot )
     /* Calculate read, blip grad and receiver freq compensation; update receiver phase in diffstep() */
 @inline HoecCorr.e HoecCalcAmpUpdateReceiverPhaseRsp
 
-    /*	turn off diffusion during prescan	*/
+    /*  turn off diffusion during prescan */
 
     if((rspent==L_MPS2)||(rspent==L_APS2)||(rspent==L_REF)) 
     {
@@ -22224,11 +22189,11 @@ STATUS diffstep( INT dshot )
         {
                 setiampt(ia_incdifx, &gxdl, 0);
                 setiampt(ia_incdifx, &gxdr, 0);
-       	        setiampt(ia_incdify, &gydl, 0);
+                setiampt(ia_incdify, &gydl, 0);
                 setiampt(ia_incdify, &gydr, 0);
                 setiampt(ia_incdifz, &gzdl, 0);
                 setiampt(ia_incdifz, &gzdr, 0);
-	} 
+  } 
         else 
         {
             setiampt(ia_incdifx, &gxdl1, 0);
@@ -22308,14 +22273,14 @@ STATUS diffstep( INT dshot )
         }
 
         /* 180 + crushers */
-       	setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2l1,  &gzrf2l1a, 0);
-       	setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2l1,  &gzrf2l1,  0);
-       	setiamp(mpgPolarity * freqSign_rf2 * max_pg_iamp, &gzrf2l1d, 0);
-       	setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2,    &gzrf2,    0);
-       	setiamp(mpgPolarity * freqSign_rf2 * max_pg_iamp, &gzrf2r1a, 0);
-       	setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2r1,  &gzrf2r1,  0);
-       	setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2r1,  &gzrf2r1d, 0);
-	
+        setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2l1,  &gzrf2l1a, 0);
+        setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2l1,  &gzrf2l1,  0);
+        setiamp(mpgPolarity * freqSign_rf2 * max_pg_iamp, &gzrf2l1d, 0);
+        setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2,    &gzrf2,    0);
+        setiamp(mpgPolarity * freqSign_rf2 * max_pg_iamp, &gzrf2r1a, 0);
+        setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2r1,  &gzrf2r1,  0);
+        setiamp(mpgPolarity * freqSign_rf2 * ia_gzrf2r1,  &gzrf2r1d, 0);
+  
         /* Inversion pulse */
         if(ir_on && (skip_ir == PSD_OFF)) setiampt(freqSign*ia_gzrf0, &gzrf0, INSTRALL);
 
@@ -22505,7 +22470,7 @@ STATUS diffstep( INT dshot )
             setupphases(rf2left_pha, rf2_freq, i, rf2_phase, t_rf2_phase, freqSign_rf2left);
             setupphases(rf2right_pha, rf2_freq, i, rf2_phase, t_rf2_phase, freqSign_rf2right);
         }
-    }		
+    }   
 
     return SUCCESS;
 
@@ -22621,7 +22586,7 @@ STATUS ygradctrl( INT blipsw,
                 parity *= -1;
             }
         }
-    }	 
+    }  
 
     setiampt((short)dephaser_amp, &gy1, 0);
     if (ygmn_type == CALC_GMN1) {

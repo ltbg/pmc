@@ -1,0 +1,39 @@
+        /* ---- Real pulse ---- */
+
+    #if defined(HOST_TGT)
+   {
+       int start_gx1trk = pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd;
+      int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
+
+       printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
+           start_gx1trk,
+           area_gx1trk,
+            a_gxwtrk,
+           pw_gxwtrk,
+           (int)loggrd.tx_xyz);
+       fflush(stdout);
+    }
+    #endif
+
+int t_gxw = pbeg(&gxwtrk, "gxwtrk", 0);
+int t_gx1 = RDN_GRD(t_gxw - 4000);   /* 先硬提前 4ms 做验证 */
+printf("[CHK] t_gxw=%d t_gx1=%d (dt=%d)\n", t_gxw, t_gx1, t_gxw - t_gx1);
+printf("[CHK] pw_gx1trk=%d pw_gx1trkd=%d pw_gx1trka=%d\n", pw_gx1trk, pw_gx1trkd, pw_gx1trka);
+fflush(stdout);
+
+    TRAPEZOID(XGRAD, gx1trk,
+            t_gx1,
+            (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
+            TYPNDEF,
+            loggrd);
+if (gx1trk.ninsts == 0) {
+    printf("[FATAL] gx1trk collapsed; abort tracking block\n");
+    fflush(stdout);
+    return FAILURE; // 或 goto TRACKING_DONE;
+}
+
+printf("[POST gx1trk] ninst=%ld pbeg=%ld pend=%ld\n",
+       gx1trk.ninsts,
+       (gx1trk.ninsts>0?pbeg(&gx1trk,"gx1trk",0):-1L),
+       (gx1trk.ninsts>0?pend(&gx1trk,"gx1trk",0):-1L));
+fflush(stdout);
