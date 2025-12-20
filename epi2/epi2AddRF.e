@@ -17973,11 +17973,7 @@ STATUS pulsegen( void )
 
     if(!irprep_flag) 
     {
-        SEQLENGTH(seqcore,psd_seqtime,seqcore);
-        getperiod((long*)&scan_deadtime, &seqcore, 0);
-        scan_deadlast = deadlast;
-
-        /* baige addRF */
+                /* baige addRF */
     /* Tracking 序列 */
     SLICESELZ(rftrk, 1ms, 3200us, opslthick, opflip, 1, , loggrd);
     /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
@@ -18193,6 +18189,11 @@ printf("[POST gzktrk] ninst=%ld pbeg=%d pend=%d\n",
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
     /* baige addRF end*/
+        SEQLENGTH(seqcore,psd_seqtime,seqcore);
+        getperiod((long*)&scan_deadtime, &seqcore, 0);
+        scan_deadlast = deadlast;
+
+
     }
 
     if(ir_on)
