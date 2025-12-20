@@ -18022,18 +18022,65 @@ STATUS pulsegen( void )
 }
 #endif
 /* ---- Real pulse ---- */
+printf("[CHK gxwtrk params] a=%g ia=%d pw_a=%d pw=%d pw_d=%d\n",
+       a_gxwtrk, ia_gxwtrk, pw_gxwtrka, pw_gxwtrk, pw_gxwtrkd);
+
+
+
 TRAPEZOID(XGRAD, gxwtrk,
           RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
-          (int)(a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)), /*Let area be computed from amplitude and width*/
+          0, /*Let area be computed from amplitude and width*/
           TYPNDEF,
           loggrd);
+          /* ===== DBG GROUP 1: gx object identity ===== */
 
-    
+fprintf(stderr,
+    "[DBG gx identity] gxwtrk ptr=%p pbeg=%d pmid=%d pend=%d\n",
+    (void*)&gxwtrk,
+    pbeg(&gxwtrk, "gxwtrk", 0),
+    pmid(&gxwtrk, "gxwtrk", 0),
+    pend(&gxwtrk, "gxwtrk", 0)
+);
+
+fprintf(stderr,
+    "[DBG gx identity] gxw_orig ptr=%p pbeg=%d pmid=%d pend=%d\n",
+    (void*)&gxw,
+    pbeg(&gxw, "gxw", 0),
+    pmid(&gxw, "gxw", 0),
+    pend(&gxw, "gxw", 0)
+);
+
+/* ===== DBG GROUP 2: gx timing overlap ===== */
+
+LONG gxwtrk_beg  = pbeg(&gxwtrk, "gxwtrk", 0);
+LONG gxwtrk_end  = pend(&gxwtrk, "gxwtrk", 0);
+LONG gxw_beg     = pbeg(&gxw,    "gxw",    0);
+LONG gxw_end     = pend(&gxw,    "gxw",    0);
+
+fprintf(stderr,
+    "[DBG gx timing] gxwtrk: pbeg=%d pend=%d dur=%d\n",
+    gxwtrk_beg, gxwtrk_end, gxwtrk_end - gxwtrk_beg
+);
+
+fprintf(stderr,
+    "[DBG gx timing] gxw_orig: pbeg=%d pend=%d dur=%d\n",
+    gxw_beg, gxw_end, gxw_end - gxw_beg
+);
+
+fprintf(stderr,
+    "[DBG gx params] ia=%d  a=%f  pw=%d  ramp=%d\n",
+    ia_gxwtrk,
+    a_gxwtrk,
+    pw_gxwtrk,
+    pw_gxwtrka
+);
+
+
+    printf("[CHK gxwtrk time] pbeg=%d pend=%d\n",
+       pbeg(&gxwtrk,"gxwtrk",0), pend(&gxwtrk,"gxwtrk",0));
+
 
     /* Frequency Dephaser */
-
-        /* ---- trapezoid创建gx1trk ---- */
-
     #if defined(HOST_TGT)
    {
        int start_gx1trk = pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd;
@@ -18049,28 +18096,31 @@ TRAPEZOID(XGRAD, gxwtrk,
     }
     #endif
 
-    int t_gxw = pbeg(&gxwtrk, "gxwtrk", 0);
-    int t_gx1 = RDN_GRD(t_gxw - 4000);   /* 先硬提前 4ms 做验证 */
-    printf("[CHK] t_gxw=%d t_gx1=%d (dt=%d)\n", t_gxw, t_gx1, t_gxw - t_gx1);
-    printf("[CHK] pw_gx1trk=%d pw_gx1trkd=%d pw_gx1trka=%d\n", pw_gx1trk, pw_gx1trkd, pw_gx1trka);
-    fflush(stdout);
+int t_gxw = pbeg(&gxwtrk, "gxwtrk", 0);
+int t_gx1 = RDN_GRD(t_gxw - 4000);   /* 先硬提前 4ms 做验证 */
+printf("[CHK] t_gxw=%d t_gx1=%d (dt=%d)\n", t_gxw, t_gx1, t_gxw - t_gx1);
+printf("[CHK] pw_gx1trk=%d pw_gx1trkd=%d pw_gx1trka=%d\n", pw_gx1trk, pw_gx1trkd, pw_gx1trka);
+fflush(stdout);
 
     TRAPEZOID(XGRAD, gx1trk,
             t_gx1,
             (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
-            TYPNDEF,
+            TYPDEF,
             loggrd);
-    if (gx1trk.ninsts == 0) {
-        printf("[FATAL] gx1trk collapsed; abort tracking block\n");
-        fflush(stdout);
-        return FAILURE; // 或 goto TRACKING_DONE;
-    }
-
-    printf("[POST gx1trk] ninst=%ld pbeg=%ld pend=%ld\n",
-        gx1trk.ninsts,
-        (gx1trk.ninsts>0?pbeg(&gx1trk,"gx1trk",0):-1L),
-        (gx1trk.ninsts>0?pend(&gx1trk,"gx1trk",0):-1L));
+if (gx1trk.ninsts == 0) {
+    printf("[FATAL] gx1trk collapsed; abort tracking block\n");
     fflush(stdout);
+    return FAILURE; // 或 goto TRACKING_DONE;
+}
+
+printf("[POST gx1trk] ninst=%ld pbeg=%ld pend=%ld\n",
+       gx1trk.ninsts,
+       (gx1trk.ninsts>0?pbeg(&gx1trk,"gx1trk",0):-1L),
+       (gx1trk.ninsts>0?pend(&gx1trk,"gx1trk",0):-1L));
+fflush(stdout);
+
+       
+  
 
 
 
@@ -18090,7 +18140,7 @@ TRAPEZOID(XGRAD, gxwtrk,
     #if defined(HOST_TGT)
     {
         int start_gzktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka;
-        int area_gzktrk  = 980;
+        int area_gzktrk  = 5000;
 
         printf("[DBG gzktrk] start=%d area=%d tx=%d rt=%d\n",
             start_gzktrk,
@@ -18101,18 +18151,23 @@ TRAPEZOID(XGRAD, gxwtrk,
     }
     #endif
     /* ---- Real pulse ---- */
+    printf("[CHK gzktrk params] a=%g ia=%d pw_a=%d pw=%d pw_d=%d\n",
+       a_gzktrk, ia_gzktrk, pw_gzktrka, pw_gzktrk, pw_gzktrkd);
     TRAPEZOID(ZGRAD, gzktrk,
             pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
-            980,
-            TYPNDEF,
+            5000,
+            TYPDEF,
             loggrd);
-
+printf("[POST gzktrk] ninst=%ld pbeg=%d pend=%d\n",
+       gzktrk.ninsts,
+       pbeg(&gzktrk,"gzktrk",0),
+       pend(&gzktrk,"gzktrk",0));
     
     /* ---- Debug gxktrk params ---- */
     #if defined(HOST_TGT)
     {
         int start_gxktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka;
-        int area_gxktrk  = 980;
+        int area_gxktrk  = 5000;
 
         printf("[DBG gxktrk] start=%d area=%d tx=%d rt=%d\n",
             start_gxktrk,
@@ -18123,13 +18178,18 @@ TRAPEZOID(XGRAD, gxwtrk,
     }
     #endif
     /* ---- Real pulse ---- */
+    printf("[CHK gxktrk params] a=%g ia=%d pw_a=%d pw=%d pw_d=%d\n",
+       a_gxktrk, ia_gxktrk, pw_gxktrka, pw_gxktrk, pw_gxktrkd);
     TRAPEZOID(XGRAD, gxktrk,
             pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
-            980,
-            TYPNDEF,
+            5000,
+            TYPDEF,
             loggrd);
 
-    
+    printf("[POST gxktrk] ninst=%ld pbeg=%d pend=%d\n",
+       gxktrk.ninsts,
+       pbeg(&gxktrk,"gxktrk",0),
+       pend(&gxktrk,"gxktrk",0));
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
     /* baige addRF end*/
@@ -18154,7 +18214,11 @@ TRAPEZOID(XGRAD, gxwtrk,
         else
         {
             SEQLENGTH(seqinv, invseqtime, seqinv);
+             static int bi_cnt2 = 0;
+                bi_cnt2++;
+                fprintf(stderr,"[BI #%d] before buildinstr\n", bi_cnt2); fflush(stderr);
             buildinstr();
+            fprintf(stderr,"[BI #%d] after buildinstr\n", bi_cnt2); fflush(stderr);
             getperiod(&scan_deadtime_inv, &seqinv, 0);
             /* Assert the ESSP flag on the sync packet byte seq length */
             attenflagon(&seqinv, 0);
@@ -18197,8 +18261,15 @@ TRAPEZOID(XGRAD, gxwtrk,
         return FAILURE;
     }
 #endif
+    /*baige fixbug*/
+    static int bi_cnt = 0;
+    bi_cnt++;
+    fprintf(stderr,"[BIfirst #%d] before buildinstr\n", bi_cnt); fflush(stderr);
+
+
 
     buildinstr();              /* load the sequencer memory */
+    fprintf(stderr,"[BIfirst #%d] after buildinstr\n", bi_cnt); fflush(stderr);
 
     if (SatRelaxers) /* Use X and Z Grad offsets from off seqcore */
         SpSatCatRelaxOffsets(off_seqcore);
@@ -18335,8 +18406,13 @@ setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
     maxTGAtOffset = updateTGLimitAtOffset(TGlimit, sat_TGlimit);
 
 #endif /* IPG */
- fprintf(stderr," pulsegen after IPG starts");
+#if defined(IPG_TGT) || defined(MGD_TGT)
+fprintf(stderr,"[TGT] pulsegen after IPG\n");
+#else
+fprintf(stderr,"[HOST] pulsegen after IPG\n");
+#endif
 fflush(stderr);
+
     sl_rcvcf = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES);
 
     /* Set up SlcInAcq and AcqPtr tables for multipass scans and
@@ -18626,8 +18702,8 @@ psdinit( void )
 
     syncon(&seqcore);  /* reset all synchronizations, not needed in pass */
     /* baige addRF */
-    scopeon( &seqtrk );  
-    syncon( &seqtrk );       
+     scopeon( &seqtrk ); 
+    syncon( &seqtrk );     
     /* baige addRF end*/
     /* Set trigger for cf and 1st pass prescan.
        Reset trigger the prescan slice to its scan trigger for 

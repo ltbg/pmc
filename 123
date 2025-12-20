@@ -37,3 +37,38 @@ printf("[POST gx1trk] ninst=%ld pbeg=%ld pend=%ld\n",
        (gx1trk.ninsts>0?pbeg(&gx1trk,"gx1trk",0):-1L),
        (gx1trk.ninsts>0?pend(&gx1trk,"gx1trk",0):-1L));
 fflush(stdout);
+
+
+
+
+
+
+
+
+
+
+
+ /* ---------- manual gx1trk (NO TRAPEZOID/TRAPEZOID2) ---------- */
+        int Tr = (int)(loggrd.xrt * loggrd.scale_3axis_risetime);  /* ramp time us */
+        int Tf = 400;                                            /* plateau us */
+        int ia_pre = -2000;                                        /* 先随便给个不大的负值，跑通再调 */
+
+        int t_gx1 = RUP_GRD( pbeg(&gxwtrk, "gxwtrk", 0) - (2*Tr + Tf) - 8 );
+
+        /* attack */
+        pulsename(&gx1trka, "gx1trka");
+        createramp(&gx1trka, XGRAD, Tr, 0, max_pg_wamp,
+                (short)(maxGradRes*(Tr/GRAD_UPDATE_TIME)), loggrd.xbeta);
+        createinstr(&gx1trka, (LONG)t_gx1, Tr, ia_pre);
+
+        /* plateau */
+        pulsename(&gx1trkp, "gx1trkp");
+        createconst(&gx1trkp, XGRAD, Tf, max_pg_wamp);
+        createinstr(&gx1trkp, (LONG)(t_gx1 + Tr), Tf, ia_pre);
+
+        /* decay */
+        pulsename(&gx1trkd, "gx1trkd");
+        createramp(&gx1trkd, XGRAD, Tr, max_pg_wamp, 0,
+                (short)(maxGradRes*(Tr/GRAD_UPDATE_TIME)), loggrd.xbeta);
+        createinstr(&gx1trkd, (LONG)(t_gx1 + Tr + Tf), Tr, ia_pre);
+
