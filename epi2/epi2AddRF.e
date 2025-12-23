@@ -7970,7 +7970,7 @@ cveval1( void )
      */
     avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
     
-    pw_gxwtrk = 3000us;
+    pw_gxwtrk =echo2_filt->tdaq;
 
     if( optramp( &pw_gxwtrka, a_gxwtrk, loggrd.tx, loggrd.xrt, TYPDEF ) == FAILURE )
     {
