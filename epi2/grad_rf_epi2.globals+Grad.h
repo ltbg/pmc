@@ -35,7 +35,10 @@
 #define GXWKSP_SLOT 8 /* focus walking sat */
 #define GXDPC1_SLOT 9 /* dynamic PC pre-phaser */
 #define GXDPCR_SLOT 10 /* dynamic PC re-winder */
-#define GX_FREE 11
+/*baige add gradx*/
+#define GX1TRK_SLOT 11
+#define GXW2TRK_SLOT 12
+#define GX_FREE 13
 
 #define GYRFSY1_SLOT 0
 #define GYRFSY2_SLOT 1
@@ -86,7 +89,8 @@
 #define GZ_BLIP_SLOT 18
 #define GZWKSP_SLOT 19 /* focus walking sat */
 #define GZRFTRK_SLOT 20
-#define GZ_FREE 21
+#define GZ2_SLOT 21
+#define GZ_FREE 22
 
 #define MAX_RFPULSE RF_FREE
 #define MAX_GRADX GX_FREE

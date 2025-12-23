@@ -17973,12 +17973,97 @@ STATUS pulsegen( void )
 
     if(!irprep_flag) 
     {
-                /* baige addRF */
+             
+        SEQLENGTH(seqcore,psd_seqtime,seqcore);
+        getperiod((long*)&scan_deadtime, &seqcore, 0);
+        scan_deadlast = deadlast;
+
+
+    }
+
+    if(ir_on)
+    {
+@inline Inversion_new.e InversionPG
+        if(irprep_flag)
+        {
+            pulsename(&seqcore,"seqcore");
+            createseq(&seqcore,psd_seqtime, off_seqcore);
+#if defined(HOST_TGT)
+            /* Update sequence counter and get current sequence entry index */
+            updateIndex( &idx_seqcore );
+            printDebug( DBLEVEL1, (dbLevel_t)seg_debug, "SEQLENGTH",
+                        "idx_seqcore = %d\n", idx_seqcore );
+#endif
+            getperiod((long*)&scan_deadtime, &seqcore, 0);
+            scan_deadlast = deadlast;
+        }
+        else
+        {
+            SEQLENGTH(seqinv, invseqtime, seqinv);
+             static int bi_cnt2 = 0;
+                bi_cnt2++;
+                fprintf(stderr,"[BI #%d] before buildinstr\n", bi_cnt2); fflush(stderr);
+            buildinstr();
+            fprintf(stderr,"[BI #%d] after buildinstr\n", bi_cnt2); fflush(stderr);
+            getperiod(&scan_deadtime_inv, &seqinv, 0);
+            /* Assert the ESSP flag on the sync packet byte seq length */
+            attenflagon(&seqinv, 0);
+        }
+    }
+
+    /* PS **************************************************************/
+@inline Prescan.e PSpulsegen
+  
+    if (SatRelaxers) /* Create Null sequence for Relaxers */
+        SpSatCatRelaxPG(time_ssi);
+
+    /* Baseline Acquisition *********************************************/
+    RCVRUNBLANK(bline_unblank, (LONG)(3ms),);
+    FASTACQUIREDATA(blineacq1,
+                    (LONG)(5ms), 
+                    (LONG)STD_REC,
+                    (LONG)(hsdab > 0 ? 0:1),
+                    (LONG)0,
+                    (LONG)0,
+                    (TYPDAB_PACKETS)DABNORM);
+         
+
+
+    if (hsdab == 1)
+        HSDAB(hyperdabbl, 1ms);
+    else if (hsdab == 2)
+        DIFFDAB(diffdabbl, 1ms);
+  
+    SEQLENGTH(seqblineacq, bl_acq_tr2, seqblineacq);
+
+@inline phaseCorrection.e phaseCorrectionPGDummy 
+
+/*RTB0 correction*/
+@inline RTB0.e RTB0pg
+
+#ifdef IPG
+    if (FAILURE == Monitor_pulsegen())
+    {
+        return FAILURE;
+    }
+#endif
+    static int pg_enter = 0;
+    pg_enter++;
+    fprintf(stderr, "PG_ENTER=%d\n", pg_enter);
+
+    if (pg_enter == 1) 
+    {
+    // 仅在第一轮构建 echo2/seqtrk
+
+
+       /* baige addRF */
     /* Tracking 序列 */
-    SLICESELZ(rftrk, 1ms, 3200us, opslthick, opflip, 1, , loggrd);
+    SLICESELZ(rftrk, 150ms, 3200us, opslthick, opflip, 1, , loggrd);
     /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
-    a_gzrftrk = 0.0f;            /* 物理幅度置 0 */
-    ia_gzrftrk = 0;              /* 指令幅度置 0 */
+    /* a_gzrftrk = 0.0f;  */
+              /* 物理幅度置 0 */
+    /* ia_gzrftrk = 0; */
+                 /* 指令幅度置 0 */
     printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
     
     /* Z Dephaser (Crusher)*/
@@ -18188,80 +18273,8 @@ printf("[POST gzktrk] ninst=%ld pbeg=%d pend=%d\n",
        pend(&gxktrk,"gxktrk",0));
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
-    /* baige addRF end*/
-        SEQLENGTH(seqcore,psd_seqtime,seqcore);
-        getperiod((long*)&scan_deadtime, &seqcore, 0);
-        scan_deadlast = deadlast;
-
-
+       /* baige addRF end*/
     }
-
-    if(ir_on)
-    {
-@inline Inversion_new.e InversionPG
-        if(irprep_flag)
-        {
-            pulsename(&seqcore,"seqcore");
-            createseq(&seqcore,psd_seqtime, off_seqcore);
-#if defined(HOST_TGT)
-            /* Update sequence counter and get current sequence entry index */
-            updateIndex( &idx_seqcore );
-            printDebug( DBLEVEL1, (dbLevel_t)seg_debug, "SEQLENGTH",
-                        "idx_seqcore = %d\n", idx_seqcore );
-#endif
-            getperiod((long*)&scan_deadtime, &seqcore, 0);
-            scan_deadlast = deadlast;
-        }
-        else
-        {
-            SEQLENGTH(seqinv, invseqtime, seqinv);
-             static int bi_cnt2 = 0;
-                bi_cnt2++;
-                fprintf(stderr,"[BI #%d] before buildinstr\n", bi_cnt2); fflush(stderr);
-            buildinstr();
-            fprintf(stderr,"[BI #%d] after buildinstr\n", bi_cnt2); fflush(stderr);
-            getperiod(&scan_deadtime_inv, &seqinv, 0);
-            /* Assert the ESSP flag on the sync packet byte seq length */
-            attenflagon(&seqinv, 0);
-        }
-    }
-
-    /* PS **************************************************************/
-@inline Prescan.e PSpulsegen
-  
-    if (SatRelaxers) /* Create Null sequence for Relaxers */
-        SpSatCatRelaxPG(time_ssi);
-
-    /* Baseline Acquisition *********************************************/
-    RCVRUNBLANK(bline_unblank, (LONG)(3ms),);
-    FASTACQUIREDATA(blineacq1,
-                    (LONG)(5ms), 
-                    (LONG)STD_REC,
-                    (LONG)(hsdab > 0 ? 0:1),
-                    (LONG)0,
-                    (LONG)0,
-                    (TYPDAB_PACKETS)DABNORM);
-         
-
-
-    if (hsdab == 1)
-        HSDAB(hyperdabbl, 1ms);
-    else if (hsdab == 2)
-        DIFFDAB(diffdabbl, 1ms);
-  
-    SEQLENGTH(seqblineacq, bl_acq_tr2, seqblineacq);
-
-@inline phaseCorrection.e phaseCorrectionPGDummy 
-
-/*RTB0 correction*/
-@inline RTB0.e RTB0pg
-
-#ifdef IPG
-    if (FAILURE == Monitor_pulsegen())
-    {
-        return FAILURE;
-    }
-#endif
     /*baige fixbug*/
     static int bi_cnt = 0;
     bi_cnt++;
