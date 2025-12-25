@@ -1,4 +1,5 @@
 /**
+ * 只增加RF的代码 已经测试通过 可以plot新增的RF 在section2 注意opetl不能=48
  * -GE HealthCare CONFIDENTIAL-
  * Type: Source Code
  *
@@ -17818,7 +17819,7 @@ STATUS pulsegen( void )
 
         /* baige addRF */
     /* Tracking 序列 */
-    SLICESELZ(rftrk, 15ms, 6400us, opslthick, opflip, 1, , loggrd);
+       SLICESELZ(rftrk, 15ms, 6400us, opslthick, opflip, 1, , loggrd);
        SEQLENGTH(seqtrk, optr, seqtrk);
     /* baige addRF end */
     }
