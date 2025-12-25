@@ -17981,11 +17981,11 @@ STATUS pulsegen( void )
 
          /* baige addRF */
     /* Tracking 序列 */
-    SLICESELZ(rftrk, 150ms, 3200us, opslthick, opflip, 1, , loggrd);
+    SLICESELZ(rftrk, 1ms, 3200us, opslthick, opflip, 1, , loggrd);
     /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
-    /* a_gzrftrk = 0.0f;  */
+    a_gzrftrk = 0.0f; 
               /* 物理幅度置 0 */
-    /* ia_gzrftrk = 0; */
+    ia_gzrftrk = 0; 
                  /* 指令幅度置 0 */
     printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
     
@@ -18087,7 +18087,7 @@ fprintf(stderr,
     /* Frequency Dephaser */
     #if defined(HOST_TGT)
    {
-       int start_gx1trk = pbeg(&gxwtrk, "gxwtrk", 0) - pw_gx1trk - pw_gx1trkd;
+       int start_gx1trk = pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd;
       int area_gx1trk  = (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
 
        printf("[DBG gx1trk] start=%d area=%d a_gxwtrk=%f pw_gxwtrk=%d tx=%d\n",
@@ -18107,7 +18107,7 @@ printf("[CHK] pw_gx1trk=%d pw_gx1trkd=%d pw_gx1trka=%d\n", pw_gx1trk, pw_gx1trkd
 fflush(stdout);
 
     TRAPEZOID(XGRAD, gx1trk,
-            t_gx1,
+            pbeg(&gxwtrka, "gxwtrka", 0) - pw_gx1trk - pw_gx1trkd,
             (int)(-0.5 * a_gxwtrk * (pw_gxwtrk + pw_gxwtrka)),
             TYPDEF,
             loggrd);
@@ -18123,18 +18123,6 @@ printf("[POST gx1trk] ninst=%ld pbeg=%ld pend=%ld\n",
        (gx1trk.ninsts>0?pend(&gx1trk,"gx1trk",0):-1L));
 fflush(stdout);
 
-       
-  
-
-
-
-
-
-
-
-
-
-
       
       /* Data Acquisition */
     ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
@@ -18144,7 +18132,7 @@ fflush(stdout);
     #if defined(HOST_TGT)
     {
         int start_gzktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka;
-        int area_gzktrk  = 5000;
+        int area_gzktrk  = 980;
 
         printf("[DBG gzktrk] start=%d area=%d tx=%d rt=%d\n",
             start_gzktrk,
@@ -18159,7 +18147,7 @@ fflush(stdout);
        a_gzktrk, ia_gzktrk, pw_gzktrka, pw_gzktrk, pw_gzktrkd);
     TRAPEZOID(ZGRAD, gzktrk,
             pend(&gxwtrkd, "gxwtrkd", 0) + pw_gzktrka,
-            5000,
+            980,
             TYPDEF,
             loggrd);
 printf("[POST gzktrk] ninst=%ld pbeg=%d pend=%d\n",
@@ -18171,7 +18159,7 @@ printf("[POST gzktrk] ninst=%ld pbeg=%d pend=%d\n",
     #if defined(HOST_TGT)
     {
         int start_gxktrk = pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka;
-        int area_gxktrk  = 5000;
+        int area_gxktrk  = 980;
 
         printf("[DBG gxktrk] start=%d area=%d tx=%d rt=%d\n",
             start_gxktrk,
@@ -18186,7 +18174,7 @@ printf("[POST gzktrk] ninst=%ld pbeg=%d pend=%d\n",
        a_gxktrk, ia_gxktrk, pw_gxktrka, pw_gxktrk, pw_gxktrkd);
     TRAPEZOID(XGRAD, gxktrk,
             pend(&gxwtrkd, "gxwtrkd", 0) + pw_gxktrka,
-            5000,
+            980,
             TYPDEF,
             loggrd);
 
