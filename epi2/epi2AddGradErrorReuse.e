@@ -15008,9 +15008,9 @@ predownload1( void )
         epic_error( use_ermes, supfailfmt, EM_PSD_SUPPORT_FAILURE, EE_ARGS(1), STRING_ARG, "setScale" );
         return FAILURE;
     }
-
+     /*baige AddRF */
     entry_point_table[L_SCAN].epxmtadd = (short) rint((double)xmtaddScan);
-
+     /*baige AddRF end*/ 
     if (cs_sat == PSD_ON)
         rfpulse[RFCSSAT_SLOT].num = 1;
 
@@ -18304,13 +18304,15 @@ printf("[POST gzktrk] ninst=%ld pbeg=%d pend=%d\n",
     rspech = 0;
     rspchp = CHOP_ALL;
     rsp_preview = 0;
-  
+
 #ifdef IPG
-setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
-                 (INT)TYPREC);   
     /*
      * Execute this code only on the Tgt side
      */
+    /* baige addRF: slice-dependent receive center frequency for echo2 (tracking) */
+    setupslices( receive_freq2, rsp_info, opslquant,(float)0, echo2bw, opfov,
+                 (INT)TYPREC);
+
     if (rfov_flag)
     {
         /* Slice shift controlled though theta */
@@ -19991,8 +19993,12 @@ STATUS core( void )
     int disdaq_index;
     int i; 
     int tmpi;
-
-    /* t1flair_stir */
+    /* baige: counter for inserting seqtrk between DWI volumes (for logging / sanity checks) */
+    static int seqtrk_vol_counter = 0;
+    /* baige: define "volume" by diffusion (b,dir) index changes */
+    static int last_trk_b_index = -1;
+    static int last_trk_dir_index = -1;
+     /* baige end */
     int real_slice_IR;
     int slice_flag;
 
@@ -21737,6 +21743,81 @@ STATUS core( void )
                         rspfskillercycling *= -1;
                     }
                         
+                    /* baige: volume-level PMC tracking
+                     * Define "volume" by (b_index, dir_index) changes derived from diff_index.
+                     * Run tracking once at the beginning of each new (b,dir), before imaging.
+                     */
+                    /* baige: 为了方便验证 tracking/ imaging 切换，这里不再限制必须是 rspslqb 这一片，
+                     * 只要当前是 SCAN、DWI 打开且为 live slice 就允许触发一次 volume-level tracking。 */
+                    if ((rspent == L_SCAN) && (opdiffuse == PSD_ON) && (use_sl == 1))
+                    {
+                        static int dbg_trk_check_count = 0;
+                        int ioffset = ref_in_scan_flag + (rpg_in_scan_flag ? rpg_in_scan_num : 0);
+                        int local_b_index = -1;
+                        int local_dir_index = -1;
+                        int local_is_diff_frame = 0;
+
+                        if (diff_index >= (opdifnumt2 + ioffset))
+                        {
+                            local_is_diff_frame = 1;
+                            local_dir_index = (diff_index - opdifnumt2 - ioffset) % opdifnumdirs;
+                            local_b_index = (diff_index - opdifnumt2 - ioffset) / opdifnumdirs;
+                        }
+
+                        if (dbg_trk_check_count < 40)
+                        {
+                            printf("[DBG] TRK_CHECK(%d): diff_index=%d ioffset=%d is_diff=%d b=%d dir=%d last_b=%d last_dir=%d false_slice=%d rspslqb=%d\n",
+                                    dbg_trk_check_count,
+                                    diff_index,
+                                    ioffset,
+                                    local_is_diff_frame,
+                                    local_b_index,
+                                    local_dir_index,
+                                    last_trk_b_index,
+                                    last_trk_dir_index,
+                                    false_slice,
+                                    rspslqb);
+                            fflush(stdout);
+                            dbg_trk_check_count++;
+                        }
+
+                        if (local_is_diff_frame &&
+                            ((local_b_index != last_trk_b_index) || (local_dir_index != last_trk_dir_index)))
+                        {
+                            int rftrk_center_freq;
+                            seqtrk_vol_counter++;
+
+                                printf("[DBG] TRACKING(trigger): vol_cnt=%d b=%d dir=%d pass=%d diff_index=%d sliceindex1=%d\n",
+                                    seqtrk_vol_counter, local_b_index, local_dir_index, pass, diff_index, sliceindex1);
+                                fflush(stdout);
+                     
+
+                            rftrk_center_freq = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES);
+
+                            boffset(off_seqtrk);
+
+                            /* DAB setup for tracking, patterned after grass -addRF3.e */
+                            setiamp(ia_rftrk, &rftrk, 0);
+                            setfrequency(rftrk_center_freq, &rftrk, 0);
+                            setfrequency(receive_freq2[sliceindex1], &echo2, 0);
+                            dabop = 0;
+                            loaddab(&echo2, 0, 0, dabop, (int)0, DABON, PSD_LOAD_DAB_ALL);
+
+                            startseq((short)sliceindex1, (SHORT)MAY_PAUSE);
+                            syncoff(&seqtrk);
+                            boffset(off_seqcore);
+
+                            last_trk_b_index = local_b_index;
+                            last_trk_dir_index = local_dir_index;
+
+                                printf( "[DBG] IMAGING(start): b=%d dir=%d pass=%d diff_index=%d sliceindex1=%d pause=%d\n",
+                                    local_b_index, local_dir_index, pass, diff_index, sliceindex1, pause);
+                                fflush(stdout);
+                            
+                        }
+                    }
+                    /* baige: volume-level PMC tracking end*/
+
                     startseq((short)sliceindex1, (SHORT)pause);
 
                     if (debug_unitTest)
