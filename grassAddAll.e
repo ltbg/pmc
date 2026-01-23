@@ -38,7 +38,6 @@
 #include "epicconf.h"
 #include "pulsegen.h"
 #include "epic_error.h"
-#include "epicfuns.h"
 #include "epic_loadcvs.h"
 #include "InitAdvisories.h"
 #include "psdiopt.h"
