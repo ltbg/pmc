@@ -674,7 +674,7 @@ pulsegen( void )
 /* baige addRF */
     /* Tracking 序列：仅新增 RF，不读出（导航 RF 仅测试成形） */
     /* 脉宽加倍到 6400us，便于可视区分 */
-    SLICESELZ(rftrk, 1ms, 6400us, opslthick,opflip, 1, , loggrd);
+    SLICESELZ(rftrk, 1ms, 3200us, opslthick,opflip, 1, , loggrd);
     
     /* Z Dephaser */
     TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + pw_gz2a, (int)(-0.5 * a_gzrftrk * (pw_rftrk + pw_gzrftrkd)), , loggrd);
@@ -689,8 +689,8 @@ pulsegen( void )
     ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
     /* baige addGx end */
      /* Z & X Killers */
-    TRAPEZOID(ZGRAD, gzktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gzktrka, 20, , loggrd);
-    TRAPEZOID(XGRAD, gxktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gxktrka, 20, , loggrd);
+    TRAPEZOID(ZGRAD, gzktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gzktrka, 500, , loggrd);
+    TRAPEZOID(XGRAD, gxktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gxktrka, 500, , loggrd);
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
 /* baige addRF */
