@@ -984,7 +984,7 @@ scan( void )
                     fprintf( stderr, "===== after setfrequency( 0, &rftrk, 0 )=====" );
                     fflush(stderr);
 
-                    setfrequency( 0, &echo1, 0 );
+                    setfrequency( 0, &echo2, 0 );
 
                     fprintf( stderr, "===== tracking after setfrequency( 0, &echo1, 0 )=====" );
                     fflush(stderr);
@@ -995,7 +995,7 @@ scan( void )
 
 
                      dabop = 0;
-                   loaddab( &echo1, 0, 0, dabop, view, DABON, PSD_LOAD_DAB_ALL );  /* each slice is a pass, slice index in each pass should be 0 */
+                   loaddab( &echo2, 0, 0, dabop, view, DABON, PSD_LOAD_DAB_ALL );  /* each slice is a pass, slice index in each pass should be 0 */
                     startseq(0, (short)MAY_PAUSE );
                 }
                 else /* Imaging 视图：只有在不执行 tracking 时才执行 */
@@ -1008,7 +1008,7 @@ scan( void )
                     fflush(stdout);
                       /* Turn ON imaging pulses, turn OFF rftrk */
                     setiamp(ia_rf1, &rf1, 0);
-                     setfrequency( (*receive_freq1), &echo1, 0 );
+                    
 
                     fprintf( stderr, "===== imaging after setfrequency( (*receive_freq1), &echo1, 0 );=====" );
                     fflush(stderr);
