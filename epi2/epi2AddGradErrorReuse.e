@@ -1,5 +1,5 @@
 /**
-*这个版本是加了grad 但是一直面临内存reuse 无法解决 只好先放弃 从RF那个代码一点点增加
+*这个版本是加了RF grad switch正确运行版本 simulation通过 hardware DAB错误
  * -GE HealthCare CONFIDENTIAL-
  * Type: Source Code
  *
