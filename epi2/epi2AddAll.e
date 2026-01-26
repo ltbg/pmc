@@ -20705,6 +20705,7 @@ STATUS core( void )
 @inline RTB0.e RTB0readfittingtimer
 @inline RTB0.e RTB0computeTimingStats
 
+
                 loaddab(&(rtb0echo), 0, 0, DABSTORE, 1, DABOFF, PSD_LOAD_DAB_ALL);
                 in_rtb0_loop = 0;
             }
@@ -21806,7 +21807,10 @@ STATUS core( void )
                             setfrequency(0, &echo2, 0);
                             setiamp(0,&gz2,0);
                             dabop = 0;
-                            loaddab(&echo2, 0, 0, dabop, (int)0, DABON, PSD_LOAD_DAB_ALL);
+
+                        
+                            
+                            loaddab(&echo2, 1, 0, dabop, 0, DABON, PSD_LOAD_DAB_ALL);
 
                             startseq((short)sliceindex1, (SHORT)MAY_PAUSE);
                             syncoff(&seqtrk);
