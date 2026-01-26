@@ -21810,7 +21810,7 @@ STATUS core( void )
 
                         
                             
-                            loaddab(&echo2, 1, 0, dabop, 0, DABON, PSD_LOAD_DAB_ALL);
+                            loaddab(&echo2, 0, 0, dabop, 1, DABON, PSD_LOAD_DAB_ALL);
 
                             startseq((short)sliceindex1, (SHORT)MAY_PAUSE);
                             syncoff(&seqtrk);
