@@ -21785,11 +21785,8 @@ STATUS core( void )
                         if (local_is_diff_frame &&
                             ((local_b_index != last_trk_b_index) || (local_dir_index != last_trk_dir_index)))
                         {
-                            int rftrk_center_freq;
-                            /* baige fix DAB error */
-                            int dabop_saved = dabop;
-                            int acq_data_saved = acq_data;
-                            /* baige fix DAB error end*/
+                            
+                    
                             seqtrk_vol_counter++;
 
                                 fprintf(stderr,"[DBG] TRACKING(trigger): vol_cnt=%d b=%d dir=%d pass=%d diff_index=%d sliceindex1=%d\n",
@@ -21797,7 +21794,6 @@ STATUS core( void )
                                 fflush(stderr);
                      
 
-                            rftrk_center_freq = (int)((float)cfreceiveroffsetfreq / TARDIS_FREQ_RES);
 
                             boffset(off_seqtrk);
 
@@ -21831,6 +21827,10 @@ STATUS core( void )
                     /* baige: volume-level PMC tracking end*/
 
                     /* baige Restore imaging DAB state after using standard loaddab() in seqtrk. */
+                        /* baige fix DAB error */
+                        int dabop_saved = dabop;
+                        int acq_data_saved = acq_data;
+                        /* baige fix DAB error end*/
                         dabop = dabop_saved;
                         acq_data = acq_data_saved;
                         if (use_slice_fov_shift_blips && mux_flag && (mux_slices_rf1 > 1)) {
