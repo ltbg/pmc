@@ -1,6 +1,6 @@
 /*
  *这个版本是再TestOK基础上（已经可以切换tracking imaging 但是imaging貌似无data）
- * 逐次修改，1、只把tracking写法
+ * 逐次修改，1、只写tracking setiamp grass260203a 2、改成setiampt
  * GE Medical Systems
  * Copyright (C) 1996-2003 The General Electric Company
  *
@@ -977,8 +977,8 @@ scan( void )
                     printf("[SCAN]     gzrftrk amp from hardware = %d\n", gzrftrk_amp_check);
                     fflush(stdout);
 
-                    setiamp(0,&gzrftrk,0);       
-                    fprintf( stderr, "=====after setiamp(0,&gzrftrk,0)=====" );
+                    setiampt(0,&gzrftrk,0);       
+                    fprintf( stderr, "=====after setiampt(0,&gzrftrk,0)=====" );
                     fflush(stderr);
 
                     getiamp(&gzrftrk1_amp_check, &gzrftrk, 0);
