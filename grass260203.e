@@ -1,7 +1,7 @@
 /*
- * 这个版本是按照Demo的code 修改tracking序列 setiamp setfrequency设置iagzrftrk等等；并修改loaddab参数
- * loaddab到echo1或者echo2 echo1是grassAddAll1 echo2是grassAddAll2
- *GE Medical Systems
+ *这个版本是再TestOK基础上（已经可以切换tracking imaging 但是imaging貌似无data）
+ * 逐次修改，1、只把tracking写法
+ * GE Medical Systems
  * Copyright (C) 1996-2003 The General Electric Company
  *
  * File Name : grass.e
@@ -673,7 +673,7 @@ pulsegen( void )
 /* baige addRF */
     /* Tracking 序列：仅新增 RF，不读出（导航 RF 仅测试成形） */
     /* 脉宽加倍到 6400us，便于可视区分 */
-    SLICESELZ(rftrk, 1ms, 3200us, opslthick,opflip, 1, , loggrd);
+    SLICESELZ(rftrk, 15ms, 6400us, opslthick,opflip, 1, , loggrd);
     
     /* Z Dephaser */
     TRAPEZOID(ZGRAD, gz2, pend( &gzrftrkd, "gzrftrkd", 0 ) + pw_gz2a, (int)(-0.5 * a_gzrftrk * (pw_rftrk + pw_gzrftrkd)), , loggrd);
@@ -688,8 +688,8 @@ pulsegen( void )
     ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), , , );
     /* baige addGx end */
      /* Z & X Killers */
-    TRAPEZOID(ZGRAD, gzktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gzktrka, 500, , loggrd);
-    TRAPEZOID(XGRAD, gxktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gxktrka, 500, , loggrd);
+    TRAPEZOID(ZGRAD, gzktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gzktrka, 980, , loggrd);
+    TRAPEZOID(XGRAD, gxktrk, pend( &gxwtrkd, "gxwtrkd", 0 ) + pw_gxktrka, 980, , loggrd);
     /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
     SEQLENGTH(seqtrk, optr, seqtrk);
 /* baige addRF */
@@ -957,10 +957,12 @@ scan( void )
         {
             for( excitation = 1; excitation <= opnex; ++excitation )
             {
-                /* baige addRF: 每隔3个imaging view 一次tracking，第一个view tracking */
-                if ( (view - 1) % 3 == 0 ) 
+/* baige addRF: 调试修改：前100个view播放tracking pulse，之后播放imaging */
+                if( view <= 100 )
                 {
                     short rftrk_amp_check; /* 用于存储从硬件读回的幅度 */
+                    short gzrftrk_amp_check;
+                     short gzrftrk1_amp_check;
                     /* 切换硬件指针到 'seqtrk' 序列块 */
                     boffset( off_seqtrk );
                     /* 打印信息，确认进入了 Tracking 分支 */
@@ -970,29 +972,23 @@ scan( void )
                     getiamp(&rftrk_amp_check, &rftrk, 0);
                     printf("[SCAN]     rftrk amp from hardware = %d\n", rftrk_amp_check);
                     fflush(stdout);
-
-
-                    fprintf( stderr, "=====before setiamp(0,&gzrftrk,0)=====" );
-                    fflush(stderr);
+                    
+                    getiamp(&gzrftrk_amp_check, &gzrftrk, 0);
+                    printf("[SCAN]     gzrftrk amp from hardware = %d\n", gzrftrk_amp_check);
+                    fflush(stdout);
 
                     setiamp(0,&gzrftrk,0);       
                     fprintf( stderr, "=====after setiamp(0,&gzrftrk,0)=====" );
                     fflush(stderr);
 
-                    setfrequency( 0, &rftrk, 0 );
-                    fprintf( stderr, "===== after setfrequency( 0, &rftrk, 0 )=====" );
-                    fflush(stderr);
+                    getiamp(&gzrftrk1_amp_check, &gzrftrk, 0);
+                    printf("[SCAN]    after setiamp to 0 gzrftrk amp from hardware = %d\n", gzrftrk1_amp_check);
+                    fflush(stdout);
 
-                    setfrequency( 0, &echo2, 0 );
-
-                    fprintf( stderr, "===== tracking after setfrequency( 0, &echo1, 0 )=====" );
-                    fflush(stderr);
-                    setiamp(0,&gz2,0);
-                    fprintf( stderr, "=====after setiamp(0,&gz2,0);=====" );
-                    fflush(stderr);
-
-
-
+                    /* baige addRF Set frequency for rftrk based on the current slice */
+                    setfrequency( rftrk_freq[slice], &rftrk, 0 );
+                     setfrequency( receive_freq2[slice], &echo2, 0 );
+                    /*baige addRF end*/
                      dabop = 0;
                    loaddab( &echo2, 0, 0, dabop, (int)0, DABON, PSD_LOAD_DAB_ALL );  /* each slice is a pass, slice index in each pass should be 0 */
                     startseq(0, (short)MAY_PAUSE );
@@ -1007,10 +1003,6 @@ scan( void )
                     fflush(stdout);
                       /* Turn ON imaging pulses, turn OFF rftrk */
                     setiamp(ia_rf1, &rf1, 0);
-                    
-
-                    fprintf( stderr, "===== imaging after setfrequency( (*receive_freq1), &echo1, 0 );=====" );
-                    fflush(stderr);
 
 
                     if( excitation == 1 )

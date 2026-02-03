@@ -19998,6 +19998,9 @@ STATUS core( void )
     /* baige: define "volume" by diffusion (b,dir) index changes */
     static int last_trk_b_index = -1;
     static int last_trk_dir_index = -1;
+    /* baige: tracking control */
+    static int trk_initial_done = 0;
+    static int trk_seeded_first_volume = 0;
      /* baige end */
     int real_slice_IR;
     int slice_flag;
@@ -20017,6 +20020,15 @@ STATUS core( void )
 #ifdef PRINTRSP
     printdbg("Starting Core", debugstate);
 #endif  
+
+    /* Reset tracking state for non-scan entries (e.g. L_REF). */
+    if (rspent != L_SCAN)
+    {
+        trk_initial_done = 0;
+        trk_seeded_first_volume = 0;
+        last_trk_b_index = -1;
+        last_trk_dir_index = -1;
+    }
 
     /* t1flair_stir */ 
     if ( (PSD_ON == t1flair_flag) && (PSD_ON == act_edge_slice_enh_flag) )
@@ -21782,18 +21794,16 @@ STATUS core( void )
                             dbg_trk_check_count++;
                         }
 
-                        if (local_is_diff_frame &&
-                            ((local_b_index != last_trk_b_index) || (local_dir_index != last_trk_dir_index)))
+                        /* baige: run tracking once before the very first imaging in SCAN. */
+                        if (!trk_initial_done)
                         {
-                            
-                    
+                            int dabop_saved = dabop;
+                            int acq_data_saved = acq_data;
+
                             seqtrk_vol_counter++;
-
-                                fprintf(stderr,"[DBG] TRACKING(trigger): vol_cnt=%d b=%d dir=%d pass=%d diff_index=%d sliceindex1=%d\n",
-                                    seqtrk_vol_counter, local_b_index, local_dir_index, pass, diff_index, sliceindex1);
-                                fflush(stderr);
-                     
-
+                            fprintf(stderr, "[DBG] TRACKING(initial): cnt=%d pass=%d diff_index=%d sliceindex1=%d\n",
+                                    seqtrk_vol_counter, pass, diff_index, sliceindex1);
+                            fflush(stderr);
 
                             boffset(off_seqtrk);
 
@@ -21801,44 +21811,78 @@ STATUS core( void )
                             setiamp(0, &gzrftrk, 0);
                             setfrequency(0, &rftrk, 0);
                             setfrequency(0, &echo2, 0);
-                            setiamp(0,&gz2,0);
+                            setiamp(0, &gz2, 0);
                             dabop = 0;
 
-                        
-                            
-                            loaddab(&echo2, 0, 0, dabop, 1, DABON, PSD_LOAD_DAB_ALL);
+                            /* Use view=0 for tracking DAB to minimize indexing side-effects. */
+                            loaddab(&echo2, 0, 0, dabop, 0, DABON, PSD_LOAD_DAB_ALL);
 
                             startseq((short)sliceindex1, (SHORT)MAY_PAUSE);
                             syncoff(&seqtrk);
                             boffset(off_seqcore);
-                            /* baige fix DAB error */
 
-                         
+                            /* Restore imaging DAB state after using standard loaddab() in seqtrk. */
+                            dabop = dabop_saved;
+                            acq_data = acq_data_saved;
+                            if (use_slice_fov_shift_blips && mux_flag && (mux_slices_rf1 > 1)) {
+                                dabrbaload(rspgzc, slice_fov_shift_blip_start, slice_fov_shift_blip_inc, tot_etl, slice_fov_shift);
+                            } else {
+                                dabrbaload(0, 0, 0, tot_etl, 0);
+                            }
 
-                            last_trk_b_index = local_b_index;
-                            last_trk_dir_index = local_dir_index;
+                            trk_initial_done = 1;
+                        }
 
-                            fprintf(stderr, "[DBG] tracking(end): b=%d dir=%d pass=%d diff_index=%d sliceindex1=%d pause=%d\n",
-                                local_b_index, local_dir_index, pass, diff_index, sliceindex1, pause);
-                            fflush(stderr);
-                            
+                        /* baige: after initial tracking, only track on (b,dir) volume switches. */
+                        if (local_is_diff_frame)
+                        {
+                            /* Seed the first diffusion volume indices without triggering tracking again. */
+                            if (!trk_seeded_first_volume)
+                            {
+                                last_trk_b_index = local_b_index;
+                                last_trk_dir_index = local_dir_index;
+                                trk_seeded_first_volume = 1;
+                            }
+                            else if ((local_b_index != last_trk_b_index) || (local_dir_index != last_trk_dir_index))
+                            {
+                                int dabop_saved = dabop;
+                                int acq_data_saved = acq_data;
+
+                                seqtrk_vol_counter++;
+                                fprintf(stderr, "[DBG] TRACKING(volume_switch): cnt=%d b=%d dir=%d pass=%d diff_index=%d sliceindex1=%d\n",
+                                        seqtrk_vol_counter, local_b_index, local_dir_index, pass, diff_index, sliceindex1);
+                                fflush(stderr);
+
+                                boffset(off_seqtrk);
+
+                                /* baige setup for tracking */
+                                setiamp(0, &gzrftrk, 0);
+                                setfrequency(0, &rftrk, 0);
+                                setfrequency(0, &echo2, 0);
+                                setiamp(0, &gz2, 0);
+                                dabop = 0;
+                                loaddab(&echo2, 0, 0, dabop, 0, DABON, PSD_LOAD_DAB_ALL);
+
+                                startseq((short)sliceindex1, (SHORT)MAY_PAUSE);
+                                syncoff(&seqtrk);
+                                boffset(off_seqcore);
+
+                                /* Restore imaging DAB state after using standard loaddab() in seqtrk. */
+                                dabop = dabop_saved;
+                                acq_data = acq_data_saved;
+                                if (use_slice_fov_shift_blips && mux_flag && (mux_slices_rf1 > 1)) {
+                                    dabrbaload(rspgzc, slice_fov_shift_blip_start, slice_fov_shift_blip_inc, tot_etl, slice_fov_shift);
+                                } else {
+                                    dabrbaload(0, 0, 0, tot_etl, 0);
+                                }
+
+                                last_trk_b_index = local_b_index;
+                                last_trk_dir_index = local_dir_index;
+                            }
                         }
                     }
                     /* baige: volume-level PMC tracking end*/
 
-                    /* baige Restore imaging DAB state after using standard loaddab() in seqtrk. */
-                        /* baige fix DAB error */
-                        int dabop_saved = dabop;
-                        int acq_data_saved = acq_data;
-                        /* baige fix DAB error end*/
-                        dabop = dabop_saved;
-                        acq_data = acq_data_saved;
-                        if (use_slice_fov_shift_blips && mux_flag && (mux_slices_rf1 > 1)) {
-                            dabrbaload(rspgzc, slice_fov_shift_blip_start, slice_fov_shift_blip_inc, tot_etl, slice_fov_shift);
-                        } else {
-                            dabrbaload(0, 0, 0, tot_etl, 0);
-                        }
-                        /* baige fix DAB error end*/
                     fprintf(stderr, "[DBG] IMAGING(start): pass=%d diff_index=%d sliceindex1=%d pause=%d\n",
                                 pass, diff_index, sliceindex1, pause);
                     fflush(stderr);
