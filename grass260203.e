@@ -978,17 +978,22 @@ scan( void )
                     fflush(stdout);
 
                     setiampt(0,&gzrftrk,0);       
-                    fprintf( stderr, "=====after setiampt(0,&gzrftrk,0)=====" );
+                    fprintf( stderr, "=====after setiampt(0,&gzrftrk,0)=====\n" );
                     fflush(stderr);
 
                     getiamp(&gzrftrk1_amp_check, &gzrftrk, 0);
                     printf("[SCAN]    after setiamp to 0 gzrftrk amp from hardware = %d\n", gzrftrk1_amp_check);
                     fflush(stdout);
 
-                    /* baige addRF Set frequency for rftrk based on the current slice */
-                    setfrequency( rftrk_freq[slice], &rftrk, 0 );
-                     setfrequency( receive_freq2[slice], &echo2, 0 );
-                    /*baige addRF end*/
+                    setfrequency( 0, &rftrk, 0 );
+                    fprintf( stderr, "===== after setfrequency( 0, &rftrk, 0 )=====\n" );
+                    fflush(stderr);
+
+                    setfrequency( 0, &echo2, 0 );
+
+                    fprintf( stderr, "===== tracking after setfrequency( 0, &echo2, 0 )=====\n" );
+                    fflush(stderr);
+
                      dabop = 0;
                    loaddab( &echo2, 0, 0, dabop, (int)0, DABON, PSD_LOAD_DAB_ALL );  /* each slice is a pass, slice index in each pass should be 0 */
                     startseq(0, (short)MAY_PAUSE );
