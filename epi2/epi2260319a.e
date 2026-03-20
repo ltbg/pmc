@@ -1478,7 +1478,8 @@ float crusher_area = 980.0 with {
     -30000.0, 30000.0, 980.0, VIS, "Area of gz2 crusher G/cm*us",
 };
 int opfliptrk = 10 with {0,180,10,VIS,"Tracking flip angle for seqtrk",};
-int optrtrk = 30000 with {1ms,,18700,VIS,"Tracking sequence length for seqtrk",};
+int optetrk = 10ms with {1ms,,10ms,VIS,"Tracking TE for seqtrk",};
+int optrtrk = 30000 with {1ms,,30000,VIS,"Tracking sequence length for seqtrk",};
 /*baige add gradX end*/
 int gx1pos   = 1 with {0,1,1,VIS,"gx1 placement: 0=pre-180, 1=post-180.",};
 int gy1pos   = 1 with {0,1,1,VIS,"gy1 placement: 0=pre-180, 1=post-180.",};
@@ -7973,7 +7974,7 @@ cveval1( void )
      * half the RF pulse + the TE time + the last half of the
      * readout + the time for the end of sequence killers
      */
-    avmintr = 1ms + pw_rftrk / 2 + exist(opte) + echo2_rtfilt.tdaq / 2 + 2ms;
+    avmintr = 1ms + pw_rftrk / 2 + exist(optetrk) + echo2_rtfilt.tdaq / 2 + 2ms;
     
     pw_gxwtrk =echo2_filt->tdaq;
 
@@ -17995,12 +17996,6 @@ STATUS pulsegen( void )
          /* baige addRF */
     /* Tracking 序列 */
     SLICESELZ(rftrk, 1ms, 3200us, opslthick, opfliptrk, 1, , loggrd);
-    /* 直接赋值，将 slice-select 梯度幅度置 0，实现非层选*/
-    a_gzrftrk = 0.0f; 
-              /* 物理幅度置 0 */
-    ia_gzrftrk = 0; 
-                 /* 指令幅度置 0 */
-    printf("[DBG] pulsegen: forced a_gzrftrk=%.4f ia_gzrftrk=%d\n", a_gzrftrk, ia_gzrftrk); fflush(stdout);
     
     /* Z Dephaser (Crusher)*/
     #if defined(HOST_TGT)
@@ -18025,7 +18020,7 @@ STATUS pulsegen( void )
     /* ---- Debug gxwtrk params ---- */
 #if defined(HOST_TGT)
 {
-    int start_gxwtrk = RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2);
+    int start_gxwtrk = RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + optetrk - pw_gxwtrk / 2);
     int area_gxwtrk  = (int)(a_gxwtrk * (pw_gxwtrk + pw_gxwtrka));
     
 
@@ -18045,7 +18040,7 @@ printf("[CHK gxwtrk params] a=%g ia=%d pw_a=%d pw=%d pw_d=%d\n",
 
 
 TRAPEZOID(XGRAD, gxwtrk,
-          RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + opte - pw_gxwtrk / 2),
+          RUP_GRD(pmid(&gzrftrk, "gzrftrk", 0) + optetrk - pw_gxwtrk / 2),
           0, /*Let area be computed from amplitude and width*/
           TYPNDEF,
           loggrd);
@@ -21769,11 +21764,20 @@ STATUS core( void )
 
                         boffset(off_seqtrk);
 
-                        /* baige setup for tracking */
-                        /* setiamp(0, &gzrftrk, 0);*/
+                        /* baige setup for tracking ia value in predownload1*/
+                        setiampt(0, &gzrftrk, 0);
                         setfrequency(0, &rftrk, 0);
                         setfrequency(0, &echo2, 0);
-                        /* setiamp(0, &gz2, 0);*/
+                        setiampt(0, &gz2, 0);
+                  
+                        setiampt(0, &gzktrk, 0);
+                        fprintf( stderr, "=====after setiampt(0, &gzktrk, 0)=====\n" );
+                        fflush(stderr);
+
+                        setiampt(0, &gxktrk, 0);
+                        fprintf( stderr, "=====after setiampt(0, &gxktrk, 0)=====\n" );
+                        fflush(stderr);
+
                         dabop = 0;
 
                         /* Use view=0 for tracking DAB to minimize indexing side-effects. */
