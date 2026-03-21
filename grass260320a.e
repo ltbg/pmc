@@ -367,7 +367,7 @@ predownload( void )
     /* Set the defaults for the excitation pulse */
 /*baige addRF*/
     opflip=10;
-    optr=18700;
+    optr=30000;
     a_rf1  = opflip/180.0;
     thk_rf1= opslthick;
     res_rf1= 320;
@@ -981,9 +981,10 @@ scan( void )
                     /* 打印信息，确认进入了 Tracking 分支 */
                     printf("[SCAN] --> Tracking branch: slice=%d, view=%d\n", slice, view);
 
-                    /* baige add 3D tracking 参考 fgreDemoYes.e 的 tracking 逻辑：
-                     * tracking view 在 axial / sagittal / coronal 三个方向间轮转。 */
-                    trk_dir = (view - 1) % 3;
+                    /* baige add 3D tracking：
+                     * 每组 13 个 view 中，后 3 个 tracking 固定按
+                     * axial -> sagittal -> coronal 的顺序执行。 */
+                    trk_dir = ((view - 1) % 13) - 10;
                     if( trk_dir == 0 )
                     {
                         /* axial */
