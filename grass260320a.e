@@ -893,6 +893,11 @@ aps2( void )
 STATUS
 scan( void )
 {
+    /* baige add 3D tracking */
+    long trk_rot[9];
+    int trk_dir;
+    /* baige add 3D tracking end*/
+
     if( psdinit() == FAILURE )
     {
         return rspexit();
@@ -970,11 +975,42 @@ scan( void )
                 {
                     short rftrk_amp_check; /* 用于存储从硬件读回的幅度 */
                     short gzrftrk_amp_check;
-                     short gzrftrk1_amp_check;
+                    short gzrftrk1_amp_check;
                     /* 切换硬件指针到 'seqtrk' 序列块 */
                     boffset( off_seqtrk );
                     /* 打印信息，确认进入了 Tracking 分支 */
                     printf("[SCAN] --> Tracking branch: slice=%d, view=%d\n", slice, view);
+
+                    /* baige add 3D tracking 参考 fgreDemoYes.e 的 tracking 逻辑：
+                     * tracking view 在 axial / sagittal / coronal 三个方向间轮转。 */
+                    trk_dir = (view - 1) % 3;
+                    if( trk_dir == 0 )
+                    {
+                        /* axial */
+                        trk_rot[0] = -32767; trk_rot[1] = 0;      trk_rot[2] = 0;
+                        trk_rot[3] = 0;      trk_rot[4] = 0;      trk_rot[5] = 32767;
+                        trk_rot[6] = 0;      trk_rot[7] = 32767;  trk_rot[8] = 0;
+                        printf("[SCAN]     tracking dir = axial\n");
+                    }
+                    else if( trk_dir == 1 )
+                    {
+                        /* sagittal */
+                        trk_rot[0] = 0;      trk_rot[1] = 32767;  trk_rot[2] = 0;
+                        trk_rot[3] = 0;      trk_rot[4] = 0;      trk_rot[5] = 32767;
+                        trk_rot[6] = 32767;  trk_rot[7] = 0;      trk_rot[8] = 0;
+                        printf("[SCAN]     tracking dir = sagittal\n");
+                    }
+                    else
+                    {
+                        /* coronal */
+                        trk_rot[0] = 0;       trk_rot[1] = 32767; trk_rot[2] = 0;
+                        trk_rot[3] = -32767;  trk_rot[4] = 0;     trk_rot[5] = 0;
+                        trk_rot[6] = 0;       trk_rot[7] = 0;     trk_rot[8] = 32767;
+                        printf("[SCAN]     tracking dir = coronal\n");
+                    }
+                    fflush(stdout);
+                    setrotatearray( opslquant, trk_rot );
+                    /* baige add 3D tracking end*/
 
                     /* 从硬件实时读取 rftrk 的幅度并打印 */
                     getiamp(&rftrk_amp_check, &rftrk, 0);
@@ -1017,6 +1053,10 @@ scan( void )
                      dabop = 0;
                    loaddab( &echo2, 0, 0, dabop, (int)0, DABON, PSD_LOAD_DAB_ALL );  /* each slice is a pass, slice index in each pass should be 0 */
                     startseq(0, (short)MAY_PAUSE );
+
+                    /* baige add 3D tracking 恢复成像原始旋转矩阵，避免影响后续 imaging view */
+                    setrotatearray( opslquant, rsprot[0] );
+                    /* baige add 3D tracking end*/
                 }
                 else /* Imaging 视图：只有在不执行 tracking 时才执行 */
                 {
