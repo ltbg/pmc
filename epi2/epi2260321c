@@ -1,7 +1,6 @@
-
 /**
-*这个版本在epi2260321a基础上修改 为了解决data acquisition error，
-* 增加tracking之后恢复imaging的DAB状态
+*这个版本是为了修复DAB error 在epi2260321a基础上改的
+*详细改动参考description
  * -GE HealthCare CONFIDENTIAL-
  * Type: Source Code
  *
@@ -1479,7 +1478,7 @@ float crusher_area = 980.0 with {
 };
 int opfliptrk = 10 with {0,180,10,VIS,"Tracking flip angle for seqtrk",};
 int optetrk = 10ms with {1ms,,10ms,VIS,"Tracking TE for seqtrk",};
-int optrtrk = 50000 with {1ms,,50000,VIS,"Tracking sequence length for seqtrk",};
+int optrtrk = 30000 with {1ms,,30000,VIS,"Tracking sequence length for seqtrk",};
 /*baige add gradX end*/
 int gx1pos   = 1 with {0,1,1,VIS,"gx1 placement: 0=pre-180, 1=post-180.",};
 int gy1pos   = 1 with {0,1,1,VIS,"gy1 placement: 0=pre-180, 1=post-180.",};
@@ -7936,7 +7935,7 @@ cveval1( void )
         return FAILURE;
     
     
-        /* baige0324 begin: tracking filter */
+    /* baige add Gradx*/
       if( calcfilter( &echo2_rtfilt,
                     exist(oprbw),
                     exist(opxres),
@@ -7988,7 +7987,7 @@ cveval1( void )
     printf("[DBG cveval1 gxwtrk] pw_gxwtrka=%d pw_gxwtrkd=%d pw_gxwtrk=%d \n", pw_gxwtrka, pw_gxwtrkd,pw_gxwtrk);
     fflush(stdout);
 
-    /* baige0324 end: tracking filter */
+    /* baige add Gradx end*/
     
     crusher_type = PSD_TYPCMEMP;
     if (crusherutil(crusher_scale, crusher_type) == FAILURE) 
@@ -15139,15 +15138,15 @@ predownload1( void )
 
 @inline Prescan.e PSfilter
 
-/* baige0324 begin: tracking CVs */
+/*baige add Gradx*/
 /*entry_point_table[L_SCAN].epfilter = (unsigned char)echo2_filt->fslot;*/
 /*baige add Gradx*/
   
     rhfast_rec = STD_REC;
     frtime = (float)((rhfrsize-1)*tsp);
     
-/* baige0324 end: tracking CVs */
-    /* If auto mode, request that scan call the vrgf program */
+    /* Open vrgf.param and write out the VRGF parameters
+       If auto mode, request that scan call the vrgf program */
 
     piforkvrgf = 0;
     if (vrgfsamp == PSD_ON) {
@@ -16404,9 +16403,6 @@ int *echotrainramp2;
 
 /*RTB0 correction*/
 WF_PULSE_ADDR rtb0echoxtr;
-/* baige0324 begin: seqtrk support */
-WF_PULSE_ADDR echo2xtr;
-/* baige0324 end: seqtrk support */
 
 /* invertGy1 = 1 or -1, for rpg_flag.
    We need this for setting gy1f because this is init in PG by ileaveinit and 
@@ -16448,9 +16444,6 @@ long scan_deadlast;          /* deadtime in last seqcore loop in
 long prescan_trigger;        /* save the prescan slice's trigger */
 long rsptrigger_temp[1];     /* temp trigger array for pass packets 
                                 sequences and other misc */
-/* baige0324 begin: seqtrk support */
-long rsptrigger_trk[1] = { TRIG_INTERN };
-/* baige0324 end: seqtrk support */
 /* Original scan info */
 RSP_INFO orig_rsp_info[DATA_ACQ_MAX];
 long origrot[DATA_ACQ_MAX][9];
@@ -17999,11 +17992,9 @@ STATUS pulsegen( void )
         getperiod((long*)&scan_deadtime, &seqcore, 0);
         scan_deadlast = deadlast;
 
-            /* baige addRF */
-        /* Tracking 序列 */
-        if (pgen_calc_bval_flag == PSD_OFF)
-        {
-        SLICESELZ(rftrk, 1ms, 3200us, opslthick, opfliptrk, 1, , loggrd);
+         /* baige addRF */
+    /* Tracking 序列 */
+    SLICESELZ(rftrk, 1ms, 3200us, opslthick, opfliptrk, 1, , loggrd);
     
     /* Z Dephaser (Crusher)*/
     #if defined(HOST_TGT)
@@ -18140,14 +18131,8 @@ printf("[POST gx1trk] ninst=%ld pbeg=%ld pend=%ld\n",
 fflush(stdout);
 
       
-            /* baige0324 begin: RTB0-style tracking acquisition */
-        ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), DEFAULTPOS, DEFAULTPOS, DABNORM);
-        attenflagon(&(echo2), 0);
-        getssppulse(&(echo2xtr), &(echo2), "xtr", 0);
-        rcvrunblankpos = echo2xtr->inst_hdr_tail->start;
-        rcvrunblankpos += rcvr_ub_off;
-        RCVRUNBLANK(rec_unblank_trk, rcvrunblankpos,);
-            /* baige0324 end: RTB0-style tracking acquisition */
+      /* Data Acquisition */
+    ACQUIREDATA(echo2, pbeg( &gxwtrk, "gxwtrk", 0 ), DEFAULTPOS, DEFAULTPOS, DABNORM );
     /* baige addGx end */
      /* Z & X Killers */
     /* ---- Debug gzktrk params ---- */
@@ -18204,19 +18189,8 @@ printf("[POST gzktrk] ninst=%ld pbeg=%d pend=%d\n",
        gxktrk.ninsts,
        pbeg(&gxktrk,"gxktrk",0),
        pend(&gxktrk,"gxktrk",0));
-    /* baige0324 begin: finalize seqtrk */
-    {
-        int seqtrk_time = RUP_GRD(IMax(3,
-                                       optrtrk,
-                                       (int)pend(&gzktrk, "gzktrk", 0) + 4us,
-                                       (int)pend(&gxktrk, "gxktrk", 0) + 4us));
-
-        SEQLENGTH(seqtrk, seqtrk_time, seqtrk);
-        pulsename(&seqtrk, "seqtrk");
-        createseq(&seqtrk, seqtrk_time, off_seqtrk);
-    }
-    /* baige0324 end: finalize seqtrk */
-    }
+    /* Ensure seqtrk is long enough to contain the (longer) rftrk event */
+    SEQLENGTH(seqtrk, optrtrk, seqtrk);
        /* baige addRF end*/
 
     }
@@ -18891,7 +18865,7 @@ psdinit( void )
     }
 #endif /* PSD_HW */
 /*baige add Gradx */
-     setrfltrs( (int)filter_echo2, &echo2 );
+     setrfltrs((int)filter_echo2, &echo2 );
 /*baige add Gradx end*/
     return SUCCESS;  
 } /* End psdinit */     
@@ -21828,8 +21802,6 @@ STATUS core( void )
                         for (trk_dir = 0; trk_dir < 3; trk_dir++)
                         {
                             boffset(off_seqtrk);
-                            setrfltrs((int)filter_echo2, &echo2);
-                            settriggerarray((SHORT)1, rsptrigger_trk);
                             setrotatearray((SHORT)(opslquant*opphases), trk_rot_array[trk_dir][0]);
 
                             fprintf(stderr, "[DBG] TRACKING(false_slice): dir=%s pass=%d false_slice=%d sliceindex1=%d\n",
@@ -21850,19 +21822,27 @@ STATUS core( void )
                         fprintf( stderr, "=====after setiampt(0, &gxktrk, 0)=====\n" );
                         fflush(stderr);
 
+                        /* RTB0-style seqtrk/seqcore switching */
                         dabop = DABSTORE;
+                        loaddab(&echo2, 0, 0, DABSTORE, 1, DABOFF, PSD_LOAD_DAB_ACQON);
+                        loaddab(&echo2, 0, 0, DABSTORE, 1, DABON,  PSD_LOAD_DAB_ACQON_RBA);
 
-                        /* Use a normal acquired view index for tracking to avoid view-0 / baseline side-effects. */
-                        loaddab(&echo2, 0, 0, dabop, 1, DABON, PSD_LOAD_DAB_ALL);
-
+                        /* tracking is non-slice-selective */
                         startseq((short)0, (SHORT)MAY_PAUSE);
                         syncoff(&seqtrk);
+
+                        /* clear seqtrk acquisition state completely before returning to imaging */
+                        loaddab(&echo2, 0, 0, DABSTORE, 1, DABOFF, PSD_LOAD_DAB_ALL);
                         }
                         /* baige add 3D tracking*/
+                        boffset(off_seqcore);
+                        settriggerarray((SHORT)(opslquant*opphases), rsptrigger);
                         setrotatearray((SHORT)(opslquant*opphases), rsprot[0]);
+                        for (i=0; i<etl; i++)
+                            setrfltrs((int)scanslot, &(echotrain[i]));
                         /* baige add 3D tracking end*/
-                        
-                        /* Restore imaging DAB state after using standard loaddab() in seqtrk. */
+
+                        /* Restore imaging DAB/RBA state after RTB0-style seqtrk switching. */
                         dabop = dabop_saved;
                         acq_data = acq_data_saved;
                         if (use_slice_fov_shift_blips && mux_flag && (mux_slices_rf1 > 1)) {
@@ -21870,11 +21850,6 @@ STATUS core( void )
                         } else {
                             dabrbaload(0, 0, 0, tot_etl, 0);
                         }
-                        boffset(off_seqcore);
-                        settriggerarray((SHORT)(opslquant*opphases), rsptrigger);
-                        setrotatearray((SHORT)(opslquant*opphases), rsprot[0]);
-                        for (i = 0; i < etl; i++)
-                            setrfltrs((int)scanslot, &(echotrain[i]));
                     }
                     /* baige: false-slice-level PMC tracking end*/
 
@@ -21964,21 +21939,11 @@ STATUS reset_for_scan(void)
     return SUCCESS;
 }
 
-/* baige0324 begin: strengthen reset_to_epi2scan */
+/* RTB0 correction*/
 void reset_to_epi2scan(void){
-    int i;
-
     boffset(off_seqcore);
     settriggerarray((SHORT)(opslquant*opphases), rsptrigger); /*reset trigger to original*/
-    setrotatearray((SHORT)(opslquant*opphases), rsprot[0]);
-
-    if ((rspent == L_SCAN) || (rspent == L_REF) || (rspent == L_APS2) || (rspent == L_MPS2))
-    {
-        for (i = 0; i < etl; i++)
-            setrfltrs((int)scanslot, &(echotrain[i]));
-    }
 }
-/* baige0324 end: strengthen reset_to_epi2scan */
 
 /***************************** blineacq  *************************/
 #ifdef __STDC__ 
